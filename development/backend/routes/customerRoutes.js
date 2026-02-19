@@ -8,7 +8,7 @@ const router = express.Router();
 const { authMiddleware, authorizeRole } = require('../middleware/authMiddleware');
 const {
   viewCustomer,
-  viewAllCustomers,
+  viewAllCustomer,
   updateCustomer,
   deleteCustomer
 } = require('../controller/customerController');
@@ -18,21 +18,21 @@ const {
  * /api/customers:
  *   get:
  *     summary: Get all customers (Admin only)
- *     tags: [Customers]
+ *     tags: [Customer]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of customers
  */
-router.get('/', authMiddleware, authorizeRole('admin'), viewAllCustomers);
+router.get('/', authMiddleware, authorizeRole('admin'), viewAllCustomer);
 
 /**
  * @swagger
  * /api/customers/{customerId}:
  *   get:
  *     summary: Get customer profile with vehicles
- *     tags: [Customers]
+ *     tags: [Customer]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -54,7 +54,7 @@ router.get('/:customerId', authMiddleware, viewCustomer);
  * /api/customers/{customerId}:
  *   put:
  *     summary: Update customer profile
- *     tags: [Customers]
+ *     tags: [Customer]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -88,7 +88,7 @@ router.put('/:customerId', authMiddleware, updateCustomer);
  * /api/customers/{customerId}:
  *   delete:
  *     summary: Delete customer (soft delete)
- *     tags: [Customers]
+ *     tags: [Customer]
  *     security:
  *       - bearerAuth: []
  *     parameters:

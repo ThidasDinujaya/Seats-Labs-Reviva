@@ -20,7 +20,7 @@ const trackingController = require('../controller/trackingController');
  *       200:
  *         description: List of active tasks
  */
-router.get('/tasks', trackingController.getTrackingTasks);
+router.get('/task', trackingController.getTask);
 
 /**
  * @swagger
@@ -38,7 +38,7 @@ router.get('/tasks', trackingController.getTrackingTasks);
  *       200:
  *         description: List of history records
  */
-router.get('/history/:bookingId', trackingController.getBookingTrackingHistory);
-router.post('/update', trackingController.updateTrackingStatus);
+router.get('/history/:bookingId', trackingController.getHistory);
+router.post('/update', trackingController.updateStatus);
 
 module.exports = router;

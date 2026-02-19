@@ -9,7 +9,7 @@ const { authMiddleware } = require('../middleware/authMiddleware');
 const {
   addFeedback,
   viewFeedback,
-  viewAllFeedbacks,
+  viewAllFeedback,
   updateFeedback,
   deleteFeedback
 } = require('../controller/feedbackController');
@@ -19,7 +19,7 @@ const {
  * /api/feedbacks:
  *   post:
  *     summary: Add feedback for a completed booking
- *     tags: [Feedbacks]
+ *     tags: [Feedback]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -58,7 +58,7 @@ router.post('/', authMiddleware, addFeedback);
  * /api/feedbacks:
  *   get:
  *     summary: Get all feedbacks with optional filters
- *     tags: [Feedbacks]
+ *     tags: [Feedback]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -74,14 +74,14 @@ router.post('/', authMiddleware, addFeedback);
  *       200:
  *         description: List of feedbacks
  */
-router.get('/', authMiddleware, viewAllFeedbacks);
+router.get('/', authMiddleware, viewAllFeedback);
 
 /**
  * @swagger
  * /api/feedbacks/{feedbackId}:
  *   get:
  *     summary: Get feedback by ID
- *     tags: [Feedbacks]
+ *     tags: [Feedback]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -101,7 +101,7 @@ router.get('/:feedbackId', authMiddleware, viewFeedback);
  * /api/feedbacks/{feedbackId}:
  *   put:
  *     summary: Update feedback
- *     tags: [Feedbacks]
+ *     tags: [Feedback]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -133,7 +133,7 @@ router.put('/:feedbackId', authMiddleware, updateFeedback);
  * /api/feedbacks/{feedbackId}:
  *   delete:
  *     summary: Delete feedback
- *     tags: [Feedbacks]
+ *     tags: [Feedback]
  *     security:
  *       - bearerAuth: []
  *     parameters:

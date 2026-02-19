@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import { authApi } from '../api/api';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -37,15 +37,15 @@ const RegisterPage = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', formData);
-      if (response.data.success) {
+      const response = await authApi.register(formData);
+      if (response.success) {
         if (requestedRole === 'manager') navigate('/manager/login');
         else if (requestedRole === 'technician') navigate('/technician/login');
         else if (requestedRole === 'advertiser') navigate('/advertiser/login');
         else navigate('/login');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Try again.');
+      setError(err.response?.data?.error || err.response?.data?.message || 'Registration failed. Try again.');
     } finally {
       setLoading(false);
     }

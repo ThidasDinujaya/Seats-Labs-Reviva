@@ -31,7 +31,7 @@ const BookingPage = () => {
             try {
                 const [servsRes, pkgsRes, slotsRes] = await Promise.all([
                     serviceApi.getAll(),
-                    serviceApi.getPackages(),
+                    serviceApi.getPackage(),
                     timeSlotApi.getAll()
                 ]);
 

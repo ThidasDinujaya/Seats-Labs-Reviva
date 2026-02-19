@@ -6,7 +6,7 @@ const router = express.Router();
 const { authMiddleware, authorizeRole } = require('../middleware/authMiddleware');
 const {
   addTimeSlot,
-  getAllTimeSlots,
+  viewAllTimeSlot,
   updateTimeSlot,
   deleteTimeSlot
 } = require('../controller/timeSlotController');
@@ -16,21 +16,21 @@ const {
  * /api/time-slots:
  *   get:
  *     summary: Get all active time slots
- *     tags: [Time Slots]
+ *     tags: [TimeSlot]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of time slots
  */
-router.get('/', authMiddleware, getAllTimeSlots);
+router.get('/', authMiddleware, viewAllTimeSlot);
 
 /**
  * @swagger
  * /api/time-slots:
  *   post:
  *     summary: Add a new time slot
- *     tags: [Time Slots]
+ *     tags: [TimeSlot]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -62,7 +62,7 @@ router.post('/', authMiddleware, authorizeRole('manager', 'admin'), addTimeSlot)
  * /api/time-slots/{timeSlotId}:
  *   put:
  *     summary: Update a time slot
- *     tags: [Time Slots]
+ *     tags: [TimeSlot]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -87,7 +87,7 @@ router.put('/:timeSlotId', authMiddleware, authorizeRole('manager', 'admin'), up
  * /api/time-slots/{timeSlotId}:
  *   delete:
  *     summary: Delete (deactivate) a time slot
- *     tags: [Time Slots]
+ *     tags: [TimeSlot]
  *     security:
  *       - bearerAuth: []
  *     parameters:

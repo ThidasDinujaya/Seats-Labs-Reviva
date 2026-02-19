@@ -60,7 +60,7 @@ const viewCustomer = async (req, res) => {
 // GET /api/customers
 // WHO CAN USE: Admin only
 // ============================================================
-const viewAllCustomers = async (req, res) => {
+const viewAllCustomer = async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT c.*, u."userEmail", u."userIsActive",
@@ -150,4 +150,4 @@ const deleteCustomer = async (req, res) => {
   }
 };
 
-module.exports = { viewCustomer, viewAllCustomers, updateCustomer, deleteCustomer };
+module.exports = { viewCustomer, viewAllCustomer, updateCustomer, deleteCustomer };

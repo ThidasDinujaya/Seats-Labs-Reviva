@@ -9,7 +9,7 @@ const { authMiddleware, authorizeRole } = require('../middleware/authMiddleware'
 const {
   addTechnician,
   viewTechnician,
-  viewAllTechnicians,
+  viewAllTechnician,
   updateTechnician,
   deleteTechnician
 } = require('../controller/technicianController');
@@ -19,7 +19,7 @@ const {
  * /api/technicians:
  *   post:
  *     summary: Add a new technician (Admin only)
- *     tags: [Technicians]
+ *     tags: [Technician]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -57,21 +57,21 @@ router.post('/', authMiddleware, authorizeRole('admin'), addTechnician);
  * /api/technicians:
  *   get:
  *     summary: Get all technicians
- *     tags: [Technicians]
+ *     tags: [Technician]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of technicians
  */
-router.get('/', authMiddleware, viewAllTechnicians);
+router.get('/', authMiddleware, viewAllTechnician);
 
 /**
  * @swagger
  * /api/technicians/{technicianId}:
  *   get:
  *     summary: Get technician by ID
- *     tags: [Technicians]
+ *     tags: [Technician]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -91,7 +91,7 @@ router.get('/:technicianId', authMiddleware, viewTechnician);
  * /api/technicians/{technicianId}:
  *   put:
  *     summary: Update technician (Admin only)
- *     tags: [Technicians]
+ *     tags: [Technician]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -125,7 +125,7 @@ router.put('/:technicianId', authMiddleware, authorizeRole('admin'), updateTechn
  * /api/technicians/{technicianId}:
  *   delete:
  *     summary: Delete technician (Admin only)
- *     tags: [Technicians]
+ *     tags: [Technician]
  *     security:
  *       - bearerAuth: []
  *     parameters:

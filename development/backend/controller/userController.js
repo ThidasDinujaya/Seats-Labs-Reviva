@@ -2,7 +2,7 @@
 // controllers/userController.js
 // PURPOSE: Handles user management operations for admin/manager.
 // LOGIC: 
-//   - getAllUsers(): Fetches all users with their role-specific details
+//   - getAllUser(): Fetches all users with their role-specific details
 //   - createUser(): Creates a new user (similar to register)
 //   - updateUser(): Updates user details (except email)
 //   - deleteUser(): Deletes a user
@@ -12,9 +12,9 @@ const pool = require('../config/database');
 const bcrypt = require('bcrypt');
 
 // ============================================================
-// GET ALL USERS
+// GET ALL USER
 // ============================================================
-const getAllUsers = async (req, res) => {
+const getAllUser = async (req, res) => {
     try {
         const query = `
             SELECT 
@@ -55,7 +55,7 @@ const getAllUsers = async (req, res) => {
         console.error('Detailed GET USERS error:', error);
         return res.status(500).json({
             success: false,
-            error: error.message || 'Failed to fetch users.'
+            error: error.message || 'Failed to fetch user.'
         });
     }
 };
@@ -248,7 +248,7 @@ const deleteUser = async (req, res) => {
 // ============================================================
 const debugCheckUsers = async () => {
     try {
-        console.log('--- Checking Users ---');
+        console.log('--- Checking User ---');
         const users = await pool.query('SELECT "userId", "userEmail", "userRole" FROM "user"');
         console.table(users.rows);
 
@@ -286,7 +286,7 @@ const debugCheckUsers = async () => {
 };
 
 module.exports = {
-    getAllUsers,
+    getAllUser,
     createUser,
     updateUser,
     deleteUser,

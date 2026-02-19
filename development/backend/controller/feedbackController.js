@@ -4,7 +4,7 @@
 // CRUD OPERATIONS:
 //   1. addFeedback      - POST   /api/feedbacks
 //   2. viewFeedback     - GET    /api/feedbacks/:feedbackId
-//   3. viewAllFeedbacks - GET    /api/feedbacks
+//   3. viewAllFeedback  - GET    /api/feedback
 //   4. updateFeedback   - PUT    /api/feedbacks/:feedbackId
 //   5. deleteFeedback   - DELETE /api/feedbacks/:feedbackId
 // ============================================================
@@ -13,7 +13,7 @@ const pool = require('../config/database');
 
 // ============================================================
 // 1. ADD FEEDBACK - Customer rates a completed service
-// POST /api/feedbacks
+// POST /api/feedback
 // WHO CAN USE: Customer
 // ============================================================
 // THINKING: Feedback can only be added for a COMPLETED booking.
@@ -95,7 +95,7 @@ const addFeedback = async (req, res) => {
 
 // ============================================================
 // 2. VIEW FEEDBACK
-// GET /api/feedbacks/:feedbackId
+// GET /api/feedback/:feedbackId
 // ============================================================
 const viewFeedback = async (req, res) => {
   const { feedbackId } = req.params;
@@ -130,9 +130,9 @@ const viewFeedback = async (req, res) => {
 
 // ============================================================
 // 3. VIEW ALL FEEDBACKS
-// GET /api/feedbacks?customerId=1&technicianId=2
+// GET /api/feedback?customerId=1&technicianId=2
 // ============================================================
-const viewAllFeedbacks = async (req, res) => {
+const viewAllFeedback = async (req, res) => {
   const { customerId, technicianId } = req.query;
 
   try {
@@ -174,14 +174,14 @@ const viewAllFeedbacks = async (req, res) => {
       meta: { total: result.rows.length }
     });
   } catch (error) {
-    console.error('View all feedbacks error:', error);
-    return res.status(500).json({ success: false, error: 'Failed to fetch feedbacks.' });
+    console.error('View all feedback error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch feedback.' });
   }
 };
 
 // ============================================================
 // 4. UPDATE FEEDBACK
-// PUT /api/feedbacks/:feedbackId
+// PUT /api/feedback/:feedbackId
 // ============================================================
 const updateFeedback = async (req, res) => {
   const { feedbackId } = req.params;
@@ -222,7 +222,7 @@ const updateFeedback = async (req, res) => {
 
 // ============================================================
 // 5. DELETE FEEDBACK
-// DELETE /api/feedbacks/:feedbackId
+// DELETE /api/feedback/:feedbackId
 // ============================================================
 const deleteFeedback = async (req, res) => {
   const { feedbackId } = req.params;
@@ -249,4 +249,4 @@ const deleteFeedback = async (req, res) => {
   }
 };
 
-module.exports = { addFeedback, viewFeedback, viewAllFeedbacks, updateFeedback, deleteFeedback };
+module.exports = { addFeedback, viewFeedback, viewAllFeedback, updateFeedback, deleteFeedback };

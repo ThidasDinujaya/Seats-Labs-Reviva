@@ -131,7 +131,7 @@ const viewService = async (req, res) => {
 // We JOIN with serviceCategory to include category names.
 // We order by serviceName for consistent display.
 // ============================================================
-const viewAllServices = async (req, res) => {
+const viewAllService = async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT s.*, sc."serviceCategoryName"
@@ -269,7 +269,7 @@ const deleteService = async (req, res) => {
 module.exports = {
   addService,
   viewService,
-  viewAllServices,
+  viewAllService,
   updateService,
   deleteService
 };

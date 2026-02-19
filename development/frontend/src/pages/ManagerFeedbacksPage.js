@@ -71,9 +71,9 @@ const ManagerFeedbacksPage = () => {
 
     return (
         <SidebarLayout role="manager">
-            <div style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column', marginTop: '-15px', padding: '15px' }}>
+            <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column', padding: '10px' }}>
                 <div style={{ marginBottom: '30px' }}>
-                    <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>Customer Feedbacks</h1>
+                    <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>Customer Feedback</h1>
                     <p style={{ color: '#64748b', fontSize: '1rem' }}>Review and manage customer ratings and testimonials</p>
                 </div>
 

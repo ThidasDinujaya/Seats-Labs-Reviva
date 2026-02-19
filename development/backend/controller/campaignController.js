@@ -7,7 +7,7 @@ const pool = require('../config/database');
 
 // ============================================================
 // 1. CREATE CAMPAIGN
-// POST /api/campaigns
+// POST /api/campaign
 // ============================================================
 const createCampaign = async (req, res) => {
   const {
@@ -50,10 +50,10 @@ const createCampaign = async (req, res) => {
 };
 
 // ============================================================
-// 2. GET ALL CAMPAIGNS
-// GET /api/campaigns?status=active&advertiserId=1
+// 2. GET ALL CAMPAIGN
+// GET /api/campaign?status=active&advertiserId=1
 // ============================================================
-const getAllCampaigns = async (req, res) => {
+const getAllCampaign = async (req, res) => {
   const { status, advertiserId } = req.query;
 
   try {
@@ -91,16 +91,16 @@ const getAllCampaigns = async (req, res) => {
       meta: { total: result.rows.length }
     });
   } catch (error) {
-    console.error('Get all campaigns error:', error);
-    return res.status(500).json({ success: false, error: 'Failed to fetch campaigns.' });
+    console.error('Get all campaign error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch campaign.' });
   }
 };
 
 // ============================================================
-// 3. GET CAMPAIGN BY ID (with ads)
-// GET /api/campaigns/:campaignId
+// 3. GET CAMPAIGN BY ID (with ad)
+// GET /api/campaign/:campaignId
 // ============================================================
-const getCampaignById = async (req, res) => {
+const getCampaign = async (req, res) => {
   const { advertisementCampaignId } = req.params;
 
   try {
@@ -143,7 +143,7 @@ const getCampaignById = async (req, res) => {
 
 // ============================================================
 // 4. UPDATE CAMPAIGN
-// PUT /api/campaigns/:campaignId
+// PUT /api/campaign/:campaignId
 // ============================================================
 const updateCampaign = async (req, res) => {
   const { advertisementCampaignId } = req.params;
@@ -185,7 +185,7 @@ const updateCampaign = async (req, res) => {
 
 // ============================================================
 // 5. DELETE CAMPAIGN
-// DELETE /api/campaigns/:campaignId
+// DELETE /api/campaign/:campaignId
 // ============================================================
 const deleteCampaign = async (req, res) => {
   const { advertisementCampaignId } = req.params;
@@ -215,7 +215,7 @@ const deleteCampaign = async (req, res) => {
 
 // ============================================================
 // 6. ADD AD TO CAMPAIGN
-// POST /api/campaigns/:campaignId/ads
+// POST /api/campaign/:campaignId/advertisement
 // ============================================================
 const addAdToCampaign = async (req, res) => {
   const { advertisementCampaignId } = req.params;
@@ -298,8 +298,8 @@ const addAdToCampaign = async (req, res) => {
 
 module.exports = {
   createCampaign,
-  getAllCampaigns,
-  getCampaignById,
+  getAllCampaign,
+  getCampaign,
   updateCampaign,
   deleteCampaign,
   addAdToCampaign

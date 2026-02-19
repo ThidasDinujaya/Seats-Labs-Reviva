@@ -4,7 +4,7 @@
 // CRUD OPERATIONS:
 //   1. addBooking      - POST   /api/bookings
 //   2. viewBooking     - GET    /api/bookings/:bookingId
-//   3. viewAllBookings - GET    /api/bookings
+//   3. viewAllBooking  - GET    /api/booking
 //   4. updateBooking   - PUT    /api/bookings/:bookingId
 //   5. deleteBooking   - DELETE /api/bookings/:bookingId
 // ============================================================
@@ -23,7 +23,7 @@ const generateRefNumber = () => {
 
 // ============================================================
 // 1. ADD BOOKING - Customer creates a new booking
-// POST /api/bookings
+// POST /api/booking
 // WHO CAN USE: Customer
 // ============================================================
 // THINKING: Creating a booking requires several steps:
@@ -179,7 +179,7 @@ const addBooking = async (req, res) => {
 
 // ============================================================
 // 2. VIEW BOOKING - Get a single booking with full details
-// GET /api/bookings/:bookingId
+// GET /api/booking/:bookingId
 // ============================================================
 const viewBooking = async (req, res) => {
   const { bookingId } = req.params;
@@ -223,7 +223,7 @@ const viewBooking = async (req, res) => {
 
 // ============================================================
 // 3. VIEW ALL BOOKINGS - List bookings with optional filters
-// GET /api/bookings?status=pending&date=2025-03-15&customerId=1
+// GET /api/booking?status=pending&date=2025-03-15&customerId=1
 // ============================================================
 // THINKING: We support query parameters for filtering:
 // - status: Filter by booking status
@@ -231,7 +231,7 @@ const viewBooking = async (req, res) => {
 // - customerId: Filter by customer (for customer's own bookings)
 // - technicianId: Filter by technician (for technician's assigned jobs)
 // ============================================================
-const viewAllBookings = async (req, res) => {
+const viewAllBooking = async (req, res) => {
   const { status, date, customerId, technicianId } = req.query;
 
   try {
@@ -290,14 +290,14 @@ const viewAllBookings = async (req, res) => {
       meta: { total: result.rows.length }
     });
   } catch (error) {
-    console.error('View all bookings error:', error);
-    return res.status(500).json({ success: false, error: 'Failed to fetch bookings.' });
+    console.error('View all booking error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch booking.' });
   }
 };
 
 // ============================================================
 // 4. UPDATE BOOKING - Modify booking (approve, reject, assign tech, etc.)
-// PUT /api/bookings/:bookingId
+// PUT /api/booking/:bookingId
 // ============================================================
 const updateBooking = async (req, res) => {
   const { bookingId } = req.params;
@@ -432,7 +432,7 @@ const updateBooking = async (req, res) => {
 };
 
 // 5. CANCEL BOOKING - Cancel a booking
-// DELETE /api/bookings/:bookingId
+// DELETE /api/booking/:bookingId
 // ============================================================
 // THINKING: We don't hard-delete bookings. Instead, we change
 // the status to "cancelled". This preserves history.
@@ -537,4 +537,4 @@ const cancelBooking = async (req, res) => {
   }
 };
 
-module.exports = { addBooking, viewBooking, viewAllBookings, updateBooking, cancelBooking };
+module.exports = { addBooking, viewBooking, viewAllBooking, updateBooking, cancelBooking };

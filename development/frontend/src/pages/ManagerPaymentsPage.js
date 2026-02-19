@@ -86,7 +86,7 @@ const ManagerPaymentsPage = () => {
 
     return (
         <SidebarLayout role="manager">
-            <div style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column', marginTop: '-15px', padding: '15px' }}>
+            <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column', padding: '10px' }}>
                 <div style={{ marginBottom: '30px' }}>
                     <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>Payments & Billing</h1>
                     <p style={{ color: '#64748b', fontSize: '1rem' }}>Track transactions and monitor revenue</p>
@@ -99,7 +99,7 @@ const ManagerPaymentsPage = () => {
                             <Search style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} size={20} />
                             <input 
                                 type="text" 
-                                placeholder="Search by invoice or customer..." 
+                                placeholder="Search by invoice or client..." 
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none' }} 
@@ -123,9 +123,9 @@ const ManagerPaymentsPage = () => {
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    <tr><td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading payments...</td></tr>
+                                    <tr><td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading payment...</td></tr>
                                 ) : filteredPayments.length === 0 ? (
-                                    <tr><td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No payments found.</td></tr>
+                                    <tr><td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No payment found.</td></tr>
                                 ) : (
                                     filteredPayments.map(p => (
                                         <tr 
@@ -140,9 +140,6 @@ const ManagerPaymentsPage = () => {
                                         >
                                             <td style={{ padding: '15px' }}>
                                                 <div style={{ fontWeight: '600' }}>#{p.paymentId}</div>
-                                                <div style={{ fontSize: '0.75rem', color: 'var(--navy)', fontWeight: '700' }}>
-                                                    {p.bookingId ? (p.serviceName || 'Service') : (p.advertisementPlacementName || 'Ad Plan')}
-                                                </div>
                                             </td>
                                             <td style={{ padding: '15px' }}>{p.invoiceNumber}</td>
                                             <td style={{ padding: '15px', fontStyle: 'italic', color: '#64748b' }}>

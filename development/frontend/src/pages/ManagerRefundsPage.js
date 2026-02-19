@@ -65,9 +65,9 @@ const ManagerRefundsPage = () => {
 
     return (
         <SidebarLayout role="manager">
-            <div style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column', marginTop: '-15px', padding: '15px' }}>
+            <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column', padding: '10px' }}>
                 <div style={{ marginBottom: '30px' }}>
-                    <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>Refunds & Reversals</h1>
+                    <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>Refund & Reversal</h1>
                     <p style={{ color: '#64748b', fontSize: '1rem' }}>Manage customer refund requests and transaction reversals</p>
                 </div>
 
@@ -109,9 +109,9 @@ const ManagerRefundsPage = () => {
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    <tr><td colSpan="6" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading refunds...</td></tr>
+                                    <tr><td colSpan="6" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading refund...</td></tr>
                                 ) : filteredRefunds.length === 0 ? (
-                                    <tr><td colSpan="6" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No refund requests found.</td></tr>
+                                    <tr><td colSpan="6" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No refund request found.</td></tr>
                                 ) : (
                                     filteredRefunds.map(r => (
                                         <tr 

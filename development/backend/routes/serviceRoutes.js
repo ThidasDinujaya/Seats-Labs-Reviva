@@ -4,20 +4,20 @@ const { authMiddleware, authorizeRole } = require('../middleware/authMiddleware'
 const {
   addService,
   viewService,
-  viewAllServices,
+  viewAllService,
   updateService,
   deleteService
 } = require('../controller/serviceController');
 
 const {
-    getAllCategories,
+    viewAllCategory,
     createCategory,
     updateCategory,
     deleteCategory
 } = require('../controller/serviceCategoryController');
 
 const {
-    getAllPackages,
+    viewAllPackage,
     createPackage,
     updatePackage,
     deletePackage
@@ -57,7 +57,7 @@ const {
  * /api/services:
  *   post:
  *     summary: Add a new service (Admin only)
- *     tags: [Services]
+ *     tags: [Service]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -104,7 +104,7 @@ router.post('/', authMiddleware, authorizeRole('admin', 'manager'), addService);
  * /api/services:
  *   get:
  *     summary: Get all active services
- *     tags: [Services]
+ *     tags: [Service]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -122,14 +122,14 @@ router.post('/', authMiddleware, authorizeRole('admin', 'manager'), addService);
  *                   items:
  *                     $ref: '#/components/schemas/Service'
  */
-router.get('/', viewAllServices);
+router.get('/', viewAllService);
 
 /**
  * @swagger
  * /api/services/{serviceId}:
  *   get:
  *     summary: Get a single service by ID
- *     tags: [Services]
+ *     tags: [Service]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -151,7 +151,7 @@ router.get('/:serviceId', viewService);
  * /api/services/{serviceId}:
  *   put:
  *     summary: Update a service (Admin only)
- *     tags: [Services]
+ *     tags: [Service]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -187,7 +187,7 @@ router.put('/:serviceId', authMiddleware, authorizeRole('admin', 'manager'), upd
  * /api/services/{serviceId}:
  *   delete:
  *     summary: Delete a service (Admin only)
- *     tags: [Services]
+ *     tags: [Service]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -207,17 +207,17 @@ router.delete('/:serviceId', authMiddleware, authorizeRole('admin', 'manager'), 
 // ============================================================
 // CATEGORY ROUTES
 // ============================================================
-router.get('/categories/all', getAllCategories);
-router.post('/categories', authMiddleware, authorizeRole('admin', 'manager'), createCategory);
-router.put('/categories/:id', authMiddleware, authorizeRole('admin', 'manager'), updateCategory);
-router.delete('/categories/:id', authMiddleware, authorizeRole('admin', 'manager'), deleteCategory);
+router.get('/category/all', viewAllCategory);
+router.post('/category', authMiddleware, authorizeRole('admin', 'manager'), createCategory);
+router.put('/category/:id', authMiddleware, authorizeRole('admin', 'manager'), updateCategory);
+router.delete('/category/:id', authMiddleware, authorizeRole('admin', 'manager'), deleteCategory);
 
 // ============================================================
 // PACKAGE ROUTES
 // ============================================================
-router.get('/packages/all', getAllPackages);
-router.post('/packages', authMiddleware, authorizeRole('admin', 'manager'), createPackage);
-router.put('/packages/:id', authMiddleware, authorizeRole('admin', 'manager'), updatePackage);
-router.delete('/packages/:id', authMiddleware, authorizeRole('admin', 'manager'), deletePackage);
+router.get('/package/all', viewAllPackage);
+router.post('/package', authMiddleware, authorizeRole('admin', 'manager'), createPackage);
+router.put('/package/:id', authMiddleware, authorizeRole('admin', 'manager'), updatePackage);
+router.delete('/package/:id', authMiddleware, authorizeRole('admin', 'manager'), deletePackage);
 
 module.exports = router;

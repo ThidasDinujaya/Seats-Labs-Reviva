@@ -27,7 +27,7 @@ const ManagerLoginPage = () => {
         setError('Access Denied: You do not have Manager privileges.');
       }
     } catch (err) {
-      setError(err?.response?.data?.message || 'Login failed. Please check your credentials.');
+      setError(err?.error || err?.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }

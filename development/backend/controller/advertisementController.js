@@ -2,18 +2,18 @@
 // controllers/advertisementController.js
 // PURPOSE: CRUD #5 - Advertisement management operations.
 // CRUD OPERATIONS:
-//   1. addAdvertisement      - POST   /api/advertisements
-//   2. viewAdvertisement     - GET    /api/advertisements/:advertisementId
-//   3. viewAllAdvertisements - GET    /api/advertisements
-//   4. updateAdvertisement   - PUT    /api/advertisements/:advertisementId
-//   5. deleteAdvertisement   - DELETE /api/advertisements/:advertisementId
+//   1. addAdvertisement      - POST   /api/advertisement
+//   2. viewAdvertisement     - GET    /api/advertisement/:advertisementId
+//   3. viewAllAdvertisement  - GET    /api/advertisement
+//   4. updateAdvertisement   - PUT    /api/advertisement/:advertisementId
+//   5. deleteAdvertisement   - DELETE /api/advertisement/:advertisementId
 // ============================================================
 
 const pool = require('../config/database');
 
 // ============================================================
 // 1. ADD ADVERTISEMENT
-// POST /api/advertisements
+// POST /api/advertisement
 // WHO CAN USE: Advertiser, Admin
 // ============================================================
 // THINKING: When an advertiser creates an ad, it starts with
@@ -104,7 +104,7 @@ const addAdvertisement = async (req, res) => {
 
 // ============================================================
 // 2. VIEW ADVERTISEMENT
-// GET /api/advertisements/:advertisementId
+// GET /api/advertisement/:advertisementId
 // ============================================================
 const viewAdvertisement = async (req, res) => {
   const { advertisementId } = req.params;
@@ -137,10 +137,10 @@ const viewAdvertisement = async (req, res) => {
 };
 
 // ============================================================
-// 3. VIEW ALL ADVERTISEMENTS
-// GET /api/advertisements?status=active&advertiserId=1
+// 3. VIEW ALL ADVERTISEMENT
+// GET /api/advertisement?status=active&advertiserId=1
 // ============================================================
-const viewAllAdvertisements = async (req, res) => {
+const viewAllAdvertisement = async (req, res) => {
   const { status, advertiserId } = req.query;
 
   try {
@@ -179,14 +179,14 @@ const viewAllAdvertisements = async (req, res) => {
       meta: { total: result.rows.length }
     });
   } catch (error) {
-    console.error('View all advertisements error:', error);
-    return res.status(500).json({ success: false, error: 'Failed to fetch advertisements.' });
+    console.error('View all advertisement error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch advertisement.' });
   }
 };
 
 // ============================================================
 // 4. UPDATE ADVERTISEMENT
-// PUT /api/advertisements/:advertisementId
+// PUT /api/advertisement/:advertisementId
 // ============================================================
 const updateAdvertisement = async (req, res) => {
   const { advertisementId } = req.params;
@@ -231,7 +231,7 @@ const updateAdvertisement = async (req, res) => {
 
 // ============================================================
 // 5. DELETE ADVERTISEMENT
-// DELETE /api/advertisements/:advertisementId
+// DELETE /api/advertisement/:advertisementId
 // ============================================================
 const deleteAdvertisement = async (req, res) => {
   const { advertisementId } = req.params;
@@ -262,8 +262,8 @@ const deleteAdvertisement = async (req, res) => {
 };
 
 // ============================================================
-// 6. VIEW ADVERTISEMENT PLACEMENTS
-// GET /api/advertisements/placements
+// 6. VIEW ADVERTISEMENT PLACEMENT
+// GET /api/advertisement/placement
 // ============================================================
 const viewAdvertisementPlacements = async (req, res) => {
   try {
@@ -275,4 +275,4 @@ const viewAdvertisementPlacements = async (req, res) => {
   }
 };
 
-module.exports = { addAdvertisement, viewAdvertisement, viewAllAdvertisements, updateAdvertisement, deleteAdvertisement, viewAdvertisementPlacements };
+module.exports = { addAdvertisement, viewAdvertisement, viewAllAdvertisement, updateAdvertisement, deleteAdvertisement, viewAdvertisementPlacements };

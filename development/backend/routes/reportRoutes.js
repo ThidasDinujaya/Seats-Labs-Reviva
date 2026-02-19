@@ -18,7 +18,7 @@ const {
  * /api/reports/dailyBooking:
  *   get:
  *     summary: Generate daily booking report (Admin & Manager)
- *     tags: [Reports]
+ *     tags: [Report]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -42,7 +42,7 @@ router.get('/dailyBooking', authMiddleware, authorizeRole('admin', 'manager'), g
  * /api/reports/revenueAnalysis:
  *   get:
  *     summary: Generate revenue analysis report (Admin & Manager)
- *     tags: [Reports]
+ *     tags: [Report]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -71,7 +71,7 @@ router.get('/revenueAnalysis', authMiddleware, authorizeRole('admin', 'manager')
  * /api/reports/technicianPerformance:
  *   get:
  *     summary: Generate technician performance report (Admin & Manager)
- *     tags: [Reports]
+ *     tags: [Report]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -100,7 +100,7 @@ router.get('/technicianPerformance', authMiddleware, authorizeRole('admin', 'man
  * /api/reports/adPerformance:
  *   get:
  *     summary: Generate ad performance report (Admin & Manager)
- *     tags: [Reports]
+ *     tags: [Report]
  *     security:
  *       - bearerAuth: []
  *     parameters:

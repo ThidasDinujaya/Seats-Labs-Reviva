@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
     Save, MapPin, Phone, Mail, Clock, 
-    Settings, ShieldCheck, Globe, Eye, Pencil, Trash2, X 
+    Settings, ShieldCheck, Pencil, Trash2, X 
 } from 'lucide-react';
 import SidebarLayout from '../components/SidebarLayout';
 import { settingsApi } from '../api/api';
@@ -115,7 +115,7 @@ const ManagerSettingsPage = () => {
 
                     <div style={{ padding: '25px' }}>
                         {loading ? (
-                            <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Loading settings...</div>
+                            <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Loading setting...</div>
                         ) : (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                 {settings.map((setting) => (

@@ -1,7 +1,7 @@
 const pool = require('../config/database');
 
 // GET ALL CATEGORIES
-const getAllCategories = async (req, res) => {
+const viewAllCategory = async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM "serviceCategory" ORDER BY "serviceCategoryName" ASC');
         return res.status(200).json({ success: true, data: result.rows });
@@ -64,7 +64,7 @@ const deleteCategory = async (req, res) => {
 };
 
 module.exports = {
-    getAllCategories,
+    viewAllCategory,
     createCategory,
     updateCategory,
     deleteCategory

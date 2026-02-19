@@ -9,7 +9,7 @@ const pool = require('../config/database');
  * @desc Get all active tracking tasks for manager view
  * @route GET /api/tracking/tasks
  */
-const getTrackingTasks = async (req, res) => {
+const getTask = async (req, res) => {
   try {
     const query = `
       SELECT 
@@ -53,7 +53,7 @@ const getTrackingTasks = async (req, res) => {
  * @desc Get tracking history for a specific booking
  * @route GET /api/tracking/history/:bookingId
  */
-const getBookingTrackingHistory = async (req, res) => {
+const getHistory = async (req, res) => {
   const { bookingId } = req.params;
 
   try {
@@ -78,7 +78,7 @@ const getBookingTrackingHistory = async (req, res) => {
  * @desc Update tracking status for a booking
  * @route POST /api/tracking/update
  */
-const updateTrackingStatus = async (req, res) => {
+const updateStatus = async (req, res) => {
   const { bookingId, status } = req.body;
 
   try {
@@ -128,7 +128,7 @@ const updateTrackingStatus = async (req, res) => {
 };
 
 module.exports = {
-  getTrackingTasks,
-  getBookingTrackingHistory,
-  updateTrackingStatus
+  getTask,
+  getHistory,
+  updateStatus
 };

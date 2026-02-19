@@ -199,7 +199,7 @@ const ManagerUsersPage = () => {
 
     return (
         <SidebarLayout role="manager">
-            <div style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column', marginTop: '-15px' }}>
+            <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column' }}>
                 {error && (
                     <div style={{ padding: '15px', background: '#fee2e2', color: '#b91c1c', borderRadius: '8px', marginBottom: '15px' }}>
                         {error}
@@ -216,7 +216,7 @@ const ManagerUsersPage = () => {
                     <Search size={20} style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} />
                     <input 
                         type="text" 
-                        placeholder="Search users..." 
+                        placeholder="Search user..." 
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{ 
@@ -280,7 +280,7 @@ const ManagerUsersPage = () => {
                     </thead>
                     <tbody>
                         {loading ? (
-                            <tr><td colSpan="7" style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>Loading users...</td></tr>
+                            <tr><td colSpan="7" style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>Loading user...</td></tr>
                         ) : filteredUsers.length > 0 ? (
                             filteredUsers.map(user => (
                                 <tr 
@@ -322,7 +322,7 @@ const ManagerUsersPage = () => {
                                 </tr>
                             ))
                         ) : (
-                            <tr><td colSpan="7" style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>No users found.</td></tr>
+                            <tr><td colSpan="7" style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>No user found.</td></tr>
                         )}
                     </tbody>
                 </table>

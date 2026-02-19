@@ -1,7 +1,7 @@
 const pool = require('../config/database');
 
 // GET ALL PACKAGES
-const getAllPackages = async (req, res) => {
+const viewAllPackage = async (req, res) => {
     try {
         // We want to return packages along with the services they contains
         const query = `
@@ -112,7 +112,7 @@ const deletePackage = async (req, res) => {
 };
 
 module.exports = {
-    getAllPackages,
+    viewAllPackage,
     createPackage,
     updatePackage,
     deletePackage

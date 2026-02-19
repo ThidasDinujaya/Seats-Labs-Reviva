@@ -14,9 +14,9 @@ const ServicesPage = () => {
     const fetchData = async () => {
       try {
         const [catsRes, servsRes, pkgsRes] = await Promise.all([
-          serviceApi.getCategories(),
+          serviceApi.getCategory(),
           serviceApi.getAll(),
-          serviceApi.getPackages()
+          serviceApi.getPackage()
         ]);
         
         // Handle potential response structures (array or object with data property)

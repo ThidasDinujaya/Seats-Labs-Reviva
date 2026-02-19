@@ -1,0 +1,10 @@
+[dotenv@17.2.4] injecting env (10) from .env -- tip: ≡ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.2.4] injecting env (0) from .env -- tip: ≡ƒôí add observability to secrets: https://dotenvx.com/ops
+[dotenv@17.2.4] injecting env (0) from .env -- tip: ≡ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+============================================================
+≡ƒÜÇ SeatsLabs API Server Started
+============================================================
+≡ƒôì Server running on: http://localhost:5000
+≡ƒôÜ API Documentation: http://localhost:5000/api-docs
+≡ƒùä∩╕Å  Database: seatslabs_db on localhost:5432
+============================================================

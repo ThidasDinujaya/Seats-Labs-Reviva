@@ -9,7 +9,7 @@ const { authMiddleware } = require('../middleware/authMiddleware');
 const {
   addBooking,
   viewBooking,
-  viewAllBookings,
+  viewAllBooking,
   updateBooking,
   cancelBooking
 } = require('../controller/bookingController');
@@ -44,7 +44,7 @@ const {
  * /api/bookings:
  *   post:
  *     summary: Create a new booking
- *     tags: [Bookings]
+ *     tags: [Booking]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -92,7 +92,7 @@ router.post('/', authMiddleware, addBooking);
  * /api/bookings:
  *   get:
  *     summary: Get all bookings with optional filters
- *     tags: [Bookings]
+ *     tags: [Booking]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -121,14 +121,14 @@ router.post('/', authMiddleware, addBooking);
  *       200:
  *         description: List of bookings
  */
-router.get('/', authMiddleware, viewAllBookings);
+router.get('/', authMiddleware, viewAllBooking);
 
 /**
  * @swagger
  * /api/bookings/{bookingId}:
  *   get:
  *     summary: Get a single booking by ID
- *     tags: [Bookings]
+ *     tags: [Booking]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -150,7 +150,7 @@ router.get('/:bookingId', authMiddleware, viewBooking);
  * /api/bookings/{bookingId}:
  *   put:
  *     summary: Update a booking
- *     tags: [Bookings]
+ *     tags: [Booking]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -185,7 +185,7 @@ router.put('/:bookingId', authMiddleware, updateBooking);
  * /api/bookings/{bookingId}:
  *   delete:
  *     summary: Cancel a booking
- *     tags: [Bookings]
+ *     tags: [Booking]
  *     security:
  *       - bearerAuth: []
  *     parameters:

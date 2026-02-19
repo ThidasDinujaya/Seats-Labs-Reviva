@@ -109,10 +109,10 @@ const ManagerBookingsPage = () => {
 
     return (
         <SidebarLayout role="manager">
-            <div style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column', marginTop: '-15px', padding: '15px' }}>
+            <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column', padding: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '30px' }}>
                     <div>
-                        <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>Bookings Management</h1>
+                        <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>Booking Management</h1>
                         <p style={{ color: '#64748b', fontSize: '1rem' }}>Manage customer service appointments and scheduling</p>
                     </div>
                 </div>
@@ -167,9 +167,9 @@ const ManagerBookingsPage = () => {
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    <tr><td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading bookings...</td></tr>
+                                    <tr><td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading booking...</td></tr>
                                 ) : filteredBookings.length === 0 ? (
-                                    <tr><td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No bookings found.</td></tr>
+                                    <tr><td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No booking found.</td></tr>
                                 ) : (
                                     filteredBookings.map(booking => (
                                         <tr 

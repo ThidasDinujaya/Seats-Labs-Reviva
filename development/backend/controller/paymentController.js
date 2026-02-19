@@ -196,8 +196,8 @@ const getInvoiceByAdId = async (req, res) => {
   }
 };
 
-// Get all payments for manager
-const getPayments = async (req, res) => {
+// Get all payment for manager
+const getAllPayment = async (req, res) => {
   const { userRole } = req.user;
 
   if (userRole !== 'manager') {
@@ -227,9 +227,40 @@ const getPayments = async (req, res) => {
       data: result.rows
     });
   } catch (error) {
-    console.error('Get payments error:', error);
-    return res.status(500).json({ success: false, error: 'Failed to fetch payments.' });
+    console.error('Get all payment error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch payment.' });
   }
 };
 
-module.exports = { createPayment, getInvoiceByBookingId, getInvoiceByAdId, getPayments };
+const getAdvertiserPayment = async (req, res) => {
+  const { advertiserId } = req.user;
+
+  if (!advertiserId) {
+    return res.status(403).json({ success: false, error: 'Access denied. Advertiser only.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT p.*, i."invoiceNumber", i."advertisementId",
+              apl."advertisementPlacementName",
+              a."advertisementTitle"
+       FROM "payment" p
+       JOIN "invoice" i ON p."invoiceId" = i."invoiceId"
+       JOIN "advertisement" a ON i."advertisementId" = a."advertisementId"
+       LEFT JOIN "advertisementPlacement" apl ON a."advertisementPlacementId" = apl."advertisementPlacementId"
+       WHERE a."advertiserId" = $1
+       ORDER BY p."paymentCreatedAt" DESC`,
+      [advertiserId]
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Get advertiser payment error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch payment.' });
+  }
+};
+
+module.exports = { createPayment, getInvoiceByBookingId, getInvoiceByAdId, getAllPayment, getAdvertiserPayment };

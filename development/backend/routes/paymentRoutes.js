@@ -5,13 +5,19 @@
 
 const express = require('express');
 const router = express.Router();
-const { authMiddleware } = require('../middleware/authMiddleware');
-const { createPayment, getInvoiceByBookingId, getInvoiceByAdId, getPayments } = require('../controller/paymentController');
+const { authMiddleware, authorizeRole } = require('../middleware/authMiddleware');
+const {
+  createPayment,
+  getInvoiceByBookingId,
+  getInvoiceByAdId,
+  getAllPayment,
+  getAdvertiserPayment
+} = require('../controller/paymentController');
 
 /**
  * @swagger
  * tags:
- *   name: Payments
+ *   name: Payment
  *   description: Payment management operations
  */
 
@@ -20,7 +26,7 @@ const { createPayment, getInvoiceByBookingId, getInvoiceByAdId, getPayments } = 
  * /api/payments:
  *   post:
  *     summary: Process a new payment
- *     tags: [Payments]
+ *     tags: [Payment]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -45,7 +51,7 @@ const { createPayment, getInvoiceByBookingId, getInvoiceByAdId, getPayments } = 
  *         description: Payment processed successfully
  *   get:
  *     summary: Get all payments (Manager only)
- *     tags: [Payments]
+ *     tags: [Payment]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -53,14 +59,15 @@ const { createPayment, getInvoiceByBookingId, getInvoiceByAdId, getPayments } = 
  *         description: List of payments retrieved
  */
 router.post('/', authMiddleware, createPayment);
-router.get('/', authMiddleware, getPayments);
+router.get('/', authMiddleware, authorizeRole('manager', 'admin'), getAllPayment);
+router.get('/my', authMiddleware, authorizeRole('manager', 'advertiser'), getAdvertiserPayment);
 
 /**
  * @swagger
  * /api/payments/invoice/booking/{bookingId}:
  *   get:
  *     summary: Get invoice details by booking ID
- *     tags: [Payments]
+ *     tags: [Payment]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -76,6 +83,6 @@ router.get('/', authMiddleware, getPayments);
  *         description: Invoice not found
  */
 router.get('/invoice/booking/:bookingId', authMiddleware, getInvoiceByBookingId);
-router.get('/invoice/ad/:advertisementId', authMiddleware, getInvoiceByAdId);
+router.get('/invoice/advertisement/:advertisementId', authMiddleware, getInvoiceByAdId);
 
 module.exports = router;

@@ -6,7 +6,7 @@ const { authMiddleware } = require('../middleware/authMiddleware');
 /**
  * @swagger
  * tags:
- *   name: Refunds
+ *   name: Refund
  *   description: Refund management operations
  */
 
@@ -15,21 +15,21 @@ const { authMiddleware } = require('../middleware/authMiddleware');
  * /api/refunds:
  *   get:
  *     summary: Get all refunds
- *     tags: [Refunds]
+ *     tags: [Refund]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of refunds
  */
-router.get('/', authMiddleware, refundController.getAllRefunds);
+router.get('/', authMiddleware, refundController.viewAllRefund);
 
 /**
  * @swagger
  * /api/refunds/{refundId}:
  *   put:
  *     summary: Update refund status
- *     tags: [Refunds]
+ *     tags: [Refund]
  *     parameters:
  *       - in: path
  *         name: refundId

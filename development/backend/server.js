@@ -65,19 +65,23 @@ const swaggerOptions = {
     },
     tags: [
       { name: 'Authentication', description: 'User registration and login' },
-      { name: 'Services', description: 'Service management operations' },
-      { name: 'Bookings', description: 'Booking management operations' },
-      { name: 'Customers', description: 'Customer management operations' },
-      { name: 'Technicians', description: 'Technician management operations' },
-      { name: 'Feedbacks', description: 'Customer feedback and ratings' },
-      { name: 'Advertisements', description: 'Advertisement management' },
-      { name: 'Campaigns', description: 'Ad campaign management' },
-      { name: 'Reports', description: 'Business reports and analytics' },
-      { name: 'Time Slots', description: 'Time slot management' },
-      { name: 'Payments', description: 'Payment management' }
+      { name: 'Service', description: 'Service management operations' },
+      { name: 'Booking', description: 'Booking management operations' },
+      { name: 'Customer', description: 'Customer management operations' },
+      { name: 'Technician', description: 'Technician management operations' },
+      { name: 'Feedback', description: 'Customer feedback and ratings' },
+      { name: 'Advertisement', description: 'Advertisement management' },
+      { name: 'Campaign', description: 'Ad campaign management' },
+      { name: 'Report', description: 'Business reports and analytics' },
+      { name: 'TimeSlot', description: 'Time slot management' },
+      { name: 'Payment', description: 'Payment management' },
+      { name: 'Refund', description: 'Refund management' },
+      { name: 'Placement', description: 'Advertisement placement management' },
+      { name: 'Complaint', description: 'Customer complaint management' },
+      { name: 'User', description: 'User account management' }
     ]
   },
-  apis: ['./routes/*.js'] // Path to route files with Swagger comments
+  apis: ['./routes/*.js']
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
@@ -91,13 +95,11 @@ const PORT = process.env.PORT || 5000;
 // ============================================================
 // MIDDLEWARE
 // ============================================================
-// CORS - Allow frontend to communicate with backend
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   credentials: true
 }));
 
-// Body parser - Parse JSON request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -116,25 +118,25 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 }));
 
 // ============================================================
-// API ROUTES
+// API ROUTES  — all singular noun paths
 // ============================================================
-app.use('/api/auth', authRoutes);
-app.use('/api/services', serviceRoutes);
-app.use('/api/bookings', bookingRoutes);
-app.use('/api/customers', customerRoutes);
-app.use('/api/technicians', technicianRoutes);
-app.use('/api/feedbacks', feedbackRoutes);
-app.use('/api/advertisements', advertisementRoutes);
-app.use('/api/campaigns', campaignRoutes);
-app.use('/api/reports', reportRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/settings', settingsRoutes);
-app.use('/api/time-slots', timeSlotRoutes);
-app.use('/api/payments', paymentRoutes);
-app.use('/api/tracking', trackingRoutes);
-app.use('/api/refunds', refundRoutes);
-app.use('/api/placements', placementRoutes);
-app.use('/api/complaints', complaintRoutes);
+app.use('/api/auth',            authRoutes);
+app.use('/api/service',         serviceRoutes);
+app.use('/api/booking',         bookingRoutes);
+app.use('/api/customer',        customerRoutes);
+app.use('/api/technician',      technicianRoutes);
+app.use('/api/feedback',        feedbackRoutes);
+app.use('/api/advertisement',   advertisementRoutes);
+app.use('/api/campaign',        campaignRoutes);
+app.use('/api/report',          reportRoutes);
+app.use('/api/user',            userRoutes);
+app.use('/api/setting',         settingsRoutes);
+app.use('/api/time-slot',       timeSlotRoutes);
+app.use('/api/payment',         paymentRoutes);
+app.use('/api/tracking',        trackingRoutes);
+app.use('/api/refund',          refundRoutes);
+app.use('/api/placement',       placementRoutes);
+app.use('/api/complaint',       complaintRoutes);
 
 // ============================================================
 // ROOT ROUTE
@@ -145,16 +147,23 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     documentation: `http://localhost:${PORT}/api-docs`,
     endpoints: {
-      auth: '/api/auth',
-      services: '/api/services',
-      bookings: '/api/bookings',
-      customers: '/api/customers',
-      technicians: '/api/technicians',
-      feedbacks: '/api/feedbacks',
-      advertisements: '/api/advertisements',
-      campaigns: '/api/campaigns',
-      reports: '/api/reports',
-      timeSlots: '/api/time-slots'
+      auth:            '/api/auth',
+      service:         '/api/service',
+      booking:         '/api/booking',
+      customer:        '/api/customer',
+      technician:      '/api/technician',
+      feedback:        '/api/feedback',
+      advertisement:   '/api/advertisement',
+      campaign:        '/api/campaign',
+      report:          '/api/report',
+      user:            '/api/user',
+      setting:         '/api/setting',
+      timeSlot:        '/api/time-slot',
+      payment:         '/api/payment',
+      tracking:        '/api/tracking',
+      refund:          '/api/refund',
+      placement:       '/api/placement',
+      complaint:       '/api/complaint'
     }
   });
 });

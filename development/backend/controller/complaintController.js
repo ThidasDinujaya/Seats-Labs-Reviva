@@ -55,7 +55,7 @@ const addComplaint = async (req, res) => {
  * @desc Get all complaints
  * @route GET /api/complaints
  */
-const getAllComplaints = async (req, res) => {
+const viewAllComplaint = async (req, res) => {
   const { customerId } = req.query;
   try {
     let query = `
@@ -110,4 +110,4 @@ const updateComplaint = async (req, res) => {
     }
 };
 
-module.exports = { addComplaint, getAllComplaints, updateComplaint };
+module.exports = { addComplaint, viewAllComplaint, updateComplaint };

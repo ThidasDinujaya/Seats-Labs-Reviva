@@ -73,17 +73,17 @@ const ManagerServicesPage = () => {
             if (activeTab === 'services') {
                 const [sRes, cRes, pRes] = await Promise.all([
                     serviceApi.getAll(), 
-                    serviceApi.getCategories(),
-                    serviceApi.getPackages()
+                    serviceApi.getCategory(),
+                    serviceApi.getPackage()
                 ]);
                 if (sRes.success) setServices(sRes.data);
                 if (cRes.success) setCategories(cRes.data);
                 if (pRes.success) setPackages(pRes.data);
             } else if (activeTab === 'categories') {
-                const res = await serviceApi.getCategories();
+                const res = await serviceApi.getCategory();
                 if (res.success) setCategories(res.data);
             } else if (activeTab === 'packages') {
-                const [pRes, sRes] = await Promise.all([serviceApi.getPackages(), serviceApi.getAll()]);
+                const [pRes, sRes] = await Promise.all([serviceApi.getPackage(), serviceApi.getAll()]);
                 if (pRes.success) setPackages(pRes.data);
                 if (sRes.success) setServices(sRes.data);
             } else if (activeTab === 'timeslots') {
@@ -307,7 +307,7 @@ const ManagerServicesPage = () => {
 
     return (
         <SidebarLayout role="manager">
-            <div style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column', marginTop: '-15px' }}>
+            <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ marginBottom: '15px' }}>
                     <h1 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--navy)', margin: 0 }}>Service Management</h1>
                     {error && <p style={{ color: 'red', margin: '5px 0' }}>{error}</p>}
@@ -317,16 +317,16 @@ const ManagerServicesPage = () => {
             {/* Tabs */}
             <div style={tabContainerStyle}>
                 <button onClick={() => setActiveTab('categories')} style={activeTab === 'categories' ? activeTabStyle : tabStyle}>
-                    <List size={18} /> Service Categories
+                    <List size={18} /> Service Category
                 </button>
                 <button onClick={() => setActiveTab('services')} style={activeTab === 'services' ? activeTabStyle : tabStyle}>
-                    <Settings size={18} /> Services
+                    <Settings size={18} /> Service
                 </button>
                 <button onClick={() => setActiveTab('packages')} style={activeTab === 'packages' ? activeTabStyle : tabStyle}>
-                    <Package size={18} /> Service Packages
+                    <Package size={18} /> Service Package
                 </button>
                 <button onClick={() => setActiveTab('timeslots')} style={activeTab === 'timeslots' ? activeTabStyle : tabStyle}>
-                    <Clock size={18} /> Time Slots
+                    <Clock size={18} /> Time Slot
                 </button>
             </div>
 
@@ -336,7 +336,7 @@ const ManagerServicesPage = () => {
                     <Search size={20} style={searchIconStyle} />
                     <input 
                         type="text" 
-                        placeholder={`Search ${activeTab === 'categories' ? 'Service Categories' : activeTab === 'services' ? 'Services' : activeTab === 'packages' ? 'Service Packages' : 'Time Slots'}...`} 
+                        placeholder={`Search ${activeTab === 'categories' ? 'Service Category' : activeTab === 'services' ? 'Service' : activeTab === 'packages' ? 'Service Package' : 'Time Slot'}...`} 
                         value={searchTerm} 
                         onChange={(e) => setSearchTerm(e.target.value)} 
                         style={{ ...searchInputStyle, paddingLeft: '40px' }} 

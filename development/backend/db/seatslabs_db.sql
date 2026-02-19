@@ -413,15 +413,15 @@ INSERT INTO "systemSettings" ("settingKey", "settingValue") VALUES
 -- 2. Users (Passwords are 'password123' hashed)
 -- Admin
 INSERT INTO "user" ("userEmail", "userPassword", "userRole") VALUES
-('admin@seatslabs.com', '$2b$10$rQZ5YvJQZ5YvJQZ5YvJQZ.YvJQZ5YvJQZ5YvJQZ5YvJQZ5YvJQZ5Y', 'admin'),
-('manager@seatslabs.com', '$2b$10$rQZ5YvJQZ5YvJQZ5YvJQZ.YvJQZ5YvJQZ5YvJQZ5YvJQZ5YvJQZ5Y', 'manager'),
-('tech1@seatslabs.com', '$2b$10$rQZ5YvJQZ5YvJQZ5YvJQZ.YvJQZ5YvJQZ5YvJQZ5YvJQZ5YvJQZ5Y', 'technician'),
-('tech2@seatslabs.com', '$2b$10$rQZ5YvJQZ5YvJQZ5YvJQZ.YvJQZ5YvJQZ5YvJQZ5YvJQZ5YvJQZ5Y', 'technician'),
-('saman@example.lk', '$2b$10$rQZ5YvJQZ5YvJQZ5YvJQZ.YvJQZ5YvJQZ5YvJQZ5YvJQZ5YvJQZ5Y', 'customer'),
-('kamal@example.lk', '$2b$10$rQZ5YvJQZ5YvJQZ5YvJQZ.YvJQZ5YvJQZ5YvJQZ5YvJQZ5YvJQZ5Y', 'customer'),
-('nimal@example.lk', '$2b$10$rQZ5YvJQZ5YvJQZ5YvJQZ.YvJQZ5YvJQZ5YvJQZ5YvJQZ5YvJQZ5Y', 'customer'),
-('toyota@advertiser.com', '$2b$10$rQZ5YvJQZ5YvJQZ5YvJQZ.YvJQZ5YvJQZ5YvJQZ5YvJQZ5YvJQZ5Y', 'advertiser'),
-('dialog@advertiser.com', '$2b$10$rQZ5YvJQZ5YvJQZ5YvJQZ.YvJQZ5YvJQZ5YvJQZ5YvJQZ5YvJQZ5Y', 'advertiser');
+('admin@seatslabs.com', '$2b$10$UrfFR8KQXvqgzGIjRrceROXyurKEpTkELikFjauEe6yGg63itTi5ky', 'admin'),
+('manager@seatslabs.com', '$2b$10$UrfFR8KQXvqgzGIjRrceROXyurKEpTkELikFjauEe6yGg63itTi5ky', 'manager'),
+('tech1@seatslabs.com', '$2b$10$UrfFR8KQXvqgzGIjRrceROXyurKEpTkELikFjauEe6yGg63itTi5ky', 'technician'),
+('tech2@seatslabs.com', '$2b$10$UrfFR8KQXvqgzGIjRrceROXyurKEpTkELikFjauEe6yGg63itTi5ky', 'technician'),
+('saman@example.lk', '$2b$10$UrfFR8KQXvqgzGIjRrceROXyurKEpTkELikFjauEe6yGg63itTi5ky', 'customer'),
+('kamal@example.lk', '$2b$10$UrfFR8KQXvqgzGIjRrceROXyurKEpTkELikFjauEe6yGg63itTi5ky', 'customer'),
+('nimal@example.lk', '$2b$10$UrfFR8KQXvqgzGIjRrceROXyurKEpTkELikFjauEe6yGg63itTi5ky', 'customer'),
+('toyota@advertiser.com', '$2b$10$UrfFR8KQXvqgzGIjRrceROXyurKEpTkELikFjauEe6yGg63itTi5ky', 'advertiser'),
+('dialog@advertiser.com', '$2b$10$UrfFR8KQXvqgzGIjRrceROXyurKEpTkELikFjauEe6yGg63itTi5ky', 'advertiser');
 
 -- 3. Profile Data
 INSERT INTO "manager" ("managerFirstName", "managerLastName", "managerPhone", "userId") VALUES 

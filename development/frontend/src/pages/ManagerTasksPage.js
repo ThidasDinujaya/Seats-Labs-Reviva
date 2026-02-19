@@ -22,7 +22,7 @@ const ManagerTasksPage = () => {
     const fetchTasks = async () => {
         try {
             setLoading(true);
-            const res = await trackingApi.getTasks();
+            const res = await trackingApi.getTask();
             if (res.success) {
                 // Transform backend data to match UI structure
                 const transformed = res.data.map(t => ({
@@ -64,10 +64,10 @@ const ManagerTasksPage = () => {
 
     return (
         <SidebarLayout role="manager">
-            <div style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column', marginTop: '-15px', padding: '15px' }}>
+            <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column', padding: '10px' }}>
                 <div style={{ marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>Technician Tasks</h1>
+                        <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>Technician Task</h1>
                         <p style={{ color: '#64748b', fontSize: '1rem' }}>Monitor real-time service progress and assignments</p>
                     </div>
                     <button 
@@ -115,9 +115,9 @@ const ManagerTasksPage = () => {
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    <tr><td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading assignments...</td></tr>
+                                    <tr><td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading assignment...</td></tr>
                                 ) : filteredTasks.length === 0 ? (
-                                    <tr><td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No tasks found.</td></tr>
+                                    <tr><td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No task found.</td></tr>
                                 ) : (
                                     filteredTasks.map(t => (
                                         <tr 

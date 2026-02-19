@@ -8,8 +8,8 @@ const router = express.Router();
 const { authMiddleware, authorizeRole } = require('../middleware/authMiddleware');
 const {
   createCampaign,
-  getAllCampaigns,
-  getCampaignById,
+  getAllCampaign,
+  getCampaign,
   updateCampaign,
   deleteCampaign,
   addAdToCampaign
@@ -20,7 +20,7 @@ const {
  * /api/campaigns:
  *   post:
  *     summary: Create a new ad campaign
- *     tags: [Campaigns]
+ *     tags: [Campaign]
  */
 router.post('/', authMiddleware, authorizeRole('advertiser', 'admin'), createCampaign);
 
@@ -29,25 +29,25 @@ router.post('/', authMiddleware, authorizeRole('advertiser', 'admin'), createCam
  * /api/campaigns:
  *   get:
  *     summary: Get all campaigns
- *     tags: [Campaigns]
+ *     tags: [Campaign]
  */
-router.get('/', authMiddleware, getAllCampaigns);
+router.get('/', authMiddleware, getAllCampaign);
 
 /**
  * @swagger
  * /api/campaigns/{campaignId}:
  *   get:
  *     summary: Get campaign by ID with all ads
- *     tags: [Campaigns]
+ *     tags: [Campaign]
  */
-router.get('/:campaignId', authMiddleware, getCampaignById);
+router.get('/:campaignId', authMiddleware, getCampaign);
 
 /**
  * @swagger
  * /api/campaigns/{campaignId}:
  *   put:
  *     summary: Update campaign
- *     tags: [Campaigns]
+ *     tags: [Campaign]
  */
 router.put('/:campaignId', authMiddleware, updateCampaign);
 
@@ -56,7 +56,7 @@ router.put('/:campaignId', authMiddleware, updateCampaign);
  * /api/campaigns/{campaignId}:
  *   delete:
  *     summary: Delete campaign
- *     tags: [Campaigns]
+ *     tags: [Campaign]
  */
 router.delete('/:campaignId', authMiddleware, authorizeRole('advertiser', 'admin'), deleteCampaign);
 
@@ -65,8 +65,8 @@ router.delete('/:campaignId', authMiddleware, authorizeRole('advertiser', 'admin
  * /api/campaigns/{campaignId}/ads:
  *   post:
  *     summary: Add an ad to a campaign
- *     tags: [Campaigns]
+ *     tags: [Campaign]
  */
-router.post('/:campaignId/ads', authMiddleware, authorizeRole('advertiser', 'admin'), addAdToCampaign);
+router.post('/:campaignId/advertisement', authMiddleware, authorizeRole('advertiser', 'admin'), addAdToCampaign);
 
 module.exports = router;

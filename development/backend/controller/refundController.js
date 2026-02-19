@@ -9,7 +9,7 @@ const pool = require('../config/database');
  * @desc Get all refunds for manager view
  * @route GET /api/refunds
  */
-const getAllRefunds = async (req, res) => {
+const viewAllRefund = async (req, res) => {
   try {
     const query = `
       SELECT r.*, i."invoiceNumber", 
@@ -95,4 +95,4 @@ const updateRefundStatus = async (req, res) => {
   }
 };
 
-module.exports = { getAllRefunds, updateRefundStatus };
+module.exports = { viewAllRefund, updateRefundStatus };

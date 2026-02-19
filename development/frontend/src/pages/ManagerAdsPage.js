@@ -105,7 +105,7 @@ const ManagerAdsPage = () => {
     const viewOnly = modalMode === 'view';
 
     const tabStyles = {
-        container: { display: 'flex', gap: '8px', marginBottom: '25px', padding: '6px', background: '#f1f5f9', borderRadius: '12px', alignSelf: 'flex-start', width: 'fit-content' },
+        container: { display: 'flex', gap: '8px', marginBottom: '15px', padding: '6px', background: '#f1f5f9', borderRadius: '12px', alignSelf: 'flex-start', width: 'fit-content' },
         tab: (active) => ({
             padding: '10px 20px', border: 'none', background: active ? 'var(--navy)' : 'transparent', color: active ? 'white' : '#475569', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '8px', transition: 'all 0.2s ease',
             boxShadow: active ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'
@@ -124,10 +124,10 @@ const ManagerAdsPage = () => {
 
     return (
         <SidebarLayout role="manager">
-            <div style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column', marginTop: '-15px', padding: '15px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+            <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column', padding: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                     <div>
-                        <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>Advertising Management</h1>
+                        <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>Advertisement Management</h1>
                         <p style={{ color: '#64748b', fontSize: '1rem' }}>Manage ads, campaigns, pricing, and placements</p>
                     </div>
                 </div>
@@ -135,20 +135,20 @@ const ManagerAdsPage = () => {
                 <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                     <div style={tabStyles.container}>
                         <button onClick={() => { setActiveTab('ad'); setSelectedId(null); }} style={tabStyles.tab(activeTab === 'ad')}>
-                            <Layout size={18} /> Ads
+                            <Layout size={18} /> Ad
                         </button>
                         <button onClick={() => { setActiveTab('campaign'); setSelectedId(null); }} style={tabStyles.tab(activeTab === 'campaign')}>
-                            <Megaphone size={18} /> Campaigns
+                            <Megaphone size={18} /> Campaign
                         </button>
                         <button onClick={() => { setActiveTab('pricing'); setSelectedId(null); }} style={tabStyles.tab(activeTab === 'pricing')}>
-                            <CreditCard size={18} /> Pricing Plans
+                            <CreditCard size={18} /> Pricing Plan
                         </button>
                         <button onClick={() => { setActiveTab('placement'); setSelectedId(null); }} style={tabStyles.tab(activeTab === 'placement')}>
-                            <Layers size={18} /> Placements
+                            <Layers size={18} /> Placement
                         </button>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '15px', marginBottom: '25px' }}>
+                    <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
                         <div style={{ position: 'relative', flex: 1 }}>
                             <Search style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} size={20} />
                             <input 
@@ -179,35 +179,38 @@ const ManagerAdsPage = () => {
                                 <tr style={{ borderBottom: '2px solid #f1f5f9', textAlign: 'left', position: 'sticky', top: 0, background: 'white', zIndex: 1 }}>
                                     {activeTab === 'ad' && (
                                         <>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>advertisementTitle</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>advertiserBusinessName</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>advertisementPlacementName</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>advertisementMetrics</th>
-                                            <th style={{ padding: '15px', textAlign: 'right', color: '#64748b' }}>advertisementStatus</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Ad ID</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Title</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Advertiser</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Placement</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Metrics</th>
+                                            <th style={{ padding: '15px', textAlign: 'right', color: '#64748b' }}>Status</th>
                                         </>
                                     )}
                                     {activeTab === 'campaign' && (
                                         <>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>advertisementCampaignId</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>advertisementCampaignName</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>advertiserBusinessName</th>
-                                            <th style={{ padding: '15px', textAlign: 'right', color: '#64748b' }}>advertisementCampaignStatus</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Campaign ID</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Campaign Name</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Advertiser</th>
+                                            <th style={{ padding: '15px', textAlign: 'right', color: '#64748b' }}>Status</th>
                                         </>
                                     )}
                                     {activeTab === 'pricing' && (
                                         <>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>advertisementPlacementId</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>advertisementPlacementPrice</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>advertisementPlacementWidth</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>advertisementPlacementHeight</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Plan ID</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Plan Name</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Price</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Duration</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Description</th>
                                         </>
                                     )}
                                     {activeTab === 'placement' && (
                                         <>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>advertisementPlacementName</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>advertisementPlacementWidth</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>advertisementPlacementHeight</th>
-                                            <th style={{ padding: '15px', textAlign: 'right', color: '#64748b' }}>advertisementPlacementPriceMultiplier</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Placement ID</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Placement Name</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Dimensions</th>
+                                            <th style={{ padding: '15px', color: '#64748b' }}>Active Ads</th>
+                                            <th style={{ padding: '15px', textAlign: 'right', color: '#64748b' }}>Multiplier</th>
                                         </>
                                     )}
                                 </tr>
@@ -216,7 +219,7 @@ const ManagerAdsPage = () => {
                                 {loading ? (
                                     <tr><td colSpan="10" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading...</td></tr>
                                 ) : filteredData.length === 0 ? (
-                                    <tr><td colSpan="10" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No {getTabLabel()}s found.</td></tr>
+                                    <tr><td colSpan="10" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No {getTabLabel()} found.</td></tr>
                                 ) : (
                                     filteredData.map(item => {
                                         const id = item.advertisementId || item.advertisementCampaignId || item.planId || item.advertisementPlacementId;
@@ -233,10 +236,8 @@ const ManagerAdsPage = () => {
                                             >
                                                 {activeTab === 'ad' && (
                                                     <>
-                                                        <td style={{ padding: '15px' }}>
-                                                            <div style={{ fontWeight: '600' }}>{item.advertisementTitle}</div>
-                                                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>ID: #{item.advertisementId}</div>
-                                                        </td>
+                                                        <td style={{ padding: '15px' }}>#{item.advertisementId}</td>
+                                                        <td style={{ padding: '15px', fontWeight: '600' }}>{item.advertisementTitle}</td>
                                                         <td style={{ padding: '15px' }}>{item.advertiserBusinessName}</td>
                                                         <td style={{ padding: '15px' }}>
                                                             <span style={{ fontSize: '0.9rem', padding: '4px 8px', background: '#f1f5f9', borderRadius: '4px' }}>
@@ -286,6 +287,7 @@ const ManagerAdsPage = () => {
                                                 )}
                                                 {activeTab === 'pricing' && (
                                                     <>
+                                                        <td style={{ padding: '15px' }}>#{item.planId}</td>
                                                         <td style={{ padding: '15px', fontWeight: 'bold' }}>{item.planName}</td>
                                                         <td style={{ padding: '15px' }}>Rs. {item.price.toLocaleString()}</td>
                                                         <td style={{ padding: '15px' }}>{item.duration}</td>
@@ -294,6 +296,7 @@ const ManagerAdsPage = () => {
                                                 )}
                                                 {activeTab === 'placement' && (
                                                     <>
+                                                        <td style={{ padding: '15px' }}>#{item.advertisementPlacementId}</td>
                                                         <td style={{ padding: '15px', fontWeight: 'bold' }}>{item.advertisementPlacementName}</td>
                                                         <td style={{ padding: '15px' }}>{item.dimensions}</td>
                                                         <td style={{ padding: '15px' }}>{item.activeAds} Ads</td>

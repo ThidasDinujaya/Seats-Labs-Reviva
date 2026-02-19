@@ -4,7 +4,7 @@
 // CRUD OPERATIONS:
 //   1. addTechnician      - POST   /api/technicians
 //   2. viewTechnician     - GET    /api/technicians/:technicianId
-//   3. viewAllTechnicians - GET    /api/technicians
+//   3. viewAllTechnician  - GET    /api/technician
 //   4. updateTechnician   - PUT    /api/technicians/:technicianId
 //   5. deleteTechnician   - DELETE /api/technicians/:technicianId
 // ============================================================
@@ -14,7 +14,7 @@ const bcrypt = require('bcrypt');
 
 // ============================================================
 // 1. ADD TECHNICIAN
-// POST /api/technicians
+// POST /api/technician
 // WHO CAN USE: Admin only
 // ============================================================
 // THINKING: Adding a technician requires TWO database inserts:
@@ -91,7 +91,7 @@ const addTechnician = async (req, res) => {
 
 // ============================================================
 // 2. VIEW TECHNICIAN
-// GET /api/technicians/:technicianId
+// GET /api/technician/:technicianId
 // ============================================================
 const viewTechnician = async (req, res) => {
   const { technicianId } = req.params;
@@ -120,7 +120,7 @@ const viewTechnician = async (req, res) => {
 // 3. VIEW ALL TECHNICIANS
 // GET /api/technicians
 // ============================================================
-const viewAllTechnicians = async (req, res) => {
+const viewAllTechnician = async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT t.*, u."userEmail", u."userIsActive"
@@ -136,14 +136,14 @@ const viewAllTechnicians = async (req, res) => {
       meta: { total: result.rows.length }
     });
   } catch (error) {
-    console.error('View all technicians error:', error);
-    return res.status(500).json({ success: false, error: 'Failed to fetch technicians.' });
+    console.error('View all technician error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch technician.' });
   }
 };
 
 // ============================================================
 // 4. UPDATE TECHNICIAN
-// PUT /api/technicians/:technicianId
+// PUT /api/technician/:technicianId
 // ============================================================
 const updateTechnician = async (req, res) => {
   const { technicianId } = req.params;
@@ -179,7 +179,7 @@ const updateTechnician = async (req, res) => {
 
 // ============================================================
 // 5. DELETE TECHNICIAN (Soft delete via user deactivation)
-// DELETE /api/technicians/:technicianId
+// DELETE /api/technician/:technicianId
 // ============================================================
 const deleteTechnician = async (req, res) => {
   const { technicianId } = req.params;
@@ -210,4 +210,4 @@ const deleteTechnician = async (req, res) => {
   }
 };
 
-module.exports = { addTechnician, viewTechnician, viewAllTechnicians, updateTechnician, deleteTechnician };
+module.exports = { addTechnician, viewTechnician, viewAllTechnician, updateTechnician, deleteTechnician };

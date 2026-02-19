@@ -40,7 +40,7 @@ const addTimeSlot = async (req, res) => {
 // 2. VIEW ALL SLOTS
 // GET /api/time-slots
 // ============================================================
-const getAllTimeSlots = async (req, res) => {
+const viewAllTimeSlot = async (req, res) => {
   try {
     const result = await pool.query(
       'SELECT * FROM "timeSlot" WHERE "timeSlotIsActive" = true ORDER BY "timeSlotStartTime" ASC'
@@ -108,4 +108,4 @@ const deleteTimeSlot = async (req, res) => {
   }
 };
 
-module.exports = { addTimeSlot, getAllTimeSlots, updateTimeSlot, deleteTimeSlot };
+module.exports = { addTimeSlot, viewAllTimeSlot, updateTimeSlot, deleteTimeSlot };

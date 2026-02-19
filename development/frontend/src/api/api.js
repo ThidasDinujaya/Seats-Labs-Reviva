@@ -3,6 +3,7 @@ import axios from 'axios';
 // ============================================================
 // src/api/api.js
 // PURPOSE: Axios instance and API helper methods
+// NAMING: All API paths use singular nouns to match the backend
 // ============================================================
 
 const API_BASE_URL = 'http://localhost:5000/api';
@@ -14,7 +15,7 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to add JWT token to headers
+// Request interceptor — attach JWT
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -26,12 +27,11 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle common errors
+// Response interceptor — handle 401
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Clear token and redirect to login if unauthorized
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       if (window.location.pathname !== '/login') {
@@ -42,122 +42,165 @@ api.interceptors.response.use(
   }
 );
 
-// API Endpoints
+// ============================================================
+// AUTH
+// ============================================================
 export const authApi = {
-  login: (credentials) => api.post('/auth/login', credentials),
-  register: (userData) => api.post('/auth/register', userData),
-  getMe: () => api.get('/auth/me'),
+  login:    (credentials) => api.post('/auth/login', credentials),
+  register: (userData)    => api.post('/auth/register', userData),
+  getMe:    ()            => api.get('/auth/me'),
 };
 
+// ============================================================
+// SERVICE  (singular: /api/service)
+// ============================================================
 export const serviceApi = {
-  // Services
-  getAll: () => api.get('/services'),
-  getById: (id) => api.get(`/services/${id}`),
-  create: (data) => api.post('/services', data),
-  update: (id, data) => api.put(`/services/${id}`, data),
-  delete: (id) => api.delete(`/services/${id}`),
-  
-  // Categories
-  getCategories: () => api.get('/services/categories/all'),
-  createCategory: (data) => api.post('/services/categories', data),
-  updateCategory: (id, data) => api.put(`/services/categories/${id}`, data),
-  deleteCategory: (id) => api.delete(`/services/categories/${id}`),
-  
-  // Packages
-  getPackages: () => api.get('/services/packages/all'),
-  createPackage: (data) => api.post('/services/packages', data),
-  updatePackage: (id, data) => api.put(`/services/packages/${id}`, data),
-  deletePackage: (id) => api.delete(`/services/packages/${id}`),
+  getAll:          ()           => api.get('/service'),
+  getById:         (id)         => api.get(`/service/${id}`),
+  create:          (data)       => api.post('/service', data),
+  update:          (id, data)   => api.put(`/service/${id}`, data),
+  delete:          (id)         => api.delete(`/service/${id}`),
+
+  // Category sub-resource
+  getCategory:   ()           => api.get('/service/category/all'),
+  createCategory:  (data)       => api.post('/service/category', data),
+  updateCategory:  (id, data)   => api.put(`/service/category/${id}`, data),
+  deleteCategory:  (id)         => api.delete(`/service/category/${id}`),
+
+  // Package sub-resource
+  getPackage:     ()           => api.get('/service/package/all'),
+  createPackage:   (data)       => api.post('/service/package', data),
+  updatePackage:   (id, data)   => api.put(`/service/package/${id}`, data),
+  deletePackage:   (id)         => api.delete(`/service/package/${id}`),
 };
 
+// ============================================================
+// BOOKING  (singular: /api/booking)
+// ============================================================
 export const bookingApi = {
-  create: (bookingData) => api.post('/bookings', bookingData),
-  getAll: (params) => api.get('/bookings', { params }),
-  getById: (id) => api.get(`/bookings/${id}`),
-  update: (id, data) => api.put(`/bookings/${id}`, data),
-  cancel: (id) => api.delete(`/bookings/${id}`),
+  create:  (data)       => api.post('/booking', data),
+  getAll:  (params)     => api.get('/booking', { params }),
+  getById: (id)         => api.get(`/booking/${id}`),
+  update:  (id, data)   => api.put(`/booking/${id}`, data),
+  cancel:  (id)         => api.delete(`/booking/${id}`),
 };
 
+// ============================================================
+// TECHNICIAN  (singular: /api/technician)
+// ============================================================
 export const technicianApi = {
-  getAll: () => api.get('/technicians'),
+  getAll: () => api.get('/technician'),
 };
 
+// ============================================================
+// REPORT  (singular: /api/report)
+// ============================================================
 export const reportApi = {
-  getDailyBookingReport: (date) => api.get('/reports/dailyBooking', { params: { date } }),
-  getRevenueAnalysis: (startDate, endDate) => api.get('/reports/revenueAnalysis', { params: { startDate, endDate } }),
-  getTechnicianPerformance: (startDate, endDate) => api.get('/reports/technicianPerformance', { params: { startDate, endDate } }),
-  getCustomerSatisfaction: (startDate, endDate) => api.get('/reports/customerSatisfaction', { params: { startDate, endDate } }),
-  getAdPerformance: (startDate, endDate) => api.get('/reports/adPerformance', { params: { startDate, endDate } }),
+  getDailyBookingReport:   (date)                    => api.get('/report/dailyBooking',         { params: { date } }),
+  getRevenueAnalysis:      (startDate, endDate)      => api.get('/report/revenueAnalysis',       { params: { startDate, endDate } }),
+  getTechnicianPerformance:(startDate, endDate)      => api.get('/report/technicianPerformance', { params: { startDate, endDate } }),
+  getCustomerSatisfaction: (startDate, endDate)      => api.get('/report/customerSatisfaction',  { params: { startDate, endDate } }),
+  getAdPerformance:        (startDate, endDate)      => api.get('/report/adPerformance',         { params: { startDate, endDate } }),
 };
 
-// USER MANAGEMENT API
+// ============================================================
+// USER  (singular: /api/user)
+// ============================================================
 export const userApi = {
-  getAll: () => api.get('/users'),
-  create: (data) => api.post('/users', data),
-  update: (id, data) => api.put(`/users/${id}`, data),
-  delete: (id) => api.delete(`/users/${id}`),
+  getAll: ()           => api.get('/user'),
+  create: (data)       => api.post('/user', data),
+  update: (id, data)   => api.put(`/user/${id}`, data),
+  delete: (id)         => api.delete(`/user/${id}`),
 };
 
+// ============================================================
+// ADVERTISEMENT  (singular: /api/advertisement)
+// ============================================================
 export const advertisementApi = {
-  create: (data) => api.post('/advertisements', data),
-  getAll: (params) => api.get('/advertisements', { params }),
-  getById: (id) => api.get(`/advertisements/${id}`),
-  update: (id, data) => api.put(`/advertisements/${id}`, data),
-  delete: (id) => api.delete(`/advertisements/${id}`),
-  getPlacements: () => api.get('/advertisements/placements'),
+  create:        (data)       => api.post('/advertisement', data),
+  getAll:        (params)     => api.get('/advertisement', { params }),
+  getById:       (id)         => api.get(`/advertisement/${id}`),
+  update:        (id, data)   => api.put(`/advertisement/${id}`, data),
+  delete:        (id)         => api.delete(`/advertisement/${id}`),
+  getPlacements: ()           => api.get('/advertisement/placement'),
 };
 
+// ============================================================
+// REFUND  (singular: /api/refund)
+// ============================================================
 export const refundApi = {
-  getAll: (params) => api.get('/refunds', { params }),
-  create: (data) => api.post('/refunds', data),
-  update: (id, data) => api.put(`/refunds/${id}`, data),
+  getAll: (params)     => api.get('/refund', { params }),
+  create: (data)       => api.post('/refund', data),
+  update: (id, data)   => api.put(`/refund/${id}`, data),
 };
 
+// ============================================================
+// SETTING  (singular: /api/setting)
+// ============================================================
 export const settingsApi = {
-  getAll: () => api.get('/settings'),
-  getByKey: (key) => api.get(`/settings/${key}`),
-  update: (key, value) => api.put(`/settings/${key}`, { value }),
+  getAll:   ()            => api.get('/setting'),
+  getByKey: (key)         => api.get(`/setting/${key}`),
+  update:   (key, value)  => api.put(`/setting/${key}`, { value }),
 };
 
+// ============================================================
+// CAMPAIGN  (singular: /api/campaign)
+// ============================================================
 export const campaignApi = {
-  create: (data) => api.post('/campaigns', data),
-  getAll: (params) => api.get('/campaigns', { params }),
-  getById: (id) => api.get(`/campaigns/${id}`),
-  update: (id, data) => api.put(`/campaigns/${id}`, data),
-  delete: (id) => api.delete(`/campaigns/${id}`),
-  addAd: (campaignId, data) => api.post(`/campaigns/${campaignId}/ads`, data),
+  create:  (data)              => api.post('/campaign', data),
+  getAll:  (params)            => api.get('/campaign', { params }),
+  getById: (id)                => api.get(`/campaign/${id}`),
+  update:  (id, data)          => api.put(`/campaign/${id}`, data),
+  delete:  (id)                => api.delete(`/campaign/${id}`),
+  addAd:   (campaignId, data)  => api.post(`/campaign/${campaignId}/advertisement`, data),
 };
 
+// ============================================================
+// TIME SLOT  (singular: /api/time-slot)
+// ============================================================
 export const timeSlotApi = {
-  getAll: () => api.get('/time-slots'),
-  create: (data) => api.post('/time-slots', data),
-  update: (id, data) => api.put(`/time-slots/${id}`, data),
-  delete: (id) => api.delete(`/time-slots/${id}`),
+  getAll: ()           => api.get('/time-slot'),
+  create: (data)       => api.post('/time-slot', data),
+  update: (id, data)   => api.put(`/time-slot/${id}`, data),
+  delete: (id)         => api.delete(`/time-slot/${id}`),
 };
 
+// ============================================================
+// PAYMENT  (singular: /api/payment)
+// ============================================================
 export const paymentApi = {
-  getAll: (params) => api.get('/payments', { params }),
-  getInvoice: (bookingId) => api.get(`/payments/invoice/booking/${bookingId}`),
-  getAdInvoice: (adId) => api.get(`/payments/invoice/ad/${adId}`),
-  processPayment: (paymentData) => api.post('/payments', paymentData),
+  getAll:         (params)       => api.get('/payment', { params }),
+  getInvoice:     (bookingId)    => api.get(`/payment/invoice/booking/${bookingId}`),
+  getAdInvoice:   (adId)         => api.get(`/payment/invoice/advertisement/${adId}`),
+  getMyPayment:   ()             => api.get('/payment/my'),
+  processPayment: (paymentData)  => api.post('/payment', paymentData),
 };
 
+// ============================================================
+// TRACKING  (/api/tracking — already singular)
+// ============================================================
 export const trackingApi = {
-  getTasks: () => api.get('/tracking/tasks'),
+  getTask:   ()          => api.get('/tracking/task'),
   getHistory: (bookingId) => api.get(`/tracking/history/${bookingId}`),
 };
 
+// ============================================================
+// FEEDBACK  (singular: /api/feedback)
+// ============================================================
 export const feedbackApi = {
-  create: (data) => api.post('/feedbacks', data),
-  getAll: (params) => api.get('/feedbacks', { params }),
-  update: (id, data) => api.put(`/feedbacks/${id}`, data),
-  delete: (id) => api.delete(`/feedbacks/${id}`),
+  create:  (data)       => api.post('/feedback', data),
+  getAll:  (params)     => api.get('/feedback', { params }),
+  update:  (id, data)   => api.put(`/feedback/${id}`, data),
+  delete:  (id)         => api.delete(`/feedback/${id}`),
 };
 
+// ============================================================
+// COMPLAINT  (singular: /api/complaint)
+// ============================================================
 export const complaintApi = {
-  create: (data) => api.post('/complaints', data),
-  getAll: (params) => api.get('/complaints', { params }),
-  update: (id, data) => api.put(`/complaints/${id}`, data),
+  create:  (data)       => api.post('/complaint', data),
+  getAll:  (params)     => api.get('/complaint', { params }),
+  update:  (id, data)   => api.put(`/complaint/${id}`, data),
 };
 
 export default api;

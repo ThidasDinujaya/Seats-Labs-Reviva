@@ -30,6 +30,7 @@ import BookingPage from './pages/BookingPage';
 import ProfileSettingsPage from './pages/ProfileSettingsPage';
 import PaymentPage from './pages/PaymentPage';
 import ComingSoon from './pages/ComingSoon';
+import AdvertiserPaymentsPage from './pages/AdvertiserPaymentsPage';
 import './App.css';
 
 // ============================================================
@@ -72,7 +73,7 @@ function App() {
           
           {/* Advertiser Routes */}
           <Route path="/advertiser" element={<AdvertiserDashboard />} />
-          <Route path="/advertiser/payments" element={<ComingSoon role="advertiser" title="Advertiser Payments" />} />
+          <Route path="/advertiser/payments" element={<AdvertiserPaymentsPage />} />
           <Route path="/advertiser/settings" element={<ProfileSettingsPage role="advertiser" />} />
           <Route path="/advertiser/login" element={<AdvertiserLoginPage />} />
           

@@ -9,7 +9,7 @@ const { authMiddleware, authorizeRole } = require('../middleware/authMiddleware'
 const {
   addAdvertisement,
   viewAdvertisement,
-  viewAllAdvertisements,
+  viewAllAdvertisement,
   updateAdvertisement,
   deleteAdvertisement,
   viewAdvertisementPlacements
@@ -20,7 +20,7 @@ const {
  * /api/advertisements:
  *   post:
  *     summary: Create a new advertisement
- *     tags: [Advertisements]
+ *     tags: [Advertisement]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -62,7 +62,7 @@ router.post('/', authMiddleware, authorizeRole('advertiser', 'admin'), addAdvert
  * /api/advertisements:
  *   get:
  *     summary: Get all advertisements
- *     tags: [Advertisements]
+ *     tags: [Advertisement]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -79,28 +79,28 @@ router.post('/', authMiddleware, authorizeRole('advertiser', 'admin'), addAdvert
  *       200:
  *         description: List of advertisements
  */
-router.get('/', authMiddleware, viewAllAdvertisements);
+router.get('/', authMiddleware, viewAllAdvertisement);
 
 /**
  * @swagger
  * /api/advertisements/placements:
  *   get:
  *     summary: Get all advertisement placements
- *     tags: [Advertisements]
+ *     tags: [Advertisement]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of ad placements
  */
-router.get('/placements', authMiddleware, viewAdvertisementPlacements);
+router.get('/placement', authMiddleware, viewAdvertisementPlacements);
 
 /**
  * @swagger
  * /api/advertisements/{advertisementId}:
  *   get:
  *     summary: Get advertisement by ID
- *     tags: [Advertisements]
+ *     tags: [Advertisement]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -120,7 +120,7 @@ router.get('/:advertisementId', authMiddleware, viewAdvertisement);
  * /api/advertisements/{advertisementId}:
  *   put:
  *     summary: Update advertisement
- *     tags: [Advertisements]
+ *     tags: [Advertisement]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -153,7 +153,7 @@ router.put('/:advertisementId', authMiddleware, updateAdvertisement);
  * /api/advertisements/{advertisementId}:
  *   delete:
  *     summary: Delete advertisement
- *     tags: [Advertisements]
+ *     tags: [Advertisement]
  *     security:
  *       - bearerAuth: []
  *     parameters:
