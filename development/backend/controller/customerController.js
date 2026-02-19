@@ -1,0 +1,153 @@
+// ============================================================
+// controllers/customerController.js
+// PURPOSE: CRUD #4 - Customer profile and vehicle management.
+// CRUD OPERATIONS:
+//   1. addCustomer      - POST   /api/customers (via register)
+//   2. viewCustomer     - GET    /api/customers/:customerId
+//   3. viewAllCustomers - GET    /api/customers
+//   4. updateCustomer   - PUT    /api/customers/:customerId
+//   5. deleteCustomer   - DELETE /api/customers/:customerId
+// EXTRA: Vehicle sub-operations for customer
+// ============================================================
+
+const pool = require('../config/database');
+
+// 1. ADD CUSTOMER - Handled by authController.register()
+// Customers register through /api/auth/register
+
+// ============================================================
+// 2. VIEW CUSTOMER - Get customer profile with vehicles
+// GET /api/customers/:customerId
+// ============================================================
+const viewCustomer = async (req, res) => {
+  const { customerId } = req.params;
+
+  try {
+    // Get customer with their user email
+    const customerResult = await pool.query(
+      `SELECT c.*, u."userEmail"
+       FROM "customer" c
+       JOIN "user" u ON c."userId" = u."userId"
+       WHERE c."customerId" = $1`,
+      [customerId]
+    );
+
+    if (customerResult.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Customer not found.' });
+    }
+
+    // Also get their vehicles
+    const vehicleResult = await pool.query(
+      'SELECT * FROM "vehicle" WHERE "customerId" = $1',
+      [customerId]
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        ...customerResult.rows[0],
+        vehicles: vehicleResult.rows
+      }
+    });
+  } catch (error) {
+    console.error('View customer error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch customer.' });
+  }
+};
+
+// ============================================================
+// 3. VIEW ALL CUSTOMERS
+// GET /api/customers
+// WHO CAN USE: Admin only
+// ============================================================
+const viewAllCustomers = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT c.*, u."userEmail", u."userIsActive",
+        (SELECT COUNT(*) FROM "booking" WHERE "customerId" = c."customerId") as "totalBookings"
+       FROM "customer" c
+       JOIN "user" u ON c."userId" = u."userId"
+       WHERE u."userIsActive" = true
+       ORDER BY c."customerFirstName" ASC`
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: result.rows,
+      meta: { total: result.rows.length }
+    });
+  } catch (error) {
+    console.error('View all customers error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch customers.' });
+  }
+};
+
+// ============================================================
+// 4. UPDATE CUSTOMER - Update profile information
+// PUT /api/customers/:customerId
+// ============================================================
+const updateCustomer = async (req, res) => {
+  const { customerId } = req.params;
+  const { customerFirstName, customerLastName, customerPhone, customerAddress } = req.body;
+
+  try {
+    const existing = await pool.query(
+      'SELECT * FROM "customer" WHERE "customerId" = $1',
+      [customerId]
+    );
+
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Customer not found.' });
+    }
+
+    const result = await pool.query(
+      `UPDATE "customer" SET
+        "customerFirstName" = COALESCE($1, "customerFirstName"),
+        "customerLastName" = COALESCE($2, "customerLastName"),
+        "customerPhone" = COALESCE($3, "customerPhone"),
+        "customerAddress" = COALESCE($4, "customerAddress")
+       WHERE "customerId" = $5
+       RETURNING *`,
+      [customerFirstName, customerLastName, customerPhone, customerAddress, customerId]
+    );
+
+    return res.status(200).json({ success: true, data: result.rows[0] });
+  } catch (error) {
+    console.error('Update customer error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to update customer.' });
+  }
+};
+
+// ============================================================
+// 5. DELETE CUSTOMER - Soft delete via user deactivation
+// DELETE /api/customers/:customerId
+// ============================================================
+const deleteCustomer = async (req, res) => {
+  const { customerId } = req.params;
+
+  try {
+    const existing = await pool.query(
+      'SELECT "userId" FROM "customer" WHERE "customerId" = $1',
+      [customerId]
+    );
+
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Customer not found.' });
+    }
+
+    await pool.query(
+      'UPDATE "user" SET "userIsActive" = false WHERE "userId" = $1',
+      [existing.rows[0].userId]
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: { message: 'Customer deleted successfully.' }
+    });
+  } catch (error) {
+    console.error('Delete customer error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to delete customer.' });
+  }
+};
+
+module.exports = { viewCustomer, viewAllCustomers, updateCustomer, deleteCustomer };
