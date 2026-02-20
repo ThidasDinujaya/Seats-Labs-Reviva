@@ -3,27 +3,10 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Advertisement from '../components/Advertisement';
-import { settingsApi } from '../api/api';
 import { useAuth } from '../context/AuthContext';
 
 const HomePage = () => {
-  const [settings, setSettings] = React.useState({});
   const { user } = useAuth();
-
-  React.useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const res = await settingsApi.getAll();
-        if (res.success) {
-          const settingsMap = res.data.reduce((acc, s) => ({ ...acc, [s.settingKey]: s.settingValue }), {});
-          setSettings(settingsMap);
-        }
-      } catch (err) {
-        console.error('Home settings load error:', err);
-      }
-    };
-    fetchSettings();
-  }, []);
 
   return (
     <div className="homepage">

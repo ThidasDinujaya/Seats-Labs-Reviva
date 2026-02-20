@@ -6,7 +6,6 @@ import Footer from '../components/Footer';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ userEmail: '', userPassword: '' });
-  const [isStaff, setIsStaff] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -103,7 +102,7 @@ const LoginPage = () => {
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '10px 0' }}>
-                <a href="#" style={{ fontSize: '0.85rem', color: 'var(--crimson)', textDecoration: 'none', fontWeight: '700' }}>Forgot password?</a>
+                <Link to="/coming-soon" style={{ fontSize: '0.85rem', color: 'var(--crimson)', textDecoration: 'none', fontWeight: '700' }}>Forgot password?</Link>
               </div>
 
               <button 
