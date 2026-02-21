@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import SidebarLayout from '../components/SidebarLayout';
 import { serviceApi, timeSlotApi } from '../api/api';
-import { Plus, X, Search, Package, List, Settings, Eye, Edit2, Trash2, Clock } from 'lucide-react';
-import { formatTime } from '../utils/formatters';
+import { Plus, X, Search, Package, List, Settings, Eye, Edit2, Trash2, Clock, Save } from 'lucide-react';
 
 const ManagerServicesPage = () => {
     const [activeTab, setActiveTab] = useState('categories');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterCategory, setFilterCategory] = useState('');
-    const [filterPackage, setFilterPackage] = useState('');
-    const [filterStatus, setFilterStatus] = useState('');
-    const [sortOrder, setSortOrder] = useState('desc'); // default to newest first
 
     // Data states
     const [services, setServices] = useState([]);
@@ -52,6 +47,7 @@ const ManagerServicesPage = () => {
     });
 
     const [timeSlotForm, setTimeSlotForm] = useState({
+        timeSlotDate: '',
         timeSlotStartTime: '',
         timeSlotEndTime: '',
         timeSlotMaxCapacity: 3,
@@ -61,9 +57,6 @@ const ManagerServicesPage = () => {
     useEffect(() => {
         fetchData();
         setSelectedId(null);
-        setFilterCategory('');
-        setFilterPackage('');
-        setFilterStatus('');
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeTab]);
 
@@ -189,7 +182,7 @@ const ManagerServicesPage = () => {
         setServiceForm({ serviceName: '', serviceDescription: '', serviceDuration: '', servicePrice: '', serviceCategoryId: '', serviceIsActive: true });
         setCategoryForm({ serviceCategoryName: '', serviceCategoryDescription: '', serviceCategoryIsActive: true });
         setPackageForm({ servicePackageName: '', servicePackageDescription: '', servicePackagePrice: '', serviceIds: [], servicePackageIsActive: true });
-        setTimeSlotForm({ timeSlotStartTime: '', timeSlotEndTime: '', timeSlotMaxCapacity: 3, timeSlotIsActive: true });
+        setTimeSlotForm({ timeSlotDate: '', timeSlotStartTime: '', timeSlotEndTime: '', timeSlotMaxCapacity: 3, timeSlotIsActive: true });
         setShowModal(true);
     };
 
@@ -203,15 +196,6 @@ const ManagerServicesPage = () => {
         setShowModal(true);
     };
 
-    const openEditModal = () => {
-        if (!selectedId) return;
-        const item = findSelectedItem();
-        setModalMode('edit');
-        setViewOnly(false);
-        setCurrentItem(item);
-        fillForm(item);
-        setShowModal(true);
-    };
 
     const findSelectedItem = () => {
         if (activeTab === 'services') return services.find(s => s.serviceId === selectedId);
@@ -247,6 +231,7 @@ const ManagerServicesPage = () => {
             });
         } else if (activeTab === 'timeslots') {
             setTimeSlotForm({
+                timeSlotDate: item.timeSlotDate ? item.timeSlotDate.split('T')[0] : '',
                 timeSlotStartTime: item.timeSlotStartTime,
                 timeSlotEndTime: item.timeSlotEndTime,
                 timeSlotMaxCapacity: item.timeSlotMaxCapacity,
@@ -259,46 +244,16 @@ const ManagerServicesPage = () => {
         let data = [];
         if (activeTab === 'services') {
             data = services.filter(s => s.serviceName.toLowerCase().includes(searchTerm.toLowerCase()));
-            if (filterCategory) {
-                data = data.filter(s => String(s.serviceCategoryId) === String(filterCategory));
-            }
-            if (filterPackage) {
-                data = data.filter(s => s.packages?.some(p => String(p.servicePackageId) === String(filterPackage)));
-            }
-            if (filterStatus) {
-                data = data.filter(s => filterStatus === 'active' ? s.serviceIsActive : !s.serviceIsActive);
-            }
         } else if (activeTab === 'categories') {
             data = categories.filter(c => c.serviceCategoryName.toLowerCase().includes(searchTerm.toLowerCase()));
-            if (filterStatus) {
-                data = data.filter(c => filterStatus === 'active' ? c.serviceCategoryIsActive : !c.serviceCategoryIsActive);
-            }
         } else if (activeTab === 'packages') {
             data = packages.filter(p => p.servicePackageName.toLowerCase().includes(searchTerm.toLowerCase()));
-            if (filterStatus) {
-                data = data.filter(p => filterStatus === 'active' ? p.servicePackageIsActive : !p.servicePackageIsActive);
-            }
         } else if (activeTab === 'timeslots') {
-            data = timeSlots.filter(t => 
+            data = timeSlots.filter(t =>
+                (t.timeSlotDate || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
                 t.timeSlotStartTime.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 t.timeSlotEndTime.toLowerCase().includes(searchTerm.toLowerCase())
             );
-            if (filterStatus) {
-                data = data.filter(t => filterStatus === 'active' ? t.timeSlotIsActive : !t.timeSlotIsActive);
-            }
-        }
-        if (sortOrder === 'asc') {
-            data.sort((a, b) => {
-                const idA = activeTab === 'services' ? a.serviceId : activeTab === 'categories' ? a.serviceCategoryId : activeTab === 'packages' ? a.servicePackageId : a.timeSlotId;
-                const idB = activeTab === 'services' ? b.serviceId : activeTab === 'categories' ? b.serviceCategoryId : activeTab === 'packages' ? b.servicePackageId : b.timeSlotId;
-                return idA - idB;
-            });
-        } else {
-            data.sort((a, b) => {
-                const idA = activeTab === 'services' ? a.serviceId : activeTab === 'categories' ? a.serviceCategoryId : activeTab === 'packages' ? a.servicePackageId : a.timeSlotId;
-                const idB = activeTab === 'services' ? b.serviceId : activeTab === 'categories' ? b.serviceCategoryId : activeTab === 'packages' ? b.servicePackageId : b.timeSlotId;
-                return idB - idA;
-            });
         }
         return data;
     };
@@ -307,6 +262,7 @@ const ManagerServicesPage = () => {
 
     return (
         <SidebarLayout role="manager">
+            <>
             <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ marginBottom: '15px' }}>
                     <h1 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--navy)', margin: 0 }}>Service Management</h1>
@@ -314,237 +270,208 @@ const ManagerServicesPage = () => {
                     <p style={{ color: '#666', margin: 0 }}>Manage service categories, services, and service packages.</p>
                 </div>
 
-            {/* Tabs */}
-            <div style={tabContainerStyle}>
-                <button onClick={() => setActiveTab('categories')} style={activeTab === 'categories' ? activeTabStyle : tabStyle}>
-                    <List size={18} /> Service Category
-                </button>
-                <button onClick={() => setActiveTab('services')} style={activeTab === 'services' ? activeTabStyle : tabStyle}>
-                    <Settings size={18} /> Service
-                </button>
-                <button onClick={() => setActiveTab('packages')} style={activeTab === 'packages' ? activeTabStyle : tabStyle}>
-                    <Package size={18} /> Service Package
-                </button>
-                <button onClick={() => setActiveTab('timeslots')} style={activeTab === 'timeslots' ? activeTabStyle : tabStyle}>
-                    <Clock size={18} /> Time Slot
-                </button>
-            </div>
+                <div style={{ padding: '20px', borderBottom: '1px solid #f1f5f9', background: '#fff', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}>
+                    <div style={tabContainerStyle}>
+                        <button onClick={() => setActiveTab('categories')} style={activeTab === 'categories' ? activeTabStyle : tabStyle}>
+                            <List size={18} /> Service Category
+                        </button>
+                        <button onClick={() => setActiveTab('services')} style={activeTab === 'services' ? activeTabStyle : tabStyle}>
+                            <Settings size={18} /> Service
+                        </button>
+                        <button onClick={() => setActiveTab('packages')} style={activeTab === 'packages' ? activeTabStyle : tabStyle}>
+                            <Package size={18} /> Service Package
+                        </button>
+                        <button onClick={() => setActiveTab('timeslots')} style={activeTab === 'timeslots' ? activeTabStyle : tabStyle}>
+                            <Clock size={18} /> Time Slot
+                        </button>
+                    </div>
 
-            {/* Search and Filter */}
-            <div style={{ ...searchContainerStyle, display: 'flex', gap: '15px', maxWidth: 'none' }}>
-                <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
-                    <Search size={20} style={searchIconStyle} />
-                    <input 
-                        type="text" 
-                        placeholder={`Search ${activeTab === 'categories' ? 'Service Category' : activeTab === 'services' ? 'Service' : activeTab === 'packages' ? 'Service Package' : 'Time Slot'}...`} 
-                        value={searchTerm} 
-                        onChange={(e) => setSearchTerm(e.target.value)} 
-                        style={{ ...searchInputStyle, paddingLeft: '40px' }} 
-                    />
-                </div>
-                
-                {activeTab === 'services' && (
-                    <>
-                        <div style={{ minWidth: '160px' }}>
-                            <select 
-                                value={filterCategory} 
-                                onChange={(e) => setFilterCategory(e.target.value)}
-                                style={searchInputStyle}
-                            >
-                                <option value="">All Categories</option>
-                                {categories.map(c => (
-                                    <option key={c.serviceCategoryId} value={c.serviceCategoryId}>
-                                        {c.serviceCategoryName}
-                                    </option>
-                                ))}
-                            </select>
+                    <div style={{ display: 'flex', gap: '15px' }}>
+                        <div style={{ position: 'relative', flex: 1 }}>
+                            <Search size={20} style={searchIconStyle} />
+                            <input 
+                                type="text" 
+                                placeholder={`Search ${activeTab === 'categories' ? 'Service Category' : activeTab === 'services' ? 'Service' : activeTab === 'packages' ? 'Service Package' : 'Time Slot'}...`} 
+                                value={searchTerm} 
+                                onChange={(e) => setSearchTerm(e.target.value)} 
+                                style={{ ...searchInputStyle, paddingLeft: '40px', fontSize: '0.9rem' }} 
+                            />
                         </div>
-                        <div style={{ minWidth: '160px' }}>
-                            <select 
-                                value={filterPackage} 
-                                onChange={(e) => setFilterPackage(e.target.value)}
-                                style={searchInputStyle}
-                            >
-                                <option value="">All Packages</option>
-                                {packages.map(p => (
-                                    <option key={p.servicePackageId} value={p.servicePackageId}>
-                                        {p.servicePackageName}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </>
-                )}
-
-                <div style={{ minWidth: '140px' }}>
-                    <select 
-                        value={filterStatus} 
-                        onChange={(e) => setFilterStatus(e.target.value)}
-                        style={searchInputStyle}
-                    >
-                        <option value="">All Statuses</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
+                                            </div>
                 </div>
-
-                <div style={{ minWidth: '180px' }}>
-                    <select 
-                        value={sortOrder} 
-                        onChange={(e) => setSortOrder(e.target.value)}
-                        style={{ ...searchInputStyle, background: '#f1f5f9', paddingLeft: '15px' }}
-                    >
-                        <option value="desc">Sort: Newest (ID desc)</option>
-                        <option value="asc">Sort: Oldest (ID asc)</option>
-                    </select>
-                </div>
-            </div>
 
             {/* Table */}
-            <div style={tableWrapperStyle}>
-                <table style={tableStyle}>
-                    <thead style={tableHeadStyle}>
-                        <tr>
-                            {activeTab === 'services' && (
-                                <>
-                                    <th style={thStyle}>serviceId</th>
-                                    <th style={thStyle}>serviceName</th>
-                                    <th style={thStyle}>serviceCategoryName</th>
-                                    <th style={thStyle}>serviceDuration</th>
-                                    <th style={thStyle}>servicePrice</th>
-                                    <th style={{ ...thStyle, textAlign: 'right' }}>serviceIsActive</th>
-                                </>
+            <div style={{ 
+                background: '#fff', 
+                borderRadius: '16px', 
+                border: '1px solid #f1f5f9', 
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                position: 'relative'
+            }}>
+                <div style={{ flex: 1, overflow: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', minWidth: activeTab === 'services' ? '1200px' : '1000px' }}>
+                        <thead style={{ position: 'sticky', top: 0, zIndex: 10, background: '#fff' }}>
+                            <tr style={{ borderBottom: '2px solid #f1f5f9' }}>
+                                {activeTab === 'services' && (
+                                    <>
+                                        <th style={thStyle}>serviceId</th>
+                                        <th style={thStyle}>serviceName</th>
+                                        <th style={thStyle}>serviceCategoryId</th>
+                                        <th style={thStyle}>serviceDuration</th>
+                                        <th style={thStyle}>servicePrice</th>
+                                        <th style={{ ...thStyle, textAlign: 'right' }}>serviceIsActive</th>
+                                    </>
+                                )}
+                                {activeTab === 'categories' && (
+                                    <>
+                                        <th style={thStyle}>serviceCategoryId</th>
+                                        <th style={thStyle}>serviceCategoryName</th>
+                                        <th style={thStyle}>serviceCategoryDescription</th>
+                                        <th style={{ ...thStyle, textAlign: 'right' }}>serviceCategoryIsActive</th>
+                                    </>
+                                )}
+                                {activeTab === 'packages' && (
+                                    <>
+                                        <th style={thStyle}>servicePackageId</th>
+                                        <th style={thStyle}>servicePackageName</th>
+                                        <th style={thStyle}>servicePackageDescription</th>
+                                        <th style={thStyle}>servicePackagePrice</th>
+                                        <th style={{ ...thStyle, textAlign: 'right' }}>servicePackageIsActive</th>
+                                    </>
+                                )}
+                                {activeTab === 'timeslots' && (
+                                    <>
+                                        <th style={thStyle}>timeSlotId</th>
+                                        <th style={thStyle}>timeSlotDate</th>
+                                        <th style={thStyle}>timeSlotStartTime</th>
+                                        <th style={thStyle}>timeSlotEndTime</th>
+                                        <th style={thStyle}>timeSlotMaxCapacity</th>
+                                        <th style={{ ...thStyle, textAlign: 'right' }}>timeSlotIsActive</th>
+                                    </>
+                                )}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan="6" style={loadingCellStyle}>Synchronizing Service Assets...</td></tr>
+                            ) : filteredData().length > 0 ? (
+                                filteredData().map((item, idx) => {
+                                    const id = activeTab === 'services' ? item.serviceId : activeTab === 'categories' ? item.serviceCategoryId : activeTab === 'packages' ? item.servicePackageId : item.timeSlotId;
+                                    const isSelected = selectedId === id;
+                                    return (
+                                        <tr 
+                                            key={idx} 
+                                            style={{ borderBottom: '1px solid #f1f5f9', background: isSelected ? '#f8fafc' : 'transparent', cursor: 'pointer', transition: 'background 0.2s' }}
+                                            onClick={() => setSelectedId(isSelected ? null : id)}
+                                        >
+                                            {activeTab === 'services' && (
+                                                <>
+                                                    <td style={{ ...tdStyle, fontWeight: '800', color: 'var(--navy)' }}>{item.serviceId}</td>
+                                                    <td style={{ ...tdStyle, fontWeight: '700' }}>{item.serviceName}</td>
+                                                    <td style={tdStyle}>{item.serviceCategoryId ?? '-'}</td>
+                                                    <td style={{ ...tdStyle, fontWeight: '600' }}>{item.serviceDuration} mins</td>
+                                                    <td style={{ ...tdStyle, fontWeight: '800', color: 'var(--crimson)' }}>Rs. {parseFloat(item.servicePrice).toLocaleString()}</td>
+                                                    <td style={{ ...tdStyle, textAlign: 'right' }}>
+                                                        <span style={{ 
+                                                            padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', 
+                                                            background: item.serviceIsActive ? '#dcfce7' : '#fee2e2', color: item.serviceIsActive ? '#15803d' : '#b91c1c',
+                                                            textTransform: 'uppercase'
+                                                        }}>
+                                                            {item.serviceIsActive ? 'Active' : 'Halted'}
+                                                        </span>
+                                                    </td>
+                                                </>
+                                            )}
+                                            {activeTab === 'categories' && (
+                                                <>
+                                                    <td style={{ ...tdStyle, fontWeight: '800', color: 'var(--navy)' }}>{item.serviceCategoryId}</td>
+                                                    <td style={{ ...tdStyle, fontWeight: '700' }}>{item.serviceCategoryName}</td>
+                                                    <td style={{ ...tdStyle, fontSize: '0.75rem', color: '#64748b' }}>{item.serviceCategoryDescription || '-'}</td>
+                                                    <td style={{ ...tdStyle, textAlign: 'right' }}>
+                                                        <span style={{ 
+                                                            padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', 
+                                                            background: item.serviceCategoryIsActive ? '#dcfce7' : '#fee2e2', color: item.serviceCategoryIsActive ? '#15803d' : '#b91c1c',
+                                                            textTransform: 'uppercase'
+                                                        }}>
+                                                            {item.serviceCategoryIsActive ? 'Active' : 'Inactive'}
+                                                        </span>
+                                                    </td>
+                                                </>
+                                            )}
+                                            {activeTab === 'packages' && (
+                                                <>
+                                                    <td style={{ ...tdStyle, fontWeight: '800', color: 'var(--navy)' }}>{item.servicePackageId}</td>
+                                                    <td style={{ ...tdStyle, fontWeight: '700' }}>{item.servicePackageName}</td>
+                                                    <td style={{ ...tdStyle, fontSize: '0.75rem', color: '#64748b' }}>{item.servicePackageDescription || '-'}</td>
+                                                    <td style={{ ...tdStyle, fontWeight: '800', color: 'var(--crimson)' }}>Rs. {parseFloat(item.servicePackagePrice).toLocaleString()}</td>
+                                                    <td style={{ ...tdStyle, textAlign: 'right' }}>
+                                                        <span style={{ 
+                                                            padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', 
+                                                            background: item.servicePackageIsActive ? '#dcfce7' : '#fee2e2', color: item.servicePackageIsActive ? '#15803d' : '#b91c1c',
+                                                            textTransform: 'uppercase'
+                                                        }}>
+                                                            {item.servicePackageIsActive ? 'Active' : 'Halted'}
+                                                        </span>
+                                                    </td>
+                                                </>
+                                            )}
+                                            {activeTab === 'timeslots' && (
+                                                <>
+                                                    <td style={{ ...tdStyle, fontWeight: '800', color: 'var(--navy)' }}>{item.timeSlotId}</td>
+                                                    <td style={{ ...tdStyle, fontWeight: '700' }}>{item.timeSlotDate ? new Date(item.timeSlotDate).toLocaleDateString() : '-'}</td>
+                                                    <td style={{ ...tdStyle, fontWeight: '700' }}>{item.timeSlotStartTime}</td>
+                                                    <td style={{ ...tdStyle, fontWeight: '700' }}>{item.timeSlotEndTime}</td>
+                                                    <td style={{ ...tdStyle, fontWeight: '800' }}>{item.timeSlotMaxCapacity} units</td>
+                                                    <td style={{ ...tdStyle, textAlign: 'right' }}>
+                                                        <span style={{ 
+                                                            padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', 
+                                                            background: item.timeSlotIsActive ? '#dcfce7' : '#fee2e2', color: item.timeSlotIsActive ? '#15803d' : '#b91c1c',
+                                                            textTransform: 'uppercase'
+                                                        }}>
+                                                            {item.timeSlotIsActive ? 'Open' : 'Closed'}
+                                                        </span>
+                                                    </td>
+                                                </>
+                                            )}
+                                        </tr>
+                                    );
+                                })
+                            ) : (
+                                <tr><td colSpan="6" style={loadingCellStyle}>No Data Found in Service Registry.</td></tr>
                             )}
-                            {activeTab === 'categories' && (
-                                <>
-                                    <th style={thStyle}>serviceCategoryId</th>
-                                    <th style={thStyle}>serviceCategoryName</th>
-                                    <th style={thStyle}>serviceCategoryDescription</th>
-                                    <th style={{ ...thStyle, textAlign: 'right' }}>serviceCategoryIsActive</th>
-                                </>
-                            )}
-                            {activeTab === 'packages' && (
-                                <>
-                                    <th style={thStyle}>servicePackageId</th>
-                                    <th style={thStyle}>servicePackageName</th>
-                                    <th style={thStyle}>servicePackagePrice</th>
-                                    <th style={thStyle}>servicePackageItem</th>
-                                    <th style={{ ...thStyle, textAlign: 'right' }}>servicePackageIsActive</th>
-                                </>
-                            )}
-                            {activeTab === 'timeslots' && (
-                                <>
-                                    <th style={thStyle}>timeSlotId</th>
-                                    <th style={thStyle}>timeSlotStartTime</th>
-                                    <th style={thStyle}>timeSlotEndTime</th>
-                                    <th style={thStyle}>timeSlotMaxCapacity</th>
-                                    <th style={{ ...thStyle, textAlign: 'right' }}>timeSlotIsActive</th>
-                                </>
-                            )}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan="6" style={loadingCellStyle}>Loading...</td></tr>
-                        ) : filteredData().length > 0 ? (
-                            filteredData().map((item, idx) => {
-                                const id = activeTab === 'services' ? item.serviceId : activeTab === 'categories' ? item.serviceCategoryId : activeTab === 'packages' ? item.servicePackageId : item.timeSlotId;
-                                const isSelected = selectedId === id;
-                                return (
-                                    <tr 
-                                        key={idx} 
-                                        style={{ ...trStyle, background: isSelected ? '#f1f5f9' : 'transparent', cursor: 'pointer' }}
-                                        onClick={() => setSelectedId(isSelected ? null : id)}
-                                    >
-                                        {activeTab === 'services' && (
-                                            <>
-                                                <td style={tdStyle}>{item.serviceId}</td>
-                                                <td style={tdStyle}><b>{item.serviceName}</b></td>
-                                                <td style={tdStyle}>{item.serviceCategoryName || 'Uncategorized'}</td>
-                                                <td style={tdStyle}>{item.serviceDuration} mins</td>
-                                                <td style={tdStyle}>Rs. {parseFloat(item.servicePrice).toLocaleString()}</td>
-                                                <td style={{ ...tdStyle, textAlign: 'right' }}>
-                                                    <span style={{ color: item.serviceIsActive ? '#10b981' : '#ef4444', fontWeight: '600' }}>
-                                                        {item.serviceIsActive ? 'Active' : 'Inactive'}
-                                                    </span>
-                                                </td>
-                                            </>
-                                        )}
-                                        {activeTab === 'categories' && (
-                                            <>
-                                                <td style={tdStyle}>{item.serviceCategoryId}</td>
-                                                <td style={tdStyle}><b>{item.serviceCategoryName}</b></td>
-                                                <td style={tdStyle}>{item.serviceCategoryDescription || '-'}</td>
-                                                <td style={{ ...tdStyle, textAlign: 'right' }}>
-                                                    <span style={{ color: item.serviceCategoryIsActive ? '#10b981' : '#ef4444', fontWeight: '600' }}>
-                                                        {item.serviceCategoryIsActive ? 'Active' : 'Inactive'}
-                                                    </span>
-                                                </td>
-                                            </>
-                                        )}
-                                        {activeTab === 'packages' && (
-                                            <>
-                                                <td style={tdStyle}>{item.servicePackageId}</td>
-                                                <td style={tdStyle}><b>{item.servicePackageName}</b></td>
-                                                <td style={tdStyle}>Rs. {parseFloat(item.servicePackagePrice).toLocaleString()}</td>
-                                                <td style={tdStyle}>
-                                                    {item.services?.filter(s => s.serviceId).map(s => s.serviceName).join(', ') || 'No services'}
-                                                </td>
-                                                <td style={{ ...tdStyle, textAlign: 'right' }}>
-                                                    <span style={{ color: item.servicePackageIsActive ? '#10b981' : '#ef4444', fontWeight: '600' }}>
-                                                        {item.servicePackageIsActive ? 'Active' : 'Inactive'}
-                                                    </span>
-                                                </td>
-                                            </>
-                                        )}
-                                        {activeTab === 'timeslots' && (
-                                            <>
-                                                <td style={tdStyle}>{item.timeSlotId}</td>
-                                                <td style={tdStyle}><b>{formatTime(item.timeSlotStartTime)}</b></td>
-                                                <td style={tdStyle}>{formatTime(item.timeSlotEndTime)}</td>
-                                                <td style={tdStyle}>{item.timeSlotMaxCapacity} bookings</td>
-                                                <td style={{ ...tdStyle, textAlign: 'right' }}>
-                                                    <span style={{ color: item.timeSlotIsActive ? '#10b981' : '#ef4444', fontWeight: '600' }}>
-                                                        {item.timeSlotIsActive ? 'Active' : 'Inactive'}
-                                                    </span>
-                                                </td>
-                                            </>
-                                        )}
-                                    </tr>
-                                );
-                            })
-                        ) : (
-                            <tr><td colSpan="6" style={loadingCellStyle}>No data found.</td></tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                        </tbody>
+                    </table>
+                </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', padding: '20px 0', borderTop: '1px solid #f1f5f9', marginTop: '10px' }}>
-                <button onClick={openAddModal} style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Plus size={18} /> Add {entityLabel}
-                </button>
-                <button 
-                    onClick={openEditModal} 
-                    disabled={!selectedId}
-                    style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: selectedId ? '#3b82f6' : '#f1f5f9', color: selectedId ? 'white' : '#94a3b8', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                    <Edit2 size={18} /> Update {entityLabel}
-                </button>
-                <button 
-                    onClick={openViewModal} 
-                    disabled={!selectedId}
-                    style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: selectedId ? 'var(--yellow)' : '#f1f5f9', color: selectedId ? 'black' : '#94a3b8', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                    <Eye size={18} /> View {entityLabel}
-                </button>
-                <button 
-                    onClick={() => handleDelete(selectedId)} 
-                    disabled={!selectedId}
-                    style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: selectedId ? '#ef4444' : '#f1f5f9', color: selectedId ? 'white' : '#94a3b8', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                    <Trash2 size={18} /> Delete {entityLabel}
-                </button>
+                {/* Persistent Control Deck */}
+                <div style={{ 
+                    position: 'fixed', 
+                    bottom: '30px', 
+                    right: '30px', 
+                    display: 'flex', 
+                    gap: '12px', 
+                    zIndex: 1000,
+                    background: 'rgba(255,255,255,0.9)',
+                    padding: '15px',
+                    borderRadius: '12px',
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid #e2e8f0'
+                }}>
+                    <button onClick={openAddModal} style={{ padding: '12px 24px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
+                        <Plus size={18} /> Add {entityLabel}
+                    </button>
+                    <button 
+                        onClick={openViewModal} 
+                        disabled={!selectedId}
+                        style={{ padding: '12px 24px', borderRadius: '8px', border: 'none', background: selectedId ? 'var(--yellow)' : '#f1f5f9', color: selectedId ? 'black' : '#94a3b8', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}
+                    >
+                        <Eye size={18} /> View {entityLabel}
+                    </button>
+                </div>
             </div>
             </div>
 
@@ -554,14 +481,14 @@ const ManagerServicesPage = () => {
                     <div style={modalContentStyle}>
                         <div style={modalHeaderStyle}>
                             <h2 style={{ margin: 0 }}>
-                                {modalMode === 'add' ? 'Add' : modalMode === 'view' ? 'View' : 'Edit'} {
+                                {modalMode === 'add' ? 'Add' : modalMode === 'view' ? 'View' : 'Update'} {
                                     activeTab === 'categories' ? 'Service Category' : 
                                     activeTab === 'services' ? 'Service' : 
                                     activeTab === 'packages' ? 'Service Package' :
                                     'Time Slot'
                                 }
                             </h2>
-                            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+                            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><X size={20} /></button>
                         </div>
                         <form style={{ padding: '20px' }} onSubmit={
                             viewOnly ? (e) => e.preventDefault() :
@@ -690,6 +617,17 @@ const ManagerServicesPage = () => {
                             {activeTab === 'timeslots' && (
                                 <>
                                     <div style={formGroupStyle}>
+                                         <label style={labelStyle}>Time Slot Date</label>
+                                         <input 
+                                             type="date" 
+                                             value={timeSlotForm.timeSlotDate} 
+                                             onChange={(e) => setTimeSlotForm({...timeSlotForm, timeSlotDate: e.target.value})} 
+                                             required 
+                                             style={inputStyle} 
+                                             disabled={viewOnly} 
+                                         />
+                                     </div>
+                                    <div style={formGroupStyle}>
                                          <label style={labelStyle}>Start Time</label>
                                          <input 
                                              type="time" 
@@ -739,35 +677,62 @@ const ManagerServicesPage = () => {
                                 </>
                             )}
 
-                            {!viewOnly && (
+                            {viewOnly ? (
                                 <div style={modalFooterStyle}>
-                                    <button type="button" onClick={() => setShowModal(false)} style={cancelBtnStyle}>Cancel</button>
-                                    <button type="submit" style={submitBtnStyle}>Save Changes</button>
+                                    <button 
+                                        type="button"
+                                        onClick={() => { setViewOnly(false); setModalMode('edit'); }}
+                                        style={{ ...submitBtnStyle, background: '#3b82f6', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                    >
+                                        <Edit2 size={18} /> Update {entityLabel}
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            handleDelete(selectedId);
+                                            setShowModal(false);
+                                            setSelectedId(null);
+                                        }}
+                                        style={{ ...submitBtnStyle, background: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                    >
+                                        <Trash2 size={18} /> Delete {entityLabel}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div style={modalFooterStyle}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowModal(false)}
+                                        style={{ ...submitBtnStyle, background: 'white', color: '#64748b', border: '1px solid #e2e8f0' }}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        style={{ ...submitBtnStyle, display: 'flex', alignItems: 'center', gap: '8px' }}
+                                    >
+                                        <Save size={18} /> {modalMode === 'add' ? `Save ${entityLabel}` : 'Save Changes'}
+                                    </button>
                                 </div>
                             )}
                         </form>
                     </div>
                 </div>
             )}
+            </>
         </SidebarLayout>
     );
 };
 
 // Styles
-const cancelBtnStyle = { padding: '10px 20px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white', cursor: 'pointer' };
 const submitBtnStyle = { padding: '10px 20px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', cursor: 'pointer' };
 const tabContainerStyle = { display: 'flex', gap: '8px', marginBottom: '25px', padding: '6px', background: '#f1f5f9', borderRadius: '12px', alignSelf: 'flex-start', width: 'fit-content' };
 const tabStyle = { padding: '10px 20px', border: 'none', background: 'transparent', color: '#475569', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '8px', transition: 'all 0.2s ease' };
 const activeTabStyle = { ...tabStyle, color: 'white', background: 'var(--navy)', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' };
-const searchContainerStyle = { marginBottom: '20px', position: 'relative', maxWidth: '400px' };
 const searchIconStyle = { position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' };
 const searchInputStyle = { width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none' };
-const tableWrapperStyle = { background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', overflowY: 'auto', flex: 1 };
-const tableStyle = { width: '100%', borderCollapse: 'collapse' };
-const tableHeadStyle = { background: '#f8fafc', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 1 };
 const thStyle = { padding: '15px 20px', textAlign: 'left', fontWeight: '600', color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' };
 const tdStyle = { padding: '15px 20px', color: '#334155', fontSize: '0.95rem' };
-const trStyle = { borderBottom: '1px solid #f1f5f9' };
 const loadingCellStyle = { padding: '40px', textAlign: 'center', color: '#64748b' };
 const modalOverlayStyle = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000 };
 const modalContentStyle = { background: 'white', borderRadius: '12px', width: '550px', maxWidth: '95%', maxHeight: '90vh', overflowY: 'auto' };

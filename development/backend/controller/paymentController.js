@@ -7,7 +7,15 @@ const pool = require('../config/database');
 
 // Create a payment for an invoice
 const createPayment = async (req, res) => {
-  const { invoiceId, paymentAmount, paymentMethod, paymentReference } = req.body;
+  const { 
+    invoiceId, 
+    paymentAmount, 
+    paymentMethod, 
+    paymentReference,
+    paymentSlipUrl,
+    paymentCardBrand,
+    paymentCardLastFour
+  } = req.body;
 
   try {
     if (!invoiceId || !paymentAmount || !paymentMethod) {
@@ -47,10 +55,10 @@ const createPayment = async (req, res) => {
 
       // 1. Insert payment
       const paymentResult = await client.query(
-        `INSERT INTO "payment" ("paymentAmount", "paymentMethod", "paymentStatus", "invoiceId", "paymentReference")
-         VALUES ($1, $2, 'completed', $3, $4)
+        `INSERT INTO "payment" ("paymentAmount", "paymentMethod", "paymentStatus", "invoiceId", "paymentReference", "paymentSlipUrl", "paymentCardBrand", "paymentCardLastFour")
+         VALUES ($1, $2, 'completed', $3, $4, $5, $6, $7)
          RETURNING *`,
-        [amountNum, paymentMethod, invoiceId, paymentReference || null]
+        [amountNum, paymentMethod, invoiceId, paymentReference || null, paymentSlipUrl || null, paymentCardBrand || null, paymentCardLastFour || null]
       );
 
       // 2. Update invoice status
@@ -117,7 +125,7 @@ const getInvoiceByBookingId = async (req, res) => {
     // Fetch invoice and booking ownership info
     // We join with user to get the email since it's not in the customer table
     const result = await pool.query(
-      `SELECT i.*, b."bookingRefNumber", b."customerId" as "ownerCustomerId",
+      `SELECT i."invoiceId", i."invoiceNumber", i."invoiceAmount", i."invoiceStatus", i."bookingId", i."advertisementId", i."invoiceCreatedAt", b."bookingRefNumber", b."customerId" as "ownerCustomerId",
               c."customerFirstName", c."customerLastName", u."userEmail" as "customerEmail", c."customerPhone", c."customerAddress",
               v."vehicleMake", v."vehicleModel", v."vehicleRegNumber",
               COALESCE(s."serviceName", p."servicePackageName") as "serviceName",
@@ -206,7 +214,8 @@ const getAllPayment = async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT p.*, i."invoiceNumber", i."bookingId", i."advertisementId",
+      `SELECT p."paymentId", p."paymentAmount", p."paymentMethod", p."paymentStatus", p."paymentDate", p."paymentReference", p."paymentSlipUrl", p."paymentCardBrand", p."paymentCardLastFour", p."invoiceId", p."paymentCreatedAt",
+              i."invoiceNumber", i."bookingId", i."advertisementId",
               c."customerFirstName", c."customerLastName",
               adv."advertiserBusinessName",
               s."serviceName",

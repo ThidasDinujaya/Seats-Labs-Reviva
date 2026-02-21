@@ -7,20 +7,20 @@ const trackingController = require('../controller/trackingController');
  * @swagger
  * tags:
  *   name: Tracking
- *   description: Service progress tracking and technician tasks
+ *   description: Service progress tracking
  */
 
 /**
  * @swagger
- * /api/tracking/tasks:
+ * /api/tracking:
  *   get:
- *     summary: Get all active technician tasks (Manager only)
+ *     summary: Get all active service tracking records (Manager only)
  *     tags: [Tracking]
  *     responses:
  *       200:
- *         description: List of active tasks
+ *         description: List of tracks
  */
-router.get('/task', trackingController.getTask);
+router.get('/', trackingController.getServiceTracking);
 
 /**
  * @swagger

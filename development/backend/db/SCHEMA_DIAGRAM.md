@@ -1,5 +1,10 @@
 # SeatsLabs Database Schema Diagram
 
+> **Last Updated:** February 20, 2026  
+> **Database:** PostgreSQL (seatslabs_db)
+
+---
+
 ## 📊 Entity Relationship Overview
 
 ```
@@ -11,95 +16,126 @@
                           │   user   │
                           │──────────│
                           │ userId   │ PK
-                          │ email    │
+                          │ email    │ UK
                           │ password │
                           │ role     │
+                          │ isActive │
                           └────┬─────┘
                                │
-                ┌──────────────┼──────────────┐
-                │              │              │
-                ▼              ▼              ▼
-          ┌──────────┐   ┌──────────┐  ┌──────────┐
-          │ customer │   │advertiser│  │technician│
-          │──────────│   │──────────│  │──────────│
-          │customerId│   │advertiserId│ │technicianId│
-          │firstName │   │businessName│ │firstName │
-          │lastName  │   │contactPerson│ │lastName  │
-          │phone     │   │phone     │  │phone     │
-          │address   │   │address   │  │specialization│
-          └────┬─────┘   └────┬─────┘  └────┬─────┘
+                ┌──────────────┼──────────────┬──────────────┐
+                │              │              │              │
+                ▼              ▼              ▼              ▼
+          ┌──────────┐   ┌──────────┐  ┌──────────┐  ┌──────────┐
+          │ customer │   │advertiser│  │technician│  │ manager  │
+          │──────────│   │──────────│  │──────────│  │──────────│
+          │customerId│   │advertiserId│ │technicianId│ │managerId │
+          │firstName │   │businessName│ │firstName │  │firstName │
+          │lastName  │   │contactPerson│ │lastName  │  │lastName  │
+          │phone     │   │phone     │  │phone     │  │phone     │
+          │address   │   │address   │  │specialization│ │userId FK│
+          └────┬─────┘   └────┬─────┘  └────┬─────┘  └──────────┘
                │              │              │
                │              │              │
                ▼              ▼              ▼
           (vehicles)    (advertisements) (bookings)
-          (bookings)                     (assigned)
+          (bookings)    (campaigns)      (assigned)
           (feedback)
+          (complaints)
+          (enquiries)
 
 
 ┌─────────────────────────────────────────────────────────────────┐
-│                    BOOKING SYSTEM                                │
+│                    SERVICE & BOOKING SYSTEM                       │
 └─────────────────────────────────────────────────────────────────┘
 
-┌──────────────┐         ┌──────────┐         ┌──────────┐
-│serviceCategory│◄───────│ service  │◄────────│ booking  │
-│──────────────│         │──────────│         │──────────│
-│categoryId    │         │serviceId │         │bookingId │
-│name          │         │name      │         │date      │
-│description   │         │duration  │         │startTime │
-└──────────────┘         │price     │         │endTime   │
-                         │categoryId│         │status    │
-                         └──────────┘         │refNumber │
-                                              │customerId│
-                                              │vehicleId │
-                                              │serviceId │
-                                              │technicianId│
-                                              └────┬─────┘
-                                                   │
-                                    ┌──────────────┼──────────────┐
-                                    │              │              │
-                                    ▼              ▼              ▼
-                            ┌──────────┐   ┌──────────┐  ┌──────────┐
-                            │ feedback │   │ tracking │  │ history  │
-                            │──────────│   │──────────│  │──────────│
-                            │feedbackId│   │trackingId│  │historyId │
-                            │rating    │   │status    │  │action    │
-                            │comment   │   │notes     │  │userId    │
-                            │bookingId │   │bookingId │  │bookingId │
-                            └──────────┘   └──────────┘  └──────────┘
+┌──────────────┐         ┌──────────┐     ┌───────────┐
+│serviceCategory│◄───────│ service  │◄────│  booking  │
+│──────────────│         │──────────│     │───────────│
+│categoryId    │         │serviceId │     │bookingId  │
+│name          │         │name      │     │date       │
+│description   │         │duration  │     │startTime  │
+│isActive      │         │price     │     │endTime    │
+└──────────────┘         │isActive  │     │status     │
+                         │categoryId│     │refNumber  │
+                         └──────────┘     │customerId │
+                                          │vehicleId  │
+┌──────────────┐  ┌─────────────────┐     │serviceId  │
+│servicePackage│──│servicePackageItem│     │packageId  │
+│──────────────│  │─────────────────│     │technicianId│
+│packageId     │  │itemId           │     │timeSlotId │
+│name          │  │packageId FK     │     └────┬──────┘
+│description   │  │serviceId FK     │          │
+│price         │  └─────────────────┘   ┌──────┼──────────────┐
+└──────────────┘                        │      │              │
+                                        ▼      ▼              ▼
+                                ┌──────────┐  ┌──────────┐  ┌──────────┐
+                                │ feedback │  │ tracking │  │ history  │
+                                │──────────│  │──────────│  │──────────│
+                                │feedbackId│  │trackingId│  │historyId │
+                                │rating    │  │status    │  │action    │
+                                │comment   │  │notes     │  │userId    │
+                                │bookingId │  │bookingId │  │bookingId │
+                                └──────────┘  └──────────┘  └──────────┘
+
+
+┌──────────────┐
+│  timeSlot    │
+│──────────────│
+│timeSlotId    │
+│date          │
+│startTime     │
+│endTime       │
+│maxCapacity   │
+│isActive      │
+└──────────────┘
 
 
 ┌─────────────────────────────────────────────────────────────────┐
-│                 ADVERTISEMENT SYSTEM                             │
+│                 ADVERTISEMENT SYSTEM                              │
 └─────────────────────────────────────────────────────────────────┘
 
-┌──────────────────┐         ┌──────────────┐
-│advertisementPlace│◄────────│advertisement │
-│──────────────────│         │──────────────│
-│placementId       │         │advertisementId│
-│name              │         │title         │
-│description       │         │content       │
-│price             │         │imageUrl      │
-└──────────────────┘         │startDate     │
-                             │endDate       │
-                             │status        │
-                             │advertiserId  │
-                             │placementId   │
-                             └──────┬───────┘
-                                    │
-                         ┌──────────┴──────────┐
-                         │                     │
-                         ▼                     ▼
-                  ┌──────────┐         ┌──────────┐
-                  │impression│         │  click   │
-                  │──────────│         │──────────│
-                  │impressionId│       │clickId   │
-                  │adId      │         │adId      │
-                  │createdAt │         │createdAt │
-                  └──────────┘         └──────────┘
+┌──────────────────┐       ┌──────────────────┐
+│advertisementPlace│◄──────│advertisementPric.│
+│──────────────────│       │──────────────────│
+│placementId       │       │pricingPlanId     │
+│slug              │       │name              │
+│name              │       │duration (days)   │
+│page              │       │price             │
+│position          │       │description       │
+│width             │       │isActive          │
+│height            │       │placementId FK    │
+│isFixed           │       └────────┬─────────┘
+└──────┬───────────┘                │
+       │              ┌─────────────┘
+       │              │
+       ▼              ▼
+┌──────────────┐    ┌──────────────────┐
+│advertisement │◄───│advertisementCamp.│
+│──────────────│    │──────────────────│
+│advertisementId│   │campaignId        │
+│title         │    │name              │
+│imageUrl      │    │startDate         │
+│startDate     │    │endDate           │
+│endDate       │    │status            │
+│status        │    │advertiserId FK   │
+│advertiserId  │    │pricingPlanId FK  │
+│placementId   │    └──────────────────┘
+│campaignId    │
+└──────┬───────┘
+       │
+       ├──────────┐
+       ▼          ▼
+┌──────────┐  ┌──────────┐
+│impression│  │  click   │
+│──────────│  │──────────│
+│impressionId│ │clickId  │
+│adId      │  │adId     │
+│createdAt │  │createdAt│
+└──────────┘  └─────────┘
 
 
 ┌─────────────────────────────────────────────────────────────────┐
-│                    FINANCIAL SYSTEM                              │
+│                    FINANCIAL SYSTEM                               │
 └─────────────────────────────────────────────────────────────────┘
 
 ┌──────────┐         ┌──────────┐         ┌──────────┐
@@ -110,25 +146,55 @@
                      │amount    │         │method    │
 ┌──────────┐         │status    │         │status    │
 │   ad     │────────►│bookingId │         │date      │
-│──────────│         │adId      │         │invoiceId │
-│adId      │         └──────────┘         └──────────┘
-└──────────┘
+│──────────│         │adId      │         │reference │
+│adId      │         └────┬─────┘         │invoiceId │
+└──────────┘              │               └──────────┘
+                          │
+                          ▼
+                    ┌──────────┐
+                    │  refund  │
+                    │──────────│
+                    │refundId  │
+                    │amount    │
+                    │reason    │
+                    │status    │
+                    │date      │
+                    │invoiceId │
+                    └──────────┘
 
 
 ┌─────────────────────────────────────────────────────────────────┐
-│                     REPORTING SYSTEM                             │
+│                 SUPPORT & COMMUNICATION                           │
 └─────────────────────────────────────────────────────────────────┘
 
-┌──────────┐
-│  report  │
-│──────────│
-│reportId  │
-│type      │ ← dailyBooking, revenueAnalysis, 
-│startDate │   technicianPerformance, customerSatisfaction
-│endDate   │
-│data      │ ← JSON storage
-│generatedBy│
-└──────────┘
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│  complaint   │     │   enquiry    │     │ notification │
+│──────────────│     │──────────────│     │──────────────│
+│complaintId   │     │enquiryId     │     │notificationId│
+│title         │     │name          │     │userId FK     │
+│description   │     │email         │     │title         │
+│priority      │     │phone         │     │message       │
+│status        │     │subject       │     │type          │
+│managerResponse│    │message       │     │channel       │
+│customerId FK │     │status        │     │isRead        │
+│bookingId FK  │     │customerId FK │     └──────────────┘
+└──────────────┘     └──────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────┐
+│                 SYSTEM & REPORTING                                │
+└─────────────────────────────────────────────────────────────────┘
+
+┌──────────────┐     ┌──────────────┐
+│systemSettings│     │    report    │
+│──────────────│     │──────────────│
+│settingId     │     │reportId      │
+│key  UK       │     │type          │
+│value         │     │startDate     │
+│updatedAt     │     │endDate       │
+└──────────────┘     │data (JSONB)  │
+                     │userId FK     │
+                     └──────────────┘
 ```
 
 ---
@@ -149,7 +215,9 @@ user (parent)
 customer
 ├── vehicles (1:many)
 ├── bookings (1:many)
-└── feedback (1:many)
+├── feedback (1:many)
+├── complaints (1:many)
+└── enquiries (1:many)
 ```
 
 ### **Booking Relationships**
@@ -158,26 +226,52 @@ booking
 ├── customer (many:1)
 ├── vehicle (many:1)
 ├── service (many:1)
+├── servicePackage (many:1) - optional
 ├── technician (many:1) - optional
+├── timeSlot (many:1) - optional
 ├── feedback (1:1)
 ├── serviceTracking (1:many)
-└── bookingHistory (1:many)
+├── bookingHistory (1:many)
+├── complaints (1:many) - optional
+└── invoices (1:many)
 ```
 
 ### **Advertisement Relationships**
 ```
+advertisementPlacement
+├── advertisementPricingPlan (1:many)
+└── advertisements (1:many)
+
+advertisementPricingPlan
+└── advertisementCampaign (1:many)
+
+advertisementCampaign
+├── advertiser (many:1)
+└── advertisements (1:many)
+
 advertisement
 ├── advertiser (many:1)
 ├── placement (many:1) - optional
+├── campaign (many:1) - optional
 ├── impressions (1:many)
-└── clicks (1:many)
+├── clicks (1:many)
+└── invoices (1:many)
+```
+
+### **Financial Relationships**
+```
+invoice
+├── booking (many:1) - optional
+├── advertisement (many:1) - optional
+├── payments (1:many)
+└── refunds (1:many)
 ```
 
 ---
 
-## 📋 Table Details
+## 📋 Complete Table Inventory
 
-### **Core Tables (4)**
+### **Core Tables (5)**
 
 | Table | Primary Key | Foreign Keys | Purpose |
 |-------|-------------|--------------|---------|
@@ -185,17 +279,31 @@ advertisement
 | customer | customerId | userId | Customer profiles |
 | advertiser | advertiserId | userId | Advertiser profiles |
 | technician | technicianId | userId | Technician profiles |
+| manager | managerId | userId | Manager profiles |
 
-### **Service Tables (6)**
+### **Service Tables (5)**
 
 | Table | Primary Key | Foreign Keys | Purpose |
 |-------|-------------|--------------|---------|
-| serviceCategory | categoryId | - | Service grouping |
-| service | serviceId | categoryId | Available services |
+| serviceCategory | serviceCategoryId | - | Service grouping |
+| service | serviceId | serviceCategoryId | Available services |
+| servicePackage | servicePackageId | - | Package bundles |
+| servicePackageItem | servicePackageItemId | servicePackageId, serviceId | Package contents |
+| timeSlot | timeSlotId | - | Scheduling slots |
+
+### **Vehicle Table (1)**
+
+| Table | Primary Key | Foreign Keys | Purpose |
+|-------|-------------|--------------|---------|
 | vehicle | vehicleId | customerId | Customer vehicles |
-| booking | bookingId | customerId, vehicleId, serviceId, technicianId | Service bookings |
-| serviceTracking | trackingId | bookingId | Progress tracking |
-| bookingHistory | historyId | bookingId, userId | Audit trail |
+
+### **Booking Tables (3)**
+
+| Table | Primary Key | Foreign Keys | Purpose |
+|-------|-------------|--------------|---------|
+| booking | bookingId | customerId, vehicleId, serviceId, servicePackageId, technicianId, timeSlotId | Service bookings |
+| serviceTracking | serviceTrackingId | bookingId | Progress tracking |
+| bookingHistory | bookingHistoryId | bookingId, userId | Audit trail |
 
 ### **Feedback Table (1)**
 
@@ -203,27 +311,39 @@ advertisement
 |-------|-------------|--------------|---------|
 | feedback | feedbackId | customerId, bookingId, technicianId | Ratings & reviews |
 
-### **Advertisement Tables (4)**
+### **Advertisement Tables (6)**
 
 | Table | Primary Key | Foreign Keys | Purpose |
 |-------|-------------|--------------|---------|
-| advertisementPlacement | placementId | - | Ad locations |
-| advertisement | advertisementId | advertiserId, placementId | Ad campaigns |
-| advertisementImpression | impressionId | advertisementId | View tracking |
-| advertisementClick | clickId | advertisementId | Click tracking |
+| advertisementPlacement | advertisementPlacementId | - | Ad locations |
+| advertisementPricingPlan | advertisementPricingPlanId | advertisementPlacementId | Pricing tiers |
+| advertisementCampaign | advertisementCampaignId | advertiserId, advertisementPricingPlanId | Campaign management |
+| advertisement | advertisementId | advertiserId, advertisementPlacementId, advertisementCampaignId | Ad creatives |
+| advertisementImpression | advertisementImpressionId | advertisementId | View tracking |
+| advertisementClick | advertisementClickId | advertisementId | Click tracking |
 
-### **Financial Tables (2)**
+### **Financial Tables (3)**
 
 | Table | Primary Key | Foreign Keys | Purpose |
 |-------|-------------|--------------|---------|
 | invoice | invoiceId | bookingId, advertisementId | Billing |
 | payment | paymentId | invoiceId | Payment records |
+| refund | refundId | invoiceId | Refund processing |
 
-### **Reporting Table (1)**
+### **Support Tables (2)**
 
 | Table | Primary Key | Foreign Keys | Purpose |
 |-------|-------------|--------------|---------|
-| report | reportId | userId (generatedBy) | Business analytics |
+| complaint | complaintId | customerId, bookingId | Customer complaints |
+| enquiry | enquiryId | customerId | General enquiries |
+
+### **System Tables (3)**
+
+| Table | Primary Key | Foreign Keys | Purpose |
+|-------|-------------|--------------|---------|
+| notification | notificationId | userId | User notifications |
+| systemSettings | settingId | - | Application config |
+| report | reportId | userId | Business analytics |
 
 ---
 
@@ -233,7 +353,7 @@ advertisement
 
 ```sql
 -- User roles
-userRole IN ('customer', 'advertiser', 'technician', 'admin')
+userRole IN ('customer', 'advertiser', 'technician', 'manager')
 
 -- Booking status
 bookingStatus IN ('pending', 'approved', 'in_progress', 'completed', 'cancelled', 'rejected')
@@ -241,11 +361,26 @@ bookingStatus IN ('pending', 'approved', 'in_progress', 'completed', 'cancelled'
 -- Advertisement status
 advertisementStatus IN ('pending', 'active', 'expired', 'rejected')
 
+-- Campaign status
+advertisementCampaignStatus IN ('pending', 'active', 'paused', 'completed', 'cancelled')
+
 -- Invoice status
 invoiceStatus IN ('pending', 'paid', 'cancelled')
 
 -- Payment status
 paymentStatus IN ('pending', 'completed', 'failed')
+
+-- Refund status
+refundStatus IN ('pending', 'completed', 'rejected')
+
+-- Complaint priority
+complaintPriority IN ('low', 'medium', 'high', 'critical')
+
+-- Complaint status
+complaintStatus IN ('open', 'in_progress', 'resolved', 'closed')
+
+-- Enquiry status
+enquiryStatus IN ('new', 'read', 'replied')
 
 -- Report types
 reportType IN ('dailyBooking', 'revenueAnalysis', 'technicianPerformance', 'customerSatisfaction')
@@ -259,6 +394,9 @@ feedbackRating >= 1 AND feedbackRating <= 5
 
 -- Advertisement end date must be after start date
 advertisementEndDate > advertisementStartDate
+
+-- Campaign end date must be after start date
+advertisementCampaignEndDate > advertisementCampaignStartDate
 ```
 
 ### **Unique Constraints**
@@ -275,36 +413,21 @@ booking.bookingRefNumber UNIQUE
 
 -- Unique vehicle registration
 vehicle.vehicleRegNumber UNIQUE
-```
 
----
+-- Unique placement slugs
+advertisementPlacement.advertisementPlacementSlug UNIQUE
 
-## 📊 Indexes for Performance
+-- Unique placement names
+advertisementPlacement.advertisementPlacementName UNIQUE
 
-```sql
--- Authentication
-idx_user_email ON user(userEmail)
-idx_user_role ON user(userRole)
+-- Unique invoice numbers
+invoice.invoiceNumber UNIQUE
 
--- Booking queries
-idx_booking_customer ON booking(bookingCustomerId)
-idx_booking_date ON booking(bookingDate)
-idx_booking_status ON booking(bookingStatus)
-idx_booking_technician ON booking(bookingTechnicianId)
+-- Unique setting keys
+systemSettings.settingKey UNIQUE
 
--- Feedback queries
-idx_feedback_customer ON feedback(feedbackCustomerId)
-idx_feedback_technician ON feedback(feedbackTechnicianId)
-idx_feedback_rating ON feedback(feedbackRating)
-
--- Advertisement queries
-idx_ad_advertiser ON advertisement(advertisementAdvertiserId)
-idx_ad_status ON advertisement(advertisementStatus)
-idx_ad_dates ON advertisement(advertisementStartDate, advertisementEndDate)
-
--- Payment queries
-idx_payment_invoice ON payment(paymentInvoiceId)
-idx_payment_date ON payment(paymentDate)
+-- Unique time slot per date (composite)
+timeSlot.(timeSlotDate, timeSlotStartTime, timeSlotEndTime) UNIQUE
 ```
 
 ---
@@ -312,14 +435,20 @@ idx_payment_date ON payment(paymentDate)
 ## 🔄 Cascade Rules
 
 ### **ON DELETE CASCADE**
-- Delete user → Delete customer/advertiser/technician
+- Delete user → Delete customer/advertiser/technician/manager
 - Delete customer → Delete vehicles, bookings, feedback
+- Delete advertiser → Delete campaigns, advertisements
 - Delete booking → Delete tracking, history
 - Delete advertisement → Delete impressions, clicks
+- Delete advertisementPlacement → Delete pricingPlans
+- Delete invoice → Delete refunds
 
 ### **ON DELETE SET NULL**
 - Delete technician → Set booking.technicianId to NULL
-- Delete service category → Set service.categoryId to NULL
+- Delete campaign → Set advertisement.campaignId to NULL
+- Delete placement → Set advertisement.placementId to NULL
+- Delete pricingPlan → Set campaign.pricingPlanId to NULL
+- Delete customer → Set enquiry.customerId to NULL
 
 ---
 
@@ -329,64 +458,51 @@ idx_payment_date ON payment(paymentDate)
 ```
 1. Customer registers → user + customer tables
 2. Customer adds vehicle → vehicle table
-3. Customer creates booking → booking table
-4. System creates tracking → serviceTracking table
-5. Admin assigns technician → booking.technicianId updated
-6. Status changes logged → bookingHistory table
-7. Service completed → booking.status = 'completed'
-8. Customer adds feedback → feedback table
+3. Customer browses services → service + serviceCategory tables
+4. Customer selects time slot → timeSlot table
+5. Customer creates booking → booking table
+6. System creates tracking → serviceTracking table
+7. Manager assigns technician → booking.technicianId updated
+8. Status changes logged → bookingHistory table
+9. Service completed → booking.status = 'completed'
+10. Invoice generated → invoice table
+11. Customer pays → payment table
+12. Customer leaves feedback → feedback table
 ```
 
 ### **Advertisement Flow**
 ```
 1. Advertiser registers → user + advertiser tables
-2. Advertiser creates ad → advertisement table (status: pending)
-3. Admin approves → advertisement.status = 'active'
-4. Ad displayed → advertisementImpression table
-5. User clicks ad → advertisementClick table
-6. Invoice generated → invoice table
-7. Payment made → payment table
+2. Manager creates placement → advertisementPlacement table
+3. Manager creates pricing plan → advertisementPricingPlan table
+4. Advertiser creates campaign → advertisementCampaign table (with pricing plan)
+5. Advertiser creates ad → advertisement table (status: pending)
+6. Manager approves → advertisement.status = 'active'
+7. Ad displayed → advertisementImpression table
+8. User clicks ad → advertisementClick table
+9. Invoice generated → invoice table
+10. Payment made → payment table
 ```
 
-### **Report Generation Flow**
+### **Complaint Flow**
 ```
-1. Admin requests report → API call
-2. System queries relevant tables
-3. Data aggregated and analyzed
-4. Report saved → report table (JSON data)
-5. Report returned to admin
+1. Customer files complaint → complaint table (status: open)
+2. Manager reviews → complaint.status = 'in_progress'
+3. Manager responds → complaint.managerResponse updated
+4. Complaint resolved → complaint.status = 'resolved'
 ```
 
 ---
 
-## 🎯 Query Optimization Tips
+## 📝 Total Database Summary
 
-1. **Use indexes** - All foreign keys and frequently queried columns are indexed
-2. **Use views** - `vw_booking_details` for common booking queries
-3. **Limit results** - Use LIMIT for large datasets
-4. **Filter early** - Apply WHERE clauses before JOINs when possible
-5. **Use prepared statements** - Prevents SQL injection and improves performance
-
----
-
-## 📝 Notes
-
-- All timestamps use `TIMESTAMP` type with default `CURRENT_TIMESTAMP`
-- Prices use `DECIMAL(10, 2)` for accurate currency handling
-- JSON data type used for flexible report storage
-- Soft deletes implemented via `isActive` flags where appropriate
-- Auto-incrementing IDs use `SERIAL` type
+| Category | Count |
+|----------|-------|
+| **Total Tables** | **29** |
+| **Total Foreign Keys** | **30+** |
+| **Total Check Constraints** | **15+** |
+| **Total Unique Constraints** | **10+** |
 
 ---
 
-**Total Database Objects:**
-- 28 Tables
-- 25+ Indexes
-- 3 Triggers
-- 1 View
-- Multiple Constraints
-
-**Estimated Performance:**
-- Handles 100,000+ bookings efficiently
-- Sub-second query times with proper indexing
-- Optimized for read-heavy workloads
+**End of Schema Diagram Documentation**

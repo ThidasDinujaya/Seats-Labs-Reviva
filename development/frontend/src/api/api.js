@@ -180,8 +180,8 @@ export const paymentApi = {
 // TRACKING  (/api/tracking — already singular)
 // ============================================================
 export const trackingApi = {
-  getTask:   ()          => api.get('/tracking/task'),
-  getHistory: (bookingId) => api.get(`/tracking/history/${bookingId}`),
+  getServiceTracking: ()          => api.get('/tracking'),
+  getHistory:         (bookingId) => api.get(`/tracking/history/${bookingId}`),
 };
 
 // ============================================================

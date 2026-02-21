@@ -33,7 +33,7 @@ const Navbar = () => {
               className="btn btn-crimson" 
               style={{ padding: '10px 20px', fontSize: '0.85rem' }}
             >
-              My Profile
+              Profile
             </Link>
           )}
         </div>

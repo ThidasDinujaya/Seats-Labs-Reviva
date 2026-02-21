@@ -66,12 +66,47 @@ const generateDailyBookingReport = async (req, res) => {
       [date],
     );
 
-    // Build the report object
+    // Get peak load analysis (bookings per hour)
+    const peakLoadResult = await pool.query(
+      `SELECT EXTRACT(HOUR FROM "bookingStartTime") as hour, COUNT(*) as count
+       FROM "booking"
+       WHERE "bookingDate" = $1
+       GROUP BY hour
+       ORDER BY hour ASC`,
+      [date]
+    );
+
+    // Get service distribution (popularity of services)
+    const serviceDistResult = await pool.query(
+      `SELECT s."serviceName", COUNT(b."bookingId") as count
+       FROM "booking" b
+       JOIN "service" s ON b."serviceId" = s."serviceId"
+       WHERE b."bookingDate" = $1
+       GROUP BY s."serviceName"
+       ORDER BY count DESC`,
+      [date]
+    );
+
+    // Get workforce allocation (technician jobs)
+    const techLoadResult = await pool.query(
+      `SELECT t."technicianFirstName", t."technicianLastName", COUNT(b."bookingId") as count
+       FROM "booking" b
+       JOIN "technician" t ON b."technicianId" = t."technicianId"
+       WHERE b."bookingDate" = $1
+       GROUP BY t."technicianFirstName", t."technicianLastName"
+       ORDER BY count DESC`,
+      [date]
+    );
+
+    // Build the report object with strategic insights
     const reportData = {
       reportDate: date,
       totalBookings: bookingsResult.rows.length,
       statusBreakdown: statusResult.rows,
       totalRevenue: revenueResult.rows[0].totalRevenue || 0,
+      peakLoad: peakLoadResult.rows,
+      serviceDistribution: serviceDistResult.rows,
+      technicianLoad: techLoadResult.rows,
       bookings: bookingsResult.rows,
     };
 
@@ -140,13 +175,30 @@ const generateRevenueReport = async (req, res) => {
       [startDate, endDate],
     );
 
-    // Advertisement revenue
+    // Advertisement revenue breakdown by advertiser
+    const adRevenueBreakdownResult = await pool.query(
+      `SELECT ad."advertiserBusinessName",
+        COUNT(p."paymentId") as "paymentCount",
+        SUM(p."paymentAmount") as "advertiserRevenue"
+       FROM "payment" p
+       JOIN "invoice" i ON p."invoiceId" = i."invoiceId"
+       JOIN "advertisement" a ON i."advertisementId" = a."advertisementId"
+       JOIN "advertiser" ad ON a."advertiserId" = ad."advertiserId"
+       WHERE p."paymentDate" BETWEEN $1 AND $2
+       AND p."paymentStatus" = 'completed'
+       GROUP BY ad."advertiserBusinessName"
+       ORDER BY "advertiserRevenue" DESC`,
+      [startDate, endDate]
+    );
+
+    // Advertisement revenue total
     const adRevenueResult = await pool.query(
       `SELECT SUM(p."paymentAmount") as "totalAdRevenue"
        FROM "payment" p
        JOIN "invoice" i ON p."invoiceId" = i."invoiceId"
        WHERE p."paymentDate" BETWEEN $1 AND $2
-       AND p."paymentStatus" = 'completed'`,
+       AND p."paymentStatus" = 'completed'
+       AND i."advertisementId" IS NOT NULL`,
       [startDate, endDate],
     );
 
@@ -183,6 +235,7 @@ const generateRevenueReport = async (req, res) => {
       },
       advertisementRevenue: {
         total: safeTotalAdRevenue,
+        byAdvertiser: adRevenueBreakdownResult.rows,
       },
       refunds: {
         total: safeTotalRefunds,
@@ -288,7 +341,7 @@ const generateTechnicianPerformanceReport = async (req, res) => {
 // REPORT 4: Ad Performance Report
 // GET /api/reports/adPerformance?startDate=2025-03-01&endDate=2025-03-31
 // ============================================================
-// PURPOSE: Analyzes advertisement performance (impressions, clicks, CTR).
+// PURPOSE: Analyzes advertisement performance (impressions, clicks).
 // ============================================================
 const generateAdPerformanceReport = async (req, res) => {
   const { startDate, endDate } = req.query;
@@ -333,10 +386,6 @@ const generateAdPerformanceReport = async (req, res) => {
     );
     const totalClicks = parseInt(clicksResult.rows[0].totalClicks || 0);
     const activeAds = parseInt(activeAdsResult.rows[0].activeAds || 0);
-    const ctr =
-      totalImpressions > 0
-        ? ((totalClicks / totalImpressions) * 100).toFixed(2)
-        : 0;
 
     // Performance by Placement
     const placementPerformanceResult = await pool.query(
@@ -382,23 +431,10 @@ const generateAdPerformanceReport = async (req, res) => {
       summary: {
         totalImpressions,
         totalClicks,
-        ctr: ctr + "%",
         activeAds,
       },
-      byPlacement: placementPerformanceResult.rows.map((row) => ({
-        ...row,
-        ctr:
-          row.advertisementImpressions > 0
-            ? ((row.advertisementClicks / row.advertisementImpressions) * 100).toFixed(2) + "%"
-            : "0%",
-      })),
-      topAds: topAdsResult.rows.map((row) => ({
-        ...row,
-        ctr:
-          row.advertisementImpressions > 0
-            ? ((row.advertisementClicks / row.advertisementImpressions) * 100).toFixed(2) + "%"
-            : "0%",
-      })),
+      byPlacement: placementPerformanceResult.rows,
+      topAds: topAdsResult.rows,
     };
 
     // Save report to database

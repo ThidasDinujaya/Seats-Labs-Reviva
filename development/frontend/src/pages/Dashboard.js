@@ -263,17 +263,24 @@ const Dashboard = () => {
                     borderRadius: '20px 20px 0 0',
                     border: '1px solid #e2e8f0',
                     overflowY: 'auto',
+                    overflowX: 'auto',
                     flex: 1,
                     boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
                 }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                    <table style={{ width: '100%', minWidth: '1300px', borderCollapse: 'collapse', textAlign: 'left' }}>
                         <thead style={{ position: 'sticky', top: 0, background: '#f8fafc', zIndex: 1, borderBottom: '1px solid #e2e8f0' }}>
                             <tr>
+                                <th style={thStyle}>bookingId</th>
                                 <th style={thStyle}>bookingDate</th>
                                 <th style={thStyle}>serviceName</th>
                                 <th style={thStyle}>vehicleRegNumber</th>
                                 <th style={thStyle}>bookingRefNumber</th>
+                                <th style={thStyle}>customerId</th>
+                                <th style={thStyle}>vehicleId</th>
+                                <th style={thStyle}>serviceId</th>
+                                <th style={thStyle}>servicePackageId</th>
                                 <th style={thStyle}>bookingStatus</th>
+                                <th style={{ ...thStyle, textAlign: 'right' }}>bookingCreatedAt</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -288,6 +295,7 @@ const Dashboard = () => {
                                         background: selectedId === booking.bookingId ? '#f1f5f9' : 'transparent'
                                     }}
                                 >
+                                    <td style={tdStyle}>{booking.bookingId}</td>
                                     <td style={tdStyle}>
                                         <div style={{ fontWeight: '700', color: 'var(--navy)' }}>{new Date(booking.bookingDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</div>
                                         <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{formatTime(booking.bookingStartTime)}</div>
@@ -302,6 +310,10 @@ const Dashboard = () => {
                                     <td style={tdStyle}>
                                         <span style={{ fontFamily: 'monospace', fontWeight: '700', color: '#64748b' }}>{booking.bookingRefNumber}</span>
                                     </td>
+                                    <td style={tdStyle}>{booking.customerId}</td>
+                                    <td style={tdStyle}>{booking.vehicleId}</td>
+                                    <td style={tdStyle}>{booking.serviceId || '-'}</td>
+                                    <td style={tdStyle}>{booking.servicePackageId || '-'}</td>
                                     <td style={tdStyle}>
                                         <span style={{
                                             padding: '6px 14px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase',
@@ -324,6 +336,7 @@ const Dashboard = () => {
                                             </div>
                                         )}
                                     </td>
+                                    <td style={{ ...tdStyle, textAlign: 'right' }}>{new Date(booking.bookingCreatedAt).toLocaleString()}</td>
                                 </tr>
                             )) : (
                                 <tr>
@@ -495,7 +508,7 @@ const Dashboard = () => {
                             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #333', paddingBottom: '20px', marginBottom: '30px' }}>
                                 <div>
                                     <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 'bold' }}>INVOICE</h1>
-                                    <p style={{ margin: '5px 0', color: '#666' }}>#{invoiceData.bookingRefNumber}</p>
+                                    <p style={{ margin: '5px 0', color: '#666' }}>{invoiceData.bookingRefNumber}</p>
                                 </div>
                                 <div style={{ textAlign: 'right' }}>
                                     <h2 style={{ margin: 0, color: 'var(--navy)' }}>SEATS LABS</h2>

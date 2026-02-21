@@ -118,7 +118,7 @@ router.get('/technicianPerformance', authMiddleware, authorizeRole('admin', 'man
  *           format: date
  *     responses:
  *       200:
- *         description: Ad performance with impressions, clicks, and CTR
+ *         description: Ad performance with impressions and clicks
  */
 router.get('/adPerformance', authMiddleware, authorizeRole('admin', 'manager'), generateAdPerformanceReport);
 

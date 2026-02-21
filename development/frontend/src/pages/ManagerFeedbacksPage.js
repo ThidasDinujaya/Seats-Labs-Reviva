@@ -1,73 +1,53 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Search, Star, Eye, X
-} from 'lucide-react';
+import { Search, Star, Eye, X } from 'lucide-react';
 import SidebarLayout from '../components/SidebarLayout';
+import { feedbackApi } from '../api/api';
 
 const ManagerFeedbacksPage = () => {
     const [feedbacks, setFeedbacks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [ratingFilter, setRatingFilter] = useState('all');
+
     const [showModal, setShowModal] = useState(false);
     const [selectedFeedback, setSelectedFeedback] = useState(null);
 
     useEffect(() => {
-        setTimeout(() => {
-            const mockFeedbacks = [
-                {
-                    feedbackId: 3001,
-                    customerFirstName: 'Saman',
-                    customerLastName: 'Perera',
-                    serviceName: 'Full Lubrication Service',
-                    feedbackRating: 5,
-                    feedbackComment: 'Excellent service! The staff was very professional and the job was done quickly.',
-                    feedbackCreatedAt: '2026-02-14T10:00:00'
-                },
-                {
-                    feedbackId: 3002,
-                    customerFirstName: 'Kamal',
-                    customerLastName: 'Silva',
-                    serviceName: 'Engine Tuning',
-                    feedbackRating: 4,
-                    feedbackComment: 'Decent work, but had to wait a bit longer than expected.',
-                    feedbackCreatedAt: '2026-02-13T14:30:00'
-                },
-                {
-                    feedbackId: 3003,
-                    customerFirstName: 'John',
-                    customerLastName: 'Doe',
-                    serviceName: 'AC Full Service',
-                    feedbackRating: 2,
-                    feedbackComment: 'AC is still making some noise. Not fully satisfied.',
-                    feedbackCreatedAt: '2026-02-12T09:15:00'
-                }
-            ];
-            setFeedbacks(mockFeedbacks);
-            setLoading(false);
-        }, 800);
+        fetchFeedbacks();
     }, []);
 
-    const filteredFeedbacks = feedbacks.filter(f => 
-        ((f.customerFirstName + ' ' + f.customerLastName).toLowerCase().includes(searchTerm.toLowerCase()) || 
-         f.serviceName.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (ratingFilter === 'all' || f.feedbackRating.toString() === ratingFilter)
+    const fetchFeedbacks = async () => {
+        try {
+            setLoading(true);
+            const res = await feedbackApi.getAll();
+            if (res.success) {
+                setFeedbacks(res.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch feedbacks:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const filteredFeedbacks = feedbacks.filter(f =>
+        String(f.feedbackId || '').includes(searchTerm) ||
+        String(f.customerId || '').includes(searchTerm) ||
+        String(f.bookingId || '').includes(searchTerm) ||
+        (f.feedbackComment || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const renderStars = (rating) => {
-        return (
-            <div style={{ display: 'flex', gap: '2px' }}>
-                {[1, 2, 3, 4, 5].map(star => (
-                    <Star 
-                        key={star} 
-                        size={14} 
-                        fill={star <= rating ? "#f59e0b" : "none"} 
-                        color={star <= rating ? "#f59e0b" : "#cbd5e1"} 
-                    />
-                ))}
-            </div>
-        );
-    };
+    const renderStars = (rating) => (
+        <div style={{ display: 'flex', gap: '2px' }}>
+            {[1, 2, 3, 4, 5].map(star => (
+                <Star
+                    key={star}
+                    size={14}
+                    fill={star <= rating ? '#f59e0b' : 'none'}
+                    color={star <= rating ? '#f59e0b' : '#cbd5e1'}
+                />
+            ))}
+        </div>
+    );
 
     return (
         <SidebarLayout role="manager">
@@ -77,70 +57,71 @@ const ManagerFeedbacksPage = () => {
                     <p style={{ color: '#64748b', fontSize: '1rem' }}>Review and manage customer ratings and testimonials</p>
                 </div>
 
-
-                <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                    <div style={{ display: 'flex', gap: '15px', marginBottom: '25px' }}>
+                <div style={{ 
+                    background: '#fff', 
+                    borderRadius: '16px', 
+                    border: '1px solid #f1f5f9', 
+                    flex: 1, 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    overflow: 'hidden' 
+                }}>
+                    <div style={{ display: 'flex', gap: '15px', padding: '20px', borderBottom: '1px solid #f1f5f9' }}>
                         <div style={{ position: 'relative', flex: 1 }}>
                             <Search style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} size={20} />
-                            <input 
-                                type="text" 
-                                placeholder="Search by customer or service..." 
+                            <input
+                                type="text"
+                                placeholder="Search by feedbackId, customerId, bookingId or comment..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none' }} 
+                                style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '0.9rem' }}
                             />
                         </div>
-                        <select 
-                            value={ratingFilter}
-                            onChange={(e) => setRatingFilter(e.target.value)}
-                            style={{ padding: '12px 15px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', outline: 'none' }}
-                        >
-                            <option value="all">All Ratings</option>
-                            <option value="5">5 Stars</option>
-                            <option value="4">4 Stars</option>
-                            <option value="3">3 Stars</option>
-                            <option value="2">2 Stars</option>
-                            <option value="1">1 Star</option>
-                        </select>
                     </div>
 
-                    <div style={{ overflowY: 'auto', flex: 1, overflowX: 'auto', border: '1px solid #f1f5f9', borderRadius: '8px' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '2px solid #f1f5f9', textAlign: 'left', position: 'sticky', top: 0, background: 'white', zIndex: 1 }}>
-                                    <th style={{ padding: '15px', color: '#64748b' }}>customerId</th>
-                                    <th style={{ padding: '15px', color: '#64748b' }}>bookingId</th>
-                                    <th style={{ padding: '15px', color: '#64748b' }}>feedbackRating</th>
-                                    <th style={{ padding: '15px', color: '#64748b' }}>feedbackComment</th>
-                                    <th style={{ padding: '15px', textAlign: 'right', color: '#64748b' }}>feedbackCreatedAt</th>
+                    <div style={{ flex: 1, overflow: 'auto' }}>
+                        <table style={{ width: '100%', minWidth: '1100px', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+                            <thead style={{ position: 'sticky', top: 0, background: '#fff', zIndex: 10 }}>
+                                <tr style={{ borderBottom: '2px solid #f1f5f9' }}>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', textAlign: 'left', fontSize: '0.7rem' }}>feedbackId</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', textAlign: 'left', fontSize: '0.7rem' }}>feedbackRating</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', textAlign: 'left', fontSize: '0.7rem' }}>feedbackComment</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', textAlign: 'left', fontSize: '0.7rem' }}>customerId</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', textAlign: 'left', fontSize: '0.7rem' }}>bookingId</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', textAlign: 'left', fontSize: '0.7rem' }}>technicianId</th>
+                                    <th style={{ padding: '15px', textAlign: 'right', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>feedbackCreatedAt</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    <tr><td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading feedback...</td></tr>
+                                    <tr><td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Synchronizing Sentiment Ledger...</td></tr>
                                 ) : filteredFeedbacks.length === 0 ? (
-                                    <tr><td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No feedback found.</td></tr>
+                                    <tr><td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No feedback entries matched your filter criteria.</td></tr>
                                 ) : (
                                     filteredFeedbacks.map(f => (
-                                        <tr 
-                                            key={f.feedbackId} 
+                                        <tr
+                                            key={f.feedbackId}
                                             onClick={() => setSelectedFeedback(selectedFeedback?.feedbackId === f.feedbackId ? null : f)}
-                                            style={{ 
-                                                borderBottom: '1px solid #f1f5f9', 
+                                            style={{
+                                                borderBottom: '1px solid #f1f5f9',
                                                 cursor: 'pointer',
                                                 transition: 'background 0.2s',
-                                                background: selectedFeedback?.feedbackId === f.feedbackId ? '#f1f5f9' : 'transparent'
+                                                background: selectedFeedback?.feedbackId === f.feedbackId ? '#f8fafc' : 'transparent'
                                             }}
                                         >
-                                            <td style={{ padding: '15px', fontWeight: '600' }}>{f.customerFirstName} {f.customerLastName}</td>
-                                            <td style={{ padding: '15px' }}>{f.serviceName}</td>
-                                            <td style={{ padding: '15px' }}>{renderStars(f.feedbackRating)}</td>
-                                            <td style={{ padding: '15px', maxWidth: '300px' }}>
-                                                <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.9rem' }}>
-                                                    {f.feedbackComment}
+                                            <td style={{ padding: '12px 15px', fontWeight: '800', color: 'var(--navy)' }}>{f.feedbackId}</td>
+                                            <td style={{ padding: '12px 15px' }}>{renderStars(f.feedbackRating)}</td>
+                                            <td style={{ padding: '12px 15px', maxWidth: '300px' }}>
+                                                <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: '600', color: '#334155' }}>
+                                                    {f.feedbackComment || <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Rating only</span>}
                                                 </div>
                                             </td>
-                                            <td style={{ padding: '15px', color: '#64748b', fontSize: '0.85rem', textAlign: 'right' }}>{new Date(f.feedbackCreatedAt).toLocaleDateString()}</td>
+                                            <td style={{ padding: '12px 15px', fontWeight: '600' }}>UID: {f.customerId}</td>
+                                            <td style={{ padding: '12px 15px', fontWeight: '600' }}>{f.bookingId}</td>
+                                            <td style={{ padding: '12px 15px', fontWeight: '600' }}>{f.technicianId || '-'}</td>
+                                            <td style={{ padding: '12px 15px', color: '#94a3b8', textAlign: 'right' }}>
+                                                {f.feedbackCreatedAt ? new Date(f.feedbackCreatedAt).toLocaleDateString() : '-'}
+                                            </td>
                                         </tr>
                                     ))
                                 )}
@@ -148,51 +129,110 @@ const ManagerFeedbacksPage = () => {
                         </table>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', padding: '20px 0 0 0', borderTop: '1px solid #f1f5f9', marginTop: '10px' }}>
-                        <button 
-                            onClick={() => {
-                                if (selectedFeedback) setShowModal(true);
-                            }} 
+                    {/* Persistent Control Deck */}
+                    <div style={{ 
+                        position: 'fixed', 
+                        bottom: '30px', 
+                        right: '30px', 
+                        display: 'flex', 
+                        gap: '12px', 
+                        zIndex: 1000,
+                        background: 'rgba(255,255,255,0.9)',
+                        padding: '15px',
+                        borderRadius: '12px',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid #e2e8f0'
+                    }}>
+                        <button
+                            onClick={() => { if (selectedFeedback) setShowModal(true); }}
                             disabled={!selectedFeedback}
-                            style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: selectedFeedback ? 'var(--yellow)' : '#f1f5f9', color: selectedFeedback ? 'black' : '#94a3b8', cursor: selectedFeedback ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
+                            style={{ padding: '12px 24px', borderRadius: '8px', border: 'none', background: selectedFeedback ? 'var(--yellow)' : '#f1f5f9', color: selectedFeedback ? 'black' : '#94a3b8', cursor: selectedFeedback ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}
                         >
                             <Eye size={18} /> View Feedback
                         </button>
                     </div>
                 </div>
+                </div>
 
-                {showModal && (
+                {showModal && selectedFeedback && (
                     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000 }}>
-                        <div style={{ background: 'white', borderRadius: '16px', width: '500px', maxWidth: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
-                            <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: 'white', zIndex: 10 }}>
-                                <h2 style={{ margin: 0, color: '#1e293b' }}>Feedback Details</h2>
-                                <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={24} /></button>
+                        <div style={{ background: 'white', borderRadius: '16px', width: '520px', maxWidth: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
+                            <div style={{ padding: '15px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: 'white', zIndex: 10 }}>
+                                <h2 style={{ margin: 0, color: '#1e293b', fontSize: '1.25rem' }}>View Feedback</h2>
+                                <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><X size={24} /></button>
                             </div>
                             <div style={{ padding: '30px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
-                                    <div style={{ width: '50px', height: '50px', background: '#f1f5f9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--navy)' }}>
-                                        {selectedFeedback?.customerFirstName.charAt(0)}
-                                    </div>
-                                    <div>
-                                        <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{selectedFeedback?.customerFirstName} {selectedFeedback?.customerLastName}</div>
-                                        <div style={{ color: '#64748b', fontSize: '0.85rem' }}>Service: {selectedFeedback?.serviceName}</div>
-                                    </div>
+                                <h4 style={{ margin: '0 0 16px 0', color: '#64748b', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: '800' }}>feedback Table</h4>
+                                <div style={{ background: '#f8fafc', borderRadius: '10px', padding: '18px', marginBottom: '20px', display: 'grid', gap: '12px' }}>
+                                    {[
+                                        ['feedbackId', selectedFeedback.feedbackId],
+                                        ['feedbackRating', selectedFeedback.feedbackRating],
+                                        ['feedbackComment', selectedFeedback.feedbackComment],
+                                        ['customerId', selectedFeedback.customerId],
+                                        ['bookingId', selectedFeedback.bookingId],
+                                        ['technicianId', selectedFeedback.technicianId],
+                                        ['feedbackCreatedAt', selectedFeedback.feedbackCreatedAt ? new Date(selectedFeedback.feedbackCreatedAt).toLocaleString() : '-'],
+                                    ].map(([key, val]) => (
+                                        <div key={key} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+                                            <span style={{ color: '#64748b', fontFamily: 'monospace', fontSize: '0.9rem' }}>{key}</span>
+                                            <span style={{ fontWeight: '600', color: '#1e293b' }}>{val ?? '-'}</span>
+                                        </div>
+                                    ))}
                                 </div>
-                                <div style={{ marginBottom: '20px' }}>
-                                    <div style={{ marginBottom: '8px' }}>{renderStars(selectedFeedback?.feedbackRating)}</div>
-                                    <div style={{ background: '#f8fafc', p: '20px', borderRadius: '12px', fontStyle: 'italic', color: '#334155', lineHeight: '1.6' }}>
-                                        "{selectedFeedback?.feedbackComment}"
-                                    </div>
+
+                                {/* Star rating visual */}
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginBottom: '20px' }}>
+                                    {renderStars(selectedFeedback.feedbackRating)}
                                 </div>
+
+                                {(selectedFeedback.customerFirstName || selectedFeedback.serviceName || selectedFeedback.technicianFirstName) && (
+                                    <>
+                                        <h4 style={{ margin: '0 0 16px 0', color: '#64748b', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: '800' }}>Related Data (via Foreign Keys)</h4>
+                                        <div style={{ background: '#f8fafc', borderRadius: '10px', padding: '18px', display: 'grid', gap: '12px' }}>
+                                            {[
+                                                ['customerFirstName', selectedFeedback.customerFirstName],
+                                                ['customerLastName', selectedFeedback.customerLastName],
+                                                ['serviceName', selectedFeedback.serviceName],
+                                                ['servicePackageName', selectedFeedback.servicePackageName],
+                                                ['technicianFirstName', selectedFeedback.technicianFirstName],
+                                                ['technicianLastName', selectedFeedback.technicianLastName],
+                                            ].map(([key, val]) => (
+                                                <div key={key} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+                                                    <span style={{ color: '#64748b', fontFamily: 'monospace', fontSize: '0.9rem' }}>{key}</span>
+                                                    <span style={{ fontWeight: '600', color: '#1e293b' }}>{val ?? '-'}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                             <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px', position: 'sticky', bottom: 0, background: 'white', zIndex: 10 }}>
-                                <button style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #ef4444', background: 'white', color: '#ef4444', fontWeight: '600', cursor: 'pointer' }}>Hide Comment</button>
-                                <button style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#10b981', color: 'white', fontWeight: '600', cursor: 'pointer' }}>Featured Testimonial</button>
+                                <button 
+                                    onClick={async () => {
+                                        if (window.confirm('Are you sure you want to delete this feedback?')) {
+                                            try {
+                                                const res = await feedbackApi.delete(selectedFeedback.feedbackId);
+                                                if (res.success) {
+                                                    alert('Feedback deleted successfully');
+                                                    setShowModal(false);
+                                                    setSelectedFeedback(null);
+                                                    fetchFeedbacks();
+                                                }
+                                            } catch (err) {
+                                                console.error(err);
+                                                alert('Failed to delete feedback');
+                                            }
+                                        }
+                                    }}
+                                    style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #ef4444', background: 'white', color: '#ef4444', fontWeight: 'bold', cursor: 'pointer' }}
+                                >
+                                    Delete Feedback
+                                </button>
                             </div>
                         </div>
                     </div>
                 )}
-            </div>
         </SidebarLayout>
     );
 };

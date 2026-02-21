@@ -12,7 +12,8 @@ const pool = require('../config/database');
 const viewAllRefund = async (req, res) => {
   try {
     const query = `
-      SELECT r.*, i."invoiceNumber", 
+      SELECT r."refundId", r."refundAmount", r."refundReason", r."refundStatus", r."refundDate", r."invoiceId", r."refundCreatedAt",
+             i."invoiceNumber", 
              COALESCE(c."customerFirstName" || ' ' || c."customerLastName", adv."advertiserBusinessName") as "clientName"
       FROM "refund" r
       JOIN "invoice" i ON r."invoiceId" = i."invoiceId"

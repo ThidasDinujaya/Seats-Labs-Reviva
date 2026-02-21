@@ -106,6 +106,12 @@ http://localhost:5000/api-docs
 - `GET /api/reports/technicianPerformance?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD` - Technician performance
 - `GET /api/reports/customerSatisfaction?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD` - Customer satisfaction
 
+### **Service Tracking** (`/api/tracking`)
+
+- `GET /api/tracking` - Get all tracking records (Manager only)
+- `GET /api/tracking/history/:bookingId` - Get tracking history for a booking
+- `POST /api/tracking/update` - Update tracking status (Technician/Manager)
+
 ---
 
 ## 🔐 Authentication Flow
@@ -240,7 +246,7 @@ backend/
 
 - Login (created by admin)
 - View assigned bookings
-- Update booking status
+- Update booking status (via tracking update)
 
 ### **Admin**
 

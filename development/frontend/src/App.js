@@ -13,7 +13,7 @@ import ManagerPaymentsPage from './pages/ManagerPaymentsPage';
 import ManagerFeedbacksPage from './pages/ManagerFeedbacksPage';
 import ManagerComplaintsPage from './pages/ManagerComplaintsPage';
 import ManagerAdsPage from './pages/ManagerAdsPage';
-import ManagerTasksPage from './pages/ManagerTasksPage';
+import ManagerServiceTrackingPage from './pages/ManagerServiceTrackingPage';
 import ManagerRefundsPage from './pages/ManagerRefundsPage';
 import ManagerSettingsPage from './pages/ManagerSettingsPage';
 import ManagerLoginPage from './pages/ManagerLoginPage';
@@ -27,7 +27,7 @@ import ServicesPage from './pages/ServicesPage';
 import ReviewsPage from './pages/ReviewsPage';
 import ContactPage from './pages/ContactPage';
 import BookingPage from './pages/BookingPage';
-import ProfileSettingsPage from './pages/ProfileSettingsPage';
+import ProfilePage from './pages/ProfilePage';
 import PaymentPage from './pages/PaymentPage';
 import ComingSoon from './pages/ComingSoon';
 import AdvertiserPaymentsPage from './pages/AdvertiserPaymentsPage';
@@ -60,21 +60,21 @@ function App() {
           <Route path="/manager/feedbacks" element={<ManagerFeedbacksPage />} />
           <Route path="/manager/complaints" element={<ManagerComplaintsPage />} />
           <Route path="/manager/ads" element={<ManagerAdsPage />} />
-          <Route path="/manager/tasks" element={<ManagerTasksPage />} />
+          <Route path="/manager/tasks" element={<ManagerServiceTrackingPage />} />
           <Route path="/manager/refunds" element={<ManagerRefundsPage />} />
-          <Route path="/manager/settings" element={<ProfileSettingsPage role="manager" />} />
+          <Route path="/manager/settings" element={<ProfilePage role="manager" />} />
           <Route path="/manager/website-settings" element={<ManagerSettingsPage />} />
           <Route path="/manager/login" element={<ManagerLoginPage />} />
           
           {/* Technician Routes */}
           <Route path="/technician" element={<TechnicianDashboard />} />
-          <Route path="/technician/settings" element={<ProfileSettingsPage role="technician" />} />
+          <Route path="/technician/settings" element={<ProfilePage role="technician" />} />
           <Route path="/technician/login" element={<TechnicianLoginPage />} />
           
           {/* Advertiser Routes */}
           <Route path="/advertiser" element={<AdvertiserDashboard />} />
           <Route path="/advertiser/payments" element={<AdvertiserPaymentsPage />} />
-          <Route path="/advertiser/settings" element={<ProfileSettingsPage role="advertiser" />} />
+          <Route path="/advertiser/settings" element={<ProfilePage role="advertiser" />} />
           <Route path="/advertiser/login" element={<AdvertiserLoginPage />} />
           
           <Route path="/login" element={<LoginPage />} />
@@ -93,7 +93,7 @@ function App() {
             path="/customer/settings" 
             element={
               <ProtectedRoute>
-                <ProfileSettingsPage role="customer" />
+                <ProfilePage role="customer" />
               </ProtectedRoute>
             } 
           />

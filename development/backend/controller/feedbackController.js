@@ -137,7 +137,7 @@ const viewAllFeedback = async (req, res) => {
 
   try {
     let query = `
-      SELECT f.*,
+      SELECT f."feedbackId", f."feedbackRating", f."feedbackComment", f."customerId", f."bookingId", f."technicianId", f."feedbackCreatedAt",
         c."customerFirstName", c."customerLastName",
         s."serviceName",
         p."servicePackageName",

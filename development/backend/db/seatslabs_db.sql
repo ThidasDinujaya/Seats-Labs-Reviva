@@ -20,6 +20,7 @@ DROP TABLE IF EXISTS "advertisementClick" CASCADE;
 DROP TABLE IF EXISTS "advertisementImpression" CASCADE;
 DROP TABLE IF EXISTS "advertisement" CASCADE;
 DROP TABLE IF EXISTS "advertisementCampaign" CASCADE;
+DROP TABLE IF EXISTS "advertisementPricingPlan" CASCADE;
 DROP TABLE IF EXISTS "advertisementPlacement" CASCADE;
 DROP TABLE IF EXISTS "timeSlot" CASCADE;
 DROP TABLE IF EXISTS "booking" CASCADE;
@@ -157,11 +158,13 @@ CREATE TABLE "vehicle" (
 
 CREATE TABLE "timeSlot" (
     "timeSlotId" SERIAL PRIMARY KEY,
-    "timeSlotStartTime" TIME NOT NULL UNIQUE,
+    "timeSlotDate" DATE NOT NULL,
+    "timeSlotStartTime" TIME NOT NULL,
     "timeSlotEndTime" TIME NOT NULL,
-    "timeSlotMaxCapacity" INTEGER DEFAULT 2,
+    "timeSlotMaxCapacity" INTEGER DEFAULT 3,
     "timeSlotIsActive" BOOLEAN DEFAULT TRUE,
-    "timeSlotCreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    "timeSlotCreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE ("timeSlotDate", "timeSlotStartTime")
 );
 
 CREATE TABLE "booking" (
@@ -237,9 +240,20 @@ CREATE TABLE "advertisementPlacement" (
     "advertisementPlacementDescription" TEXT,
     "advertisementPlacementWidth" INTEGER,
     "advertisementPlacementHeight" INTEGER,
-    "advertisementPlacementPrice" DECIMAL(10, 2) NOT NULL,
     "advertisementPlacementIsFixed" BOOLEAN DEFAULT TRUE,
     "advertisementPlacementCreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "advertisementPricingPlan" (
+    "advertisementPricingPlanId" SERIAL PRIMARY KEY,
+    "advertisementPricingPlanName" VARCHAR(150) NOT NULL,
+    "advertisementPricingPlanDuration" INTEGER NOT NULL,
+    "advertisementPricingPlanPrice" DECIMAL(10, 2) NOT NULL,
+    "advertisementPricingPlanDescription" TEXT,
+    "advertisementPricingPlanIsActive" BOOLEAN DEFAULT TRUE,
+    "advertisementPlacementId" INTEGER NOT NULL,
+    "advertisementPricingPlanCreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY ("advertisementPlacementId") REFERENCES "advertisementPlacement"("advertisementPlacementId") ON DELETE CASCADE
 );
 
 CREATE TABLE "advertisementCampaign" (
@@ -249,8 +263,10 @@ CREATE TABLE "advertisementCampaign" (
     "advertisementCampaignEndDate" DATE NOT NULL,
     "advertisementCampaignStatus" VARCHAR(50) DEFAULT 'pending' CHECK ("advertisementCampaignStatus" IN ('pending', 'active', 'paused', 'completed', 'cancelled')),
     "advertiserId" INTEGER NOT NULL,
+    "advertisementPricingPlanId" INTEGER,
     "advertisementCampaignCreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("advertiserId") REFERENCES "advertiser"("advertiserId") ON DELETE CASCADE,
+    FOREIGN KEY ("advertisementPricingPlanId") REFERENCES "advertisementPricingPlan"("advertisementPricingPlanId") ON DELETE SET NULL,
     CHECK ("advertisementCampaignEndDate" > "advertisementCampaignStartDate")
 );
 
@@ -309,6 +325,9 @@ CREATE TABLE "payment" (
     "paymentStatus" VARCHAR(50) DEFAULT 'pending' CHECK ("paymentStatus" IN ('pending', 'completed', 'failed')),
     "paymentDate" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "paymentReference" VARCHAR(100),
+    "paymentSlipUrl" TEXT, -- Specific for Bank Transfer
+    "paymentCardBrand" VARCHAR(50), -- Specific for Credit Card
+    "paymentCardLastFour" VARCHAR(4), -- Specific for Credit Card
     "invoiceId" INTEGER NOT NULL,
     "paymentCreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("invoiceId") REFERENCES "invoice"("invoiceId") ON DELETE CASCADE
@@ -386,7 +405,9 @@ CREATE TABLE "enquiry" (
     "enquirySubject" VARCHAR(255),
     "enquiryMessage" TEXT NOT NULL,
     "enquiryStatus" VARCHAR(50) DEFAULT 'new' CHECK ("enquiryStatus" IN ('new', 'read', 'replied')),
-    "enquiryCreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    "customerId" INTEGER,
+    "enquiryCreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY ("customerId") REFERENCES "customer"("customerId") ON DELETE SET NULL
 );
 
 -- ============================================================
@@ -469,28 +490,31 @@ INSERT INTO "vehicle" ("vehicleMake", "vehicleModel", "vehicleRegNumber", "custo
 ('Nissan', 'Leaf', 'KP-9012', 3),
 ('Toyota', 'Aqua', 'CAH-3344', 1);
 
--- 6. Time Slots (08:00 AM to 04:00 PM)
-INSERT INTO "timeSlot" ("timeSlotStartTime", "timeSlotEndTime", "timeSlotMaxCapacity") VALUES
-('08:00:00', '09:00:00', 3),
-('09:00:00', '10:00:00', 3),
-('10:00:00', '11:00:00', 3),
-('11:00:00', '12:00:00', 3),
-('13:00:00', '14:00:00', 3),
-('14:00:00', '15:00:00', 3),
-('15:00:00', '16:00:00', 3);
+-- 6. Time Slots (Date-specific scheduler)
+INSERT INTO "timeSlot" ("timeSlotDate", "timeSlotStartTime", "timeSlotEndTime", "timeSlotMaxCapacity") VALUES
+-- Past slots for historical bookings
+(CURRENT_DATE - INTERVAL '5 days', '09:00:00', '10:00:00', 3), 
+-- Today's slots
+(CURRENT_DATE, '08:00:00', '09:00:00', 3),
+(CURRENT_DATE, '09:00:00', '10:00:00', 3),
+(CURRENT_DATE, '10:00:00', '11:00:00', 3),
+(CURRENT_DATE, '11:00:00', '12:00:00', 3),
+(CURRENT_DATE, '13:00:00', '14:00:00', 3),
+-- Future slots for future demand
+(CURRENT_DATE + INTERVAL '2 days', '13:00:00', '14:00:00', 3);
 
 -- 7. Bookings
 -- Completed Booking
 INSERT INTO "booking" ("bookingDate", "bookingStartTime", "bookingEndTime", "bookingStatus", "bookingRefNumber", "customerId", "vehicleId", "serviceId", "technicianId", "timeSlotId") VALUES
-(CURRENT_DATE - INTERVAL '5 days', '09:00:00', '10:00:00', 'completed', 'REF-0001', 1, 1, 1, 1, 2);
+(CURRENT_DATE - INTERVAL '5 days', '09:00:00', '10:00:00', 'completed', 'REF-0001', 1, 1, 1, 1, 1);
 
 -- In Progress
 INSERT INTO "booking" ("bookingDate", "bookingStartTime", "bookingEndTime", "bookingStatus", "bookingRefNumber", "customerId", "vehicleId", "serviceId", "technicianId", "timeSlotId") VALUES
-(CURRENT_DATE, '10:00:00', '11:00:00', 'in_progress', 'REF-0002', 2, 2, 2, 1, 3);
+(CURRENT_DATE, '10:00:00', '11:00:00', 'in_progress', 'REF-0002', 2, 2, 2, 1, 4);
 
 -- Future Pending
 INSERT INTO "booking" ("bookingDate", "bookingStartTime", "bookingEndTime", "bookingStatus", "bookingRefNumber", "customerId", "vehicleId", "serviceId", "timeSlotId") VALUES
-(CURRENT_DATE + INTERVAL '2 days', '13:00:00', '14:00:00', 'pending', 'REF-0003', 3, 3, 3, 5);
+(CURRENT_DATE + INTERVAL '2 days', '13:00:00', '14:00:00', 'pending', 'REF-0003', 3, 3, 3, 7);
 
 -- 8. Tracking & Feedback
 INSERT INTO "serviceTracking" ("serviceTrackingStatus", "bookingId") VALUES
@@ -500,13 +524,17 @@ INSERT INTO "serviceTracking" ("serviceTrackingStatus", "bookingId") VALUES
 INSERT INTO "feedback" ("feedbackRating", "feedbackComment", "customerId", "bookingId", "technicianId") VALUES
 (5, 'Excellent service on my Prius!', 1, 1, 1);
 
--- 9. Advertisements
-INSERT INTO "advertisementPlacement" ("advertisementPlacementSlug", "advertisementPlacementName", "advertisementPlacementPage", "advertisementPlacementPosition", "advertisementPlacementDescription", "advertisementPlacementWidth", "advertisementPlacementHeight", "advertisementPlacementPrice") VALUES
-('home_top', 'Home Hero Banner', 'home', 'top', 'Top display', 1200, 400, 15000.00),
-('services_side', 'Service Sidebar', 'services', 'right', 'Lateral ad', 300, 600, 8000.00);
+INSERT INTO "advertisementPlacement" ("advertisementPlacementSlug", "advertisementPlacementName", "advertisementPlacementPage", "advertisementPlacementPosition", "advertisementPlacementDescription", "advertisementPlacementWidth", "advertisementPlacementHeight") VALUES
+('home_top', 'Home Hero Banner', 'home', 'top', 'Top display', 1200, 400),
+('services_side', 'Service Sidebar', 'services', 'right', 'Lateral ad', 300, 600);
 
-INSERT INTO "advertisementCampaign" ("advertisementCampaignName", "advertisementCampaignStartDate", "advertisementCampaignEndDate", "advertisementCampaignStatus", "advertiserId") VALUES
-('Toyota Spring Sale', CURRENT_DATE - INTERVAL '10 days', CURRENT_DATE + INTERVAL '20 days', 'active', 1);
+INSERT INTO "advertisementPricingPlan" ("advertisementPricingPlanName", "advertisementPricingPlanDuration", "advertisementPricingPlanPrice", "advertisementPricingPlanDescription", "advertisementPlacementId") VALUES
+('Hero Banner - 30 Days', 30, 15000.00, 'Premium home page hero banner for 30 days', 1),
+('Hero Banner - 7 Days', 7, 5000.00, 'Home page hero banner for 1 week', 1),
+('Sidebar - 30 Days', 30, 8000.00, 'Service page sidebar ad for 30 days', 2);
+
+INSERT INTO "advertisementCampaign" ("advertisementCampaignName", "advertisementCampaignStartDate", "advertisementCampaignEndDate", "advertisementCampaignStatus", "advertiserId", "advertisementPricingPlanId") VALUES
+('Toyota Spring Sale', CURRENT_DATE - INTERVAL '10 days', CURRENT_DATE + INTERVAL '20 days', 'active', 1, 1);
 
 INSERT INTO "advertisement" ("advertisementTitle", "advertisementImageUrl", "advertisementStartDate", "advertisementEndDate", "advertisementStatus", "advertiserId", "advertisementPlacementId", "advertisementCampaignId") VALUES
 ('New GR Sport Parts', 'https://example.com/ad1.jpg', CURRENT_DATE - INTERVAL '5 days', CURRENT_DATE + INTERVAL '10 days', 'active', 1, 1, 1);
@@ -528,8 +556,8 @@ INSERT INTO "payment" ("paymentAmount", "paymentMethod", "paymentStatus", "invoi
 INSERT INTO "complaint" ("complaintTitle", "complaintDescription", "complaintPriority", "complaintStatus", "customerId", "bookingId") VALUES
 ('Oil Leak Detected', 'Seeing small oil spots after service', 'high', 'open', 1, 1);
 
-INSERT INTO "enquiry" ("enquiryName", "enquiryEmail", "enquiryPhone", "enquirySubject", "enquiryMessage") VALUES
-('Kasun Jay', 'kasun@web.com', '0771239988', 'Spare Parts', 'Do you have Vezel hybrid filters in stock?');
+INSERT INTO "enquiry" ("enquiryName", "enquiryEmail", "enquiryPhone", "enquirySubject", "enquiryMessage", "customerId") VALUES
+('Kasun Jay', 'kasun@web.com', '0771239988', 'Spare Parts', 'Do you have Vezel hybrid filters in stock?', 1);
 
 INSERT INTO "notification" ("userId", "notificationTitle", "notificationMessage", "notificationType") VALUES
 (1, 'System Ready', 'SeatsLabs database migration successful.', 'success'),

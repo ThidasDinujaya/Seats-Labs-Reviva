@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SidebarLayout from '../components/SidebarLayout';
-import { Eye, RefreshCcw, CheckCircle2, Clock, X, AlertCircle } from 'lucide-react';
+import { Eye, CheckCircle2, Clock, X, AlertCircle, Search } from 'lucide-react';
 import { bookingApi } from '../api/api';
 import { formatTime } from '../utils/formatters';
 
@@ -9,14 +9,15 @@ const TechnicianDashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState(null); // 'view' or 'update'
   const [formData, setFormData] = useState({ bookingStatus: '', car: '', job: '', bookingStartTime: '', bookingId: '', regNumber: '', customer: '', bookingTechnicianNotes: '', bookingCustomerNotes: '' });
-  const [tasks, setTasks] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   
   useEffect(() => {
-    fetchAssignedTasks();
+    fetchAssignedBookings();
   }, []);
 
-  const fetchAssignedTasks = async () => {
+  const fetchAssignedBookings = async () => {
     try {
       setLoading(true);
       // Get the logged-in technician's ID from localStorage
@@ -26,22 +27,18 @@ const TechnicianDashboard = () => {
       // Fetch bookings assigned to this technician
       const res = await bookingApi.getAll({ technicianId });
       if (res.success) {
-        // Transform booking data to match task structure
-        const transformedTasks = res.data.map(booking => ({
-          bookingId: booking.bookingId,
+        // Transform booking data for dashboard view
+        const transformedBookings = res.data.map(booking => ({
+          ...booking,
           car: `${booking.vehicleMake} ${booking.vehicleModel}`,
           regNumber: booking.vehicleRegNumber,
           customer: `${booking.customerFirstName} ${booking.customerLastName}`,
           job: booking.serviceName,
-          bookingStatus: booking.bookingStatus,
-          bookingStartTime: booking.bookingStartTime,
-          bookingTechnicianNotes: booking.bookingTechnicianNotes || '',
-          bookingCustomerNotes: booking.bookingCustomerNotes || '',
         }));
-        setTasks(transformedTasks);
+        setBookings(transformedBookings);
       }
     } catch (error) {
-      console.error('Failed to fetch assigned tasks:', error);
+      console.error('Failed to fetch assigned bookings:', error);
     } finally {
       setLoading(false);
     }
@@ -49,40 +46,40 @@ const TechnicianDashboard = () => {
 
   const handleAction = (action) => {
     if (!selectedId) return;
-    const task = tasks.find(t => t.bookingId === selectedId);
-    if (action === 'Update Task') {
-      setFormData({ ...task });
+    const booking = bookings.find(b => b.bookingId === selectedId);
+    if (action === 'Update Booking') {
+      setFormData({ ...booking });
       setModalMode('update');
       setShowModal(true);
     } else {
-      setFormData({ ...task });
+      setFormData({ ...booking });
       setModalMode('view');
       setShowModal(true);
     }
   };
 
-  const handleUpdateTask = async () => {
+  const handleUpdateBooking = async () => {
     try {
       if (!formData.bookingStatus) {
         alert('Please select a status.');
         return;
       }
 
-      const task = tasks.find(t => t.bookingId === selectedId);
-      if (!task) return;
+      const booking = bookings.find(b => b.bookingId === selectedId);
+      if (!booking) return;
       
-      const res = await bookingApi.update(task.bookingId, {
+      const res = await bookingApi.update(booking.bookingId, {
         bookingStatus: formData.bookingStatus,
         bookingTechnicianNotes: formData.bookingTechnicianNotes
       });
       
       if (res.success) {
-        fetchAssignedTasks(); // Refresh the task list
+        fetchAssignedBookings(); // Refresh the booking list
         setShowModal(false);
-        alert('Task updated successfully!');
+        alert('Booking updated successfully!');
       }
     } catch (error) {
-      alert('Failed to update task');
+      alert('Failed to update booking');
     }
   };
 
@@ -98,6 +95,18 @@ const TechnicianDashboard = () => {
     }
   };
 
+  const q = searchTerm.toLowerCase();
+  const filteredBookings = searchTerm
+    ? bookings.filter(b =>
+        String(b.bookingId || '').includes(q) ||
+        (b.customer || '').toLowerCase().includes(q) ||
+        (b.regNumber || '').toLowerCase().includes(q) ||
+        (b.car || '').toLowerCase().includes(q) ||
+        (b.job || '').toLowerCase().includes(q) ||
+        (b.bookingStatus || '').toLowerCase().includes(q)
+      )
+    : bookings;
+
   return (
     <SidebarLayout role="technician">
       <div style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column', marginTop: '-15px', padding: '15px' }}>
@@ -105,15 +114,9 @@ const TechnicianDashboard = () => {
         {/* Header Section */}
         <div style={{ marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>Workshop Task Pipeline</h1>
-            <p style={{ color: '#64748b', fontSize: '1rem' }}>Manage your daily service tasks and workshop efficiency.</p>
+            <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>Workshop Booking Pipeline</h1>
+            <p style={{ color: '#64748b', fontSize: '1rem' }}>Manage your daily service bookings and workshop efficiency.</p>
           </div>
-          <button 
-            onClick={fetchAssignedTasks}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', color: '#64748b', cursor: 'pointer', fontWeight: '600', transition: 'all 0.2s' }}
-          >
-            <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} /> Refresh
-          </button>
         </div>
 
         {/* Main Card Container */}
@@ -129,8 +132,29 @@ const TechnicianDashboard = () => {
           overflow: 'hidden' 
         }}>
           
-          <div style={{ marginBottom: '20px' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b', margin: 0 }}>Active Tasks</h3>
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ position: 'relative', width: '100%' }}>
+              <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
+              <input
+                type="text"
+                placeholder="Search by ID, customer, car, job, status..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px 10px 36px',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  outline: 'none',
+                  fontSize: '0.88rem',
+                  background: '#f8fafc',
+                  boxSizing: 'border-box',
+                  transition: 'border-color 0.2s'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+              />
+            </div>
           </div>
 
           {/* Scrollable Table Wrapper */}
@@ -141,47 +165,63 @@ const TechnicianDashboard = () => {
             border: '1px solid #f1f5f9', 
             borderRadius: '8px' 
           }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <table style={{ width: '100%', minWidth: '800px', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead style={{ position: 'sticky', top: 0, background: 'white', zIndex: 1, boxShadow: '0 2px 2px -1px rgba(0,0,0,0.05)' }}>
                 <tr style={{ borderBottom: '2px solid #f1f5f9' }}>
                   <th style={{ padding: '15px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>bookingId</th>
-                  <th style={{ padding: '15px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>vehicleModel</th>
-                  <th style={{ padding: '15px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>serviceName</th>
+                  <th style={{ padding: '15px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>bookingDate</th>
                   <th style={{ padding: '15px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>bookingStartTime</th>
-                  <th style={{ padding: '15px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px', textAlign: 'right' }}>bookingStatus</th>
+                  <th style={{ padding: '15px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>bookingEndTime</th>
+                  <th style={{ padding: '15px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>customerId</th>
+                  <th style={{ padding: '15px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>vehicleId</th>
+                  <th style={{ padding: '15px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>serviceId</th>
+                  <th style={{ padding: '15px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>servicePackageId</th>
+                  <th style={{ padding: '15px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>bookingStatus</th>
+                  <th style={{ padding: '15px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px', textAlign: 'right' }}>bookingCreatedAt</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading assigned tasks...</td></tr>
-                ) : tasks.length === 0 ? (
-                  <tr><td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No tasks assigned yet.</td></tr>
+                  <tr><td colSpan="10" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading assigned bookings...</td></tr>
+                ) : bookings.length === 0 ? (
+                  <tr><td colSpan="10" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No bookings assigned yet.</td></tr>
+                ) : filteredBookings.length === 0 ? (
+                  <tr><td colSpan="10" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No bookings match your search.</td></tr>
                 ) : (
-                  tasks.map((task) => (
+                  filteredBookings.map((booking) => (
                   <tr 
-                    key={task.bookingId} 
-                    onClick={() => setSelectedId(selectedId === task.bookingId ? null : task.bookingId)}
+                    key={booking.bookingId} 
+                    onClick={() => setSelectedId(selectedId === booking.bookingId ? null : booking.bookingId)}
                     style={{ 
                       borderBottom: '1px solid #f1f5f9', 
                       transition: 'background 0.2s', 
                       cursor: 'pointer',
-                      backgroundColor: selectedId === task.bookingId ? '#f1f5f9' : 'transparent'
+                      backgroundColor: selectedId === booking.bookingId ? '#f1f5f9' : 'transparent'
                     }}
                   >
-                    <td style={{ padding: '15px', fontWeight: '600' }}>#{task.bookingId}</td>
-                    <td style={{ padding: '15px', fontWeight: '600', color: '#1e293b' }}>{task.car}</td>
-                    <td style={{ padding: '15px', color: '#64748b', fontSize: '0.9rem' }}>{task.job}</td>
-                    <td style={{ padding: '15px', color: '#1e293b', fontWeight: '600', fontSize: '0.9rem' }}>
+                    <td style={{ padding: '15px', fontWeight: '600' }}>{booking.bookingId}</td>
+                    <td style={{ padding: '15px' }}>{new Date(booking.bookingDate).toLocaleDateString()}</td>
+                    <td style={{ padding: '15px', color: '#1e293b', fontWeight: '600' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <Clock size={14} style={{ color: 'var(--crimson)' }} /> {formatTime(task.bookingStartTime)}
+                        <Clock size={14} style={{ color: 'var(--crimson)' }} /> {formatTime(booking.bookingStartTime)}
                       </div>
                     </td>
-                    <td style={{ padding: '15px', textAlign: 'right' }}>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: getStatusDisplay(task.bookingStatus).color, fontWeight: '700', fontSize: '0.85rem' }}>
-                        {getStatusDisplay(task.bookingStatus).icon}
-                        {getStatusDisplay(task.bookingStatus).label}
+                    <td style={{ padding: '15px', color: '#1e293b', fontWeight: '600' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Clock size={14} style={{ color: 'var(--crimson)' }} /> {formatTime(booking.bookingEndTime)}
                       </div>
                     </td>
+                    <td style={{ padding: '15px' }}>{booking.customerId}</td>
+                    <td style={{ padding: '15px' }}>{booking.vehicleId}</td>
+                    <td style={{ padding: '15px' }}>{booking.serviceId || '-'}</td>
+                    <td style={{ padding: '15px' }}>{booking.servicePackageId || '-'}</td>
+                    <td style={{ padding: '15px' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: getStatusDisplay(booking.bookingStatus).color, fontWeight: '700', fontSize: '0.85rem' }}>
+                        {getStatusDisplay(booking.bookingStatus).icon}
+                        {getStatusDisplay(booking.bookingStatus).label}
+                      </div>
+                    </td>
+                    <td style={{ padding: '15px', textAlign: 'right' }}>{new Date(booking.bookingCreatedAt).toLocaleString()}</td>
                   </tr>
                   ))
                 )}
@@ -199,24 +239,15 @@ const TechnicianDashboard = () => {
             marginTop: '10px' 
           }}>
             {(() => {
-              const selectedTask = tasks.find(t => t.bookingId === selectedId);
-              const isActionable = selectedId && selectedTask?.bookingStatus !== 'rejected' && selectedTask?.bookingStatus !== 'cancelled';
               
               return (
                 <>
                   <button 
-                    onClick={() => handleAction('Update Task')}
-                    disabled={!isActionable}
-                    style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: isActionable ? '#3b82f6' : '#f1f5f9', color: isActionable ? 'white' : '#94a3b8', cursor: isActionable ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
-                  >
-                    <RefreshCcw size={18} /> Update Task
-                  </button>
-                  <button 
-                    onClick={() => handleAction('View Task')}
+                    onClick={() => handleAction('View Booking')}
                     disabled={!selectedId}
                     style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: selectedId ? 'var(--yellow)' : '#f1f5f9', color: selectedId ? 'black' : '#94a3b8', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
                   >
-                    <Eye size={18} /> View Task
+                    <Eye size={18} /> View Booking
                   </button>
                 </>
               );
@@ -230,7 +261,7 @@ const TechnicianDashboard = () => {
             <div style={{ background: 'white', borderRadius: '16px', width: modalMode === 'view' ? '600px' : '400px', maxWidth: '90%' }}>
               <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2 style={{ margin: 0, color: '#1e293b', fontSize: '1.25rem' }}>
-                  {modalMode === 'view' ? 'Task Details' : 'Update Task Status'}
+                  {modalMode === 'view' ? 'Booking Details' : 'Update Booking Status'}
                 </h2>
                 <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={24} /></button>
               </div>
@@ -241,7 +272,7 @@ const TechnicianDashboard = () => {
                     <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'space-between', background: '#f8fafc', padding: '15px', borderRadius: '8px', marginBottom: '10px' }}>
                       <div>
                         <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '700', textTransform: 'uppercase' }}>Booking ID</div>
-                        <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#1e293b' }}>#{formData.bookingId}</div>
+                        <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#1e293b' }}>{formData.bookingId}</div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '700', textTransform: 'uppercase' }}>Current Status</div>
@@ -300,16 +331,26 @@ const TechnicianDashboard = () => {
                   </div>
                 )}
                 
-                <div style={{ marginTop: '25px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                  <button onClick={() => setShowModal(false)} style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white', cursor: 'pointer', fontWeight: '600' }}>
-                    {modalMode === 'view' ? 'Close' : 'Cancel'}
-                  </button>
-                  {modalMode === 'update' && (
-                    <button onClick={handleUpdateTask} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#3b82f6', color: 'white', cursor: 'pointer', fontWeight: '600' }}>
-                      Save Changes
-                    </button>
+                  {modalMode === 'view' && (
+                    <>
+                      <button 
+                        onClick={() => setModalMode('update')}
+                        style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: '#3b82f6', color: 'white', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
+                      >
+                        <Clock size={18} /> Update Booking
+                      </button>
+                    </>
                   )}
-                </div>
+                  {modalMode === 'update' && (
+                    <>
+                      <button onClick={() => setShowModal(false)} style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white', cursor: 'pointer', fontWeight: '600' }}>
+                        Cancel
+                      </button>
+                      <button onClick={handleUpdateBooking} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#3b82f6', color: 'white', cursor: 'pointer', fontWeight: '600' }}>
+                        Save Changes
+                      </button>
+                    </>
+                  )}
               </div>
             </div>
           </div>

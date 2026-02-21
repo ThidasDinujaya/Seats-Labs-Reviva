@@ -78,14 +78,14 @@ const ManagerSettingsPage = () => {
             <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
                 <div style={{ marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: 'var(--black)', margin: 0 }}>Website Configuration</h1>
+                        <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: 'var(--black)', margin: 0 }}>System Setting</h1>
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
                         <button 
                             onClick={handleOpenModal}
                             style={{ padding: '12px 24px', borderRadius: '8px', background: 'var(--navy)', color: 'white', border: 'none', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
                         >
-                            <Pencil size={18} /> Update Website Configuration
+                            <Pencil size={18} /> Update Settings
                         </button>
                     </div>
                 </div>
@@ -143,7 +143,7 @@ const ManagerSettingsPage = () => {
                         <div style={{ background: 'white', width: '90%', maxWidth: '800px', maxHeight: '90vh', borderRadius: '20px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
                             <div style={{ padding: '25px 30px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
-                                    <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '800', color: 'var(--navy)' }}>Update Configuration</h2>
+                                    <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '800', color: 'var(--navy)' }}>Update Settings</h2>
                                     <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>Modify system-wide settings</p>
                                 </div>
                                 <button onClick={() => setShowModal(false)} style={{ background: '#f1f5f9', border: 'none', color: '#64748b', padding: '8px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -190,7 +190,7 @@ const ManagerSettingsPage = () => {
                                     disabled={saving}
                                     style={{ padding: '12px 30px', borderRadius: '10px', background: 'var(--navy)', color: 'white', border: 'none', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', opacity: saving ? 0.7 : 1 }}
                                 >
-                                    <Save size={18} /> {saving ? 'Saving...' : 'Save Configuration'}
+                                    <Save size={18} /> {saving ? 'Updating...' : 'Update Settings'}
                                 </button>
                             </div>
                         </div>

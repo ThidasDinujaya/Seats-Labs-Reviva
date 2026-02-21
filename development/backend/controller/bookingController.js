@@ -187,7 +187,7 @@ const viewBooking = async (req, res) => {
   try {
     // JOIN multiple tables to get complete booking information
     const result = await pool.query(
-      `SELECT b.*,
+      `SELECT b."bookingId", b."bookingDate", b."bookingStartTime", b."bookingEndTime", b."bookingStatus", b."bookingRefNumber", b."customerId", b."vehicleId", b."serviceId", b."servicePackageId", b."technicianId", b."timeSlotId", b."bookingCreatedAt",
         c."customerFirstName", c."customerLastName", c."customerPhone",
         v."vehicleMake", v."vehicleModel", v."vehicleRegNumber",
         s."serviceName", s."serviceDuration", s."servicePrice",
@@ -237,7 +237,7 @@ const viewAllBooking = async (req, res) => {
   try {
     // Build dynamic query with filters
     let query = `
-      SELECT b.*,
+      SELECT b."bookingId", b."bookingDate", b."bookingStartTime", b."bookingEndTime", b."bookingStatus", b."bookingRefNumber", b."customerId", b."vehicleId", b."serviceId", b."servicePackageId", b."technicianId", b."timeSlotId", b."bookingCreatedAt",
         c."customerFirstName", c."customerLastName",
         v."vehicleMake", v."vehicleModel", v."vehicleRegNumber",
         s."serviceName", s."servicePrice",

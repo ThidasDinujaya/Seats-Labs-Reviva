@@ -59,7 +59,8 @@ const viewAllComplaint = async (req, res) => {
   const { customerId } = req.query;
   try {
     let query = `
-      SELECT comp.*, c."customerFirstName", c."customerLastName", b."bookingRefNumber"
+      SELECT comp."complaintId", comp."complaintTitle", comp."complaintDescription", comp."complaintPriority", comp."complaintStatus", comp."complaintManagerResponse", comp."customerId", comp."bookingId", comp."complaintCreatedAt", comp."complaintResolvedAt",
+             c."customerFirstName", c."customerLastName", b."bookingRefNumber"
       FROM "complaint" comp
       JOIN "customer" c ON comp."customerId" = c."customerId"
       LEFT JOIN "booking" b ON comp."bookingId" = b."bookingId"

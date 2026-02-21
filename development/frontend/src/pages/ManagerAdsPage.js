@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
     Search, Plus, Eye, Edit2, 
     Trash2, X, BarChart2, CheckCircle, Clock, AlertTriangle,
-    Layout, Megaphone, CreditCard, Layers
+    Layout, Megaphone, CreditCard, Layers, Save
 } from 'lucide-react';
 import SidebarLayout from '../components/SidebarLayout';
 import { advertisementApi, campaignApi } from '../api/api';
@@ -16,7 +16,7 @@ const ManagerAdsPage = () => {
 
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all');
+
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState('view');
     const [selectedId, setSelectedId] = useState(null);
@@ -45,13 +45,39 @@ const ManagerAdsPage = () => {
                 if (campaignsRes.success) setCampaigns(campaignsRes.data);
                 
                 // Keep dummy pricing and placements for now as they might not have full APIs yet
-                setPricingPlans([
-                    { planId: 1, planName: 'Basic Weekly', price: 5000, duration: '7 Days', description: 'Standard sidebar placement' },
-                    { planId: 2, planName: 'Premium Monthly', price: 25000, duration: '30 Days', description: 'Homepage banner + analytics' }
-                ]);
+                // Real placements from SQL schema
                 setPlacements([
-                    { advertisementPlacementId: 1, advertisementPlacementName: 'Homepage Banner', dimensions: '1200x250', activeAds: 5, priceMultiplier: 2.5 },
-                    { advertisementPlacementId: 2, advertisementPlacementName: 'Bottom Banner', dimensions: '1200x280', activeAds: 4, priceMultiplier: 2.0 }
+                    { 
+                        advertisementPlacementId: 1, 
+                        advertisementPlacementSlug: 'homepage-top-banner',
+                        advertisementPlacementName: 'Homepage Hero Banner', 
+                        advertisementPlacementPage: 'Home',
+                        advertisementPlacementPosition: 'Top',
+                        advertisementPlacementDescription: 'Massive visibility at the top of the home page.',
+                        advertisementPlacementWidth: 1200, 
+                        advertisementPlacementHeight: 300,
+                        advertisementPlacementPrice: 15000.00,
+                        advertisementPlacementIsFixed: true,
+                        advertisementPlacementCreatedAt: '2026-01-15T10:00:00Z'
+                    },
+                    { 
+                        advertisementPlacementId: 2, 
+                        advertisementPlacementSlug: 'sidebar-square',
+                        advertisementPlacementName: 'Sidebar Widget', 
+                        advertisementPlacementPage: 'Dashboard',
+                        advertisementPlacementPosition: 'Right Sidebar',
+                        advertisementPlacementDescription: 'Consistent presence while users browse data.',
+                        advertisementPlacementWidth: 300, 
+                        advertisementPlacementHeight: 250,
+                        advertisementPlacementPrice: 5000.00,
+                        advertisementPlacementIsFixed: false,
+                        advertisementPlacementCreatedAt: '2026-01-20T14:30:00Z'
+                    }
+                ]);
+
+                setPricingPlans([
+                    { planId: 1, planName: 'Performance Starter', price: 12000, duration: '14 Days', description: 'Includes 2 placements + priority support' },
+                    { planId: 2, planName: 'Enterprise Growth', price: 45000, duration: '90 Days', description: 'Full site coverage + deep analytics' }
                 ]);
 
             } catch (error) {
@@ -64,11 +90,23 @@ const ManagerAdsPage = () => {
     }, []);
 
     const getStatusStyle = (status) => {
-        switch (status) {
+        const s = status?.toLowerCase();
+        switch (s) {
             case 'active': return { bg: '#ecfdf5', text: '#10b981', icon: <CheckCircle size={14} /> };
             case 'pending': return { bg: '#fff7ed', text: '#f59e0b', icon: <Clock size={14} /> };
-            case 'expired': return { bg: '#f1f5f9', text: '#64748b', icon: <AlertTriangle size={14} /> };
-            default: return { bg: '#fef2f2', text: '#ef4444', icon: null };
+            case 'expired': case 'paused': return { bg: '#fffbeb', text: '#d97706', icon: <AlertTriangle size={14} /> };
+            case 'rejected': case 'cancelled': return { bg: '#fef2f2', text: '#ef4444', icon: <X size={14} /> };
+            default: return { bg: '#f1f5f9', text: '#64748b', icon: null };
+        }
+    };
+
+    const getColSpan = () => {
+        switch(activeTab) {
+            case 'ad': return 10;
+            case 'campaign': return 7;
+            case 'pricing': return 5;
+            case 'placement': return 11;
+            default: return 1;
         }
     };
 
@@ -85,8 +123,7 @@ const ManagerAdsPage = () => {
             case 'ad':
                 return ads.filter(ad => 
                     ((ad.advertisementTitle?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
-                     (ad.advertiserBusinessName?.toLowerCase() || '').includes(searchTerm.toLowerCase())) &&
-                    (statusFilter === 'all' || ad.advertisementStatus === statusFilter)
+                     (ad.advertiserBusinessName?.toLowerCase() || '').includes(searchTerm.toLowerCase()))
                 );
             case 'campaign':
                 return campaigns.filter(c => 
@@ -124,6 +161,7 @@ const ManagerAdsPage = () => {
 
     return (
         <SidebarLayout role="manager">
+            <>
             <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column', padding: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                     <div>
@@ -132,231 +170,234 @@ const ManagerAdsPage = () => {
                     </div>
                 </div>
 
-                <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                    <div style={tabStyles.container}>
-                        <button onClick={() => { setActiveTab('ad'); setSelectedId(null); }} style={tabStyles.tab(activeTab === 'ad')}>
-                            <Layout size={18} /> Ad
-                        </button>
-                        <button onClick={() => { setActiveTab('campaign'); setSelectedId(null); }} style={tabStyles.tab(activeTab === 'campaign')}>
-                            <Megaphone size={18} /> Campaign
-                        </button>
-                        <button onClick={() => { setActiveTab('pricing'); setSelectedId(null); }} style={tabStyles.tab(activeTab === 'pricing')}>
-                            <CreditCard size={18} /> Pricing Plan
-                        </button>
-                        <button onClick={() => { setActiveTab('placement'); setSelectedId(null); }} style={tabStyles.tab(activeTab === 'placement')}>
-                            <Layers size={18} /> Placement
-                        </button>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
-                        <div style={{ position: 'relative', flex: 1 }}>
-                            <Search style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} size={20} />
-                            <input 
-                                type="text" 
-                                placeholder={`Search ${getTabLabel()}...`} 
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none' }} 
-                            />
+                <div style={{ 
+                    background: '#fff', 
+                    borderRadius: '16px', 
+                    border: '1px solid #f1f5f9', 
+                    flex: 1, 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    overflow: 'hidden' 
+                }}>
+                    <div style={{ padding: '20px', borderBottom: '1px solid #f1f5f9' }}>
+                        <div style={tabStyles.container}>
+                            <button onClick={() => { setActiveTab('ad'); setSelectedId(null); }} style={tabStyles.tab(activeTab === 'ad')}>
+                                <Layout size={18} /> Ad
+                            </button>
+                            <button onClick={() => { setActiveTab('campaign'); setSelectedId(null); }} style={tabStyles.tab(activeTab === 'campaign')}>
+                                <Megaphone size={18} /> Campaign
+                            </button>
+                            <button onClick={() => { setActiveTab('pricing'); setSelectedId(null); }} style={tabStyles.tab(activeTab === 'pricing')}>
+                                <CreditCard size={18} /> Pricing Plan
+                            </button>
+                            <button onClick={() => { setActiveTab('placement'); setSelectedId(null); }} style={tabStyles.tab(activeTab === 'placement')}>
+                                <Layers size={18} /> Placement
+                            </button>
                         </div>
-                        {activeTab === 'ad' && (
-                            <select 
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                                style={{ padding: '12px 15px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', outline: 'none', minWidth: '150px' }}
+
+                        <div style={{ display: 'flex', gap: '15px' }}>
+                            <div style={{ position: 'relative', flex: 1 }}>
+                                <Search style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} size={20} />
+                                <input 
+                                    type="text" 
+                                    placeholder={`Search ${getTabLabel()}...`} 
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '0.9rem' }} 
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ 
+                        background: '#fff',
+                        borderRadius: '16px',
+                        border: '1px solid #f1f5f9',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        flex: 1,
+                        overflow: 'hidden',
+                        position: 'relative'
+                    }}>
+                        <div style={{ flex: 1, overflow: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', minWidth: activeTab === 'placement' ? '1800px' : activeTab === 'ad' ? '1600px' : '1200px' }}>
+                                <thead style={{ position: 'sticky', top: 0, zIndex: 10, background: '#fff' }}>
+                                    <tr style={{ background: '#fff', borderBottom: '2px solid #f1f5f9' }}>
+                                        {activeTab === 'ad' && (
+                                            <>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementId</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementTitle</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementImageUrl</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementStartDate</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementStatus</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertiserId</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementPlacementId</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementCampaignId</th>
+                                                <th style={{ padding: '15px', textAlign: 'right', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementCreatedAt</th>
+                                            </>
+                                        )}
+                                        {activeTab === 'campaign' && (
+                                            <>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementCampaignId</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementCampaignName</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementCampaignStartDate</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementCampaignEndDate</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementCampaignStatus</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertiserId</th>
+                                                <th style={{ padding: '15px', textAlign: 'right', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementCampaignCreatedAt</th>
+                                            </>
+                                        )}
+                                        {activeTab === 'pricing' && (
+                                            <>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementPricingPlanId</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementPricingPlanName</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementPricingPlanPrice</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementPricingPlanDuration</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementPricingPlanDescription</th>
+                                            </>
+                                        )}
+                                        {activeTab === 'placement' && (
+                                            <>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementPlacementId</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementPlacementSlug</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementPlacementName</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementPlacementPage</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementPlacementPosition</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementPlacementWidth × Height</th>
+                                                <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementPlacementIsFixed</th>
+                                                <th style={{ padding: '15px', textAlign: 'right', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementPlacementCreatedAt</th>
+                                            </>
+                                        )}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr><td colSpan={getColSpan()} style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading Data Pool...</td></tr>
+                                    ) : filteredData.length === 0 ? (
+                                        <tr><td colSpan={getColSpan()} style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No {getTabLabel()} Found in Registry.</td></tr>
+                                    ) : (
+                                        filteredData.map(item => {
+                                            const id = item.advertisementId || item.advertisementCampaignId || item.planId || item.advertisementPlacementId;
+                                            return (
+                                                <tr key={id} onClick={() => setSelectedId(selectedId === id ? null : id)} style={{ borderBottom: '1px solid #f1f5f9', cursor: 'pointer', transition: 'background 0.2s', background: selectedId === id ? '#f8fafc' : 'transparent' }}>
+                                                    {activeTab === 'ad' && (
+                                                        <>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '800', color: 'var(--navy)' }}>{item.advertisementId}</td>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '700' }}>{item.advertisementTitle}</td>
+                                                            <td style={{ padding: '12px 15px', color: '#64748b', fontSize: '0.7rem', wordBreak: 'break-all', maxWidth: '150px' }}>{item.advertisementImageUrl || '-'}</td>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '600' }}>{item.advertisementStartDate}</td>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '600' }}>{item.advertisementEndDate}</td>
+                                                            <td style={{ padding: '12px 15px' }}>
+                                                                <span style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', background: getStatusStyle(item.advertisementStatus).bg, color: getStatusStyle(item.advertisementStatus).text, display: 'inline-flex', alignItems: 'center', gap: '5px', textTransform: 'uppercase' }}>
+                                                                    {getStatusStyle(item.advertisementStatus).icon} {item.advertisementStatus}
+                                                                </span>
+                                                            </td>
+                                                            <td style={{ padding: '12px 15px' }}>{item.advertiserId}</td>
+                                                            <td style={{ padding: '12px 15px' }}>{item.advertisementPlacementId || '-'}</td>
+                                                            <td style={{ padding: '12px 15px' }}>{item.advertisementCampaignId || '-'}</td>
+                                                            <td style={{ padding: '12px 15px', textAlign: 'right', color: '#94a3b8' }}>{new Date(item.advertisementCreatedAt || Date.now()).toLocaleDateString()}</td>
+                                                        </>
+                                                    )}
+                                                    {activeTab === 'campaign' && (
+                                                        <>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '800', color: 'var(--navy)' }}>{item.advertisementCampaignId}</td>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '700' }}>{item.advertisementCampaignName}</td>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '600' }}>{item.advertisementCampaignStartDate}</td>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '600' }}>{item.advertisementCampaignEndDate}</td>
+                                                            <td style={{ padding: '12px 15px' }}>
+                                                                <span style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', background: getStatusStyle(item.advertisementCampaignStatus).bg, color: getStatusStyle(item.advertisementCampaignStatus).text, display: 'inline-flex', alignItems: 'center', gap: '5px', textTransform: 'uppercase' }}>
+                                                                    {getStatusStyle(item.advertisementCampaignStatus).icon} {item.advertisementCampaignStatus}
+                                                                </span>
+                                                            </td>
+                                                            <td style={{ padding: '12px 15px' }}>{item.advertiserId}</td>
+                                                            <td style={{ padding: '12px 15px', textAlign: 'right', color: '#94a3b8' }}>{new Date(item.advertisementCampaignCreatedAt || Date.now()).toLocaleDateString()}</td>
+                                                        </>
+                                                    )}
+                                                    {activeTab === 'pricing' && (
+                                                        <>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '800', color: 'var(--navy)' }}>{item.planId}</td>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '700' }}>{item.planName}</td>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '800', color: 'var(--crimson)' }}>Rs. {item.price.toLocaleString()}</td>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '600' }}>{item.duration}</td>
+                                                            <td style={{ padding: '12px 15px', fontSize: '0.75rem', color: '#64748b' }}>{item.description}</td>
+                                                        </>
+                                                    )}
+                                                    {activeTab === 'placement' && (
+                                                        <>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '800', color: 'var(--navy)' }}>{item.advertisementPlacementId}</td>
+                                                            <td style={{ padding: '12px 15px', fontFamily: 'monospace', fontWeight: '600' }}>{item.advertisementPlacementSlug}</td>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '700' }}>{item.advertisementPlacementName}</td>
+                                                            <td style={{ padding: '12px 15px' }}>{item.advertisementPlacementPage}</td>
+                                                            <td style={{ padding: '12px 15px' }}>{item.advertisementPlacementPosition}</td>
+                                                            <td style={{ padding: '12px 15px', fontSize: '0.75rem' }}>{item.advertisementPlacementWidth}×{item.advertisementPlacementHeight}</td>
+                                                            <td style={{ padding: '12px 15px', fontWeight: '800', color: 'var(--navy)' }}>Rs. {parseFloat(item.advertisementPlacementPrice || 0).toLocaleString()}</td>
+                                                            <td style={{ padding: '12px 15px' }}>{item.advertisementPlacementIsFixed ? 'YES' : 'NO'}</td>
+                                                            <td style={{ padding: '12px 15px', textAlign: 'right', color: '#94a3b8' }}>{new Date(item.advertisementPlacementCreatedAt || Date.now()).toLocaleDateString()}</td>
+                                                        </>
+                                                    )}
+                                                </tr>
+                                            );
+                                        })
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Persistent Floating Logic Container */}
+                        <div style={{ 
+                            position: 'fixed', 
+                            bottom: '30px', 
+                            right: '30px', 
+                            display: 'flex', 
+                            gap: '12px', 
+                            zIndex: 1000,
+                            background: 'rgba(255,255,255,0.9)',
+                            padding: '15px',
+                            borderRadius: '12px',
+                            boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                            backdropFilter: 'blur(10px)',
+                            border: '1px solid #e2e8f0'
+                        }}>
+                             <button
+                                onClick={() => handleOpenModal('add')}
+                                style={{ 
+                                    padding: '12px 24px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: '8px', 
+                                    cursor: 'pointer', fontWeight: '700', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px',
+                                    transition: 'all 0.2s', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+                                }}
                             >
-                                <option value="all">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="pending">Pending</option>
-                                <option value="expired">Expired</option>
-                            </select>
-                        )}
+                                <Plus size={18} /> Add {getTabLabel()}
+                            </button>
+                            <button
+                                disabled={!selectedId}
+                                onClick={() => {
+                                    const idAttribute = activeTab === 'ad' ? 'advertisementId' : activeTab === 'campaign' ? 'advertisementCampaignId' : activeTab === 'pricing' ? 'planId' : 'advertisementPlacementId';
+                                    const item = filteredData.find(i => i[idAttribute] === selectedId);
+                                    if (item) handleOpenModal('view', item);
+                                }}
+                                style={{ 
+                                    padding: '12px 24px', 
+                                    background: selectedId ? 'var(--yellow)' : '#f1f5f9', 
+                                    color: selectedId ? 'black' : '#94a3b8', 
+                                    border: 'none', 
+                                    borderRadius: '8px', 
+                                    cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', fontSize: '0.9rem', 
+                                    display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s'
+                                }}
+                            >
+                                <Eye size={18} /> View {getTabLabel()}
+                            </button>
+                        </div>
                     </div>
-
-                    <div style={{ overflowY: 'auto', flex: 1, overflowX: 'auto', border: '1px solid #f1f5f9', borderRadius: '8px' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '2px solid #f1f5f9', textAlign: 'left', position: 'sticky', top: 0, background: 'white', zIndex: 1 }}>
-                                    {activeTab === 'ad' && (
-                                        <>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Ad ID</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Title</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Advertiser</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Placement</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Metrics</th>
-                                            <th style={{ padding: '15px', textAlign: 'right', color: '#64748b' }}>Status</th>
-                                        </>
-                                    )}
-                                    {activeTab === 'campaign' && (
-                                        <>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Campaign ID</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Campaign Name</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Advertiser</th>
-                                            <th style={{ padding: '15px', textAlign: 'right', color: '#64748b' }}>Status</th>
-                                        </>
-                                    )}
-                                    {activeTab === 'pricing' && (
-                                        <>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Plan ID</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Plan Name</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Price</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Duration</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Description</th>
-                                        </>
-                                    )}
-                                    {activeTab === 'placement' && (
-                                        <>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Placement ID</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Placement Name</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Dimensions</th>
-                                            <th style={{ padding: '15px', color: '#64748b' }}>Active Ads</th>
-                                            <th style={{ padding: '15px', textAlign: 'right', color: '#64748b' }}>Multiplier</th>
-                                        </>
-                                    )}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="10" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading...</td></tr>
-                                ) : filteredData.length === 0 ? (
-                                    <tr><td colSpan="10" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No {getTabLabel()} found.</td></tr>
-                                ) : (
-                                    filteredData.map(item => {
-                                        const id = item.advertisementId || item.advertisementCampaignId || item.planId || item.advertisementPlacementId;
-                                        return (
-                                            <tr 
-                                                key={id} 
-                                                onClick={() => setSelectedId(selectedId === id ? null : id)}
-                                                style={{ 
-                                                    borderBottom: '1px solid #f1f5f9', 
-                                                    cursor: 'pointer',
-                                                    transition: 'background 0.2s',
-                                                    background: selectedId === id ? '#f1f5f9' : 'transparent'
-                                                }}
-                                            >
-                                                {activeTab === 'ad' && (
-                                                    <>
-                                                        <td style={{ padding: '15px' }}>#{item.advertisementId}</td>
-                                                        <td style={{ padding: '15px', fontWeight: '600' }}>{item.advertisementTitle}</td>
-                                                        <td style={{ padding: '15px' }}>{item.advertiserBusinessName}</td>
-                                                        <td style={{ padding: '15px' }}>
-                                                            <span style={{ fontSize: '0.9rem', padding: '4px 8px', background: '#f1f5f9', borderRadius: '4px' }}>
-                                                                {item.advertisementPlacementName}
-                                                            </span>
-                                                        </td>
-                                                        <td style={{ padding: '15px' }}>
-                                                            <div style={{ display: 'flex', gap: '15px' }}>
-                                                                <div style={{ textAlign: 'center' }}>
-                                                                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Views</div>
-                                                                    <div style={{ fontWeight: 'bold' }}>{item.advertisementImpressions || 0}</div>
-                                                                </div>
-                                                                <div style={{ textAlign: 'center' }}>
-                                                                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Clicks</div>
-                                                                    <div style={{ fontWeight: 'bold' }}>{item.advertisementClicks || 0}</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td style={{ padding: '15px', textAlign: 'right' }}>
-                                                            <span style={{ 
-                                                                padding: '6px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '600',
-                                                                background: getStatusStyle(item.advertisementStatus).bg, color: getStatusStyle(item.advertisementStatus).text,
-                                                                display: 'inline-flex', alignItems: 'center', gap: '5px'
-                                                            }}>
-                                                                {getStatusStyle(item.advertisementStatus).icon}
-                                                                {item.advertisementStatus.toUpperCase()}
-                                                            </span>
-                                                        </td>
-                                                    </>
-                                                )}
-                                                {activeTab === 'campaign' && (
-                                                    <>
-                                                        <td style={{ padding: '15px' }}>#{item.advertisementCampaignId}</td>
-                                                        <td style={{ padding: '15px', fontWeight: 'bold' }}>{item.advertisementCampaignName}</td>
-                                                        <td style={{ padding: '15px' }}>{item.advertiserBusinessName}</td>
-                                                        <td style={{ padding: '15px', textAlign: 'right' }}>
-                                                            <span style={{ 
-                                                                padding: '6px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '600',
-                                                                background: getStatusStyle(item.advertisementCampaignStatus).bg, color: getStatusStyle(item.advertisementCampaignStatus).text,
-                                                                display: 'inline-flex', alignItems: 'center', gap: '5px'
-                                                            }}>
-                                                                {getStatusStyle(item.advertisementCampaignStatus).icon}
-                                                                {item.advertisementCampaignStatus.toUpperCase()}
-                                                            </span>
-                                                        </td>
-                                                    </>
-                                                )}
-                                                {activeTab === 'pricing' && (
-                                                    <>
-                                                        <td style={{ padding: '15px' }}>#{item.planId}</td>
-                                                        <td style={{ padding: '15px', fontWeight: 'bold' }}>{item.planName}</td>
-                                                        <td style={{ padding: '15px' }}>Rs. {item.price.toLocaleString()}</td>
-                                                        <td style={{ padding: '15px' }}>{item.duration}</td>
-                                                        <td style={{ padding: '15px', fontSize: '0.9rem', color: '#64748b' }}>{item.description}</td>
-                                                    </>
-                                                )}
-                                                {activeTab === 'placement' && (
-                                                    <>
-                                                        <td style={{ padding: '15px' }}>#{item.advertisementPlacementId}</td>
-                                                        <td style={{ padding: '15px', fontWeight: 'bold' }}>{item.advertisementPlacementName}</td>
-                                                        <td style={{ padding: '15px' }}>{item.dimensions}</td>
-                                                        <td style={{ padding: '15px' }}>{item.activeAds} Ads</td>
-                                                        <td style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold', color: 'var(--navy)' }}>{item.priceMultiplier}x</td>
-                                                    </>
-                                                )}
-                                            </tr>
-                                        );
-                                    })
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', padding: '20px 0 0 0', borderTop: '1px solid #f1f5f9', marginTop: '10px' }}>
-                        <button onClick={() => handleOpenModal('add')} style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Plus size={18} /> Add {getTabLabel()}
-                        </button>
-                        <button 
-                            onClick={() => {
-                                const idAttribute = activeTab === 'ad' ? 'advertisementId' : activeTab === 'campaign' ? 'advertisementCampaignId' : activeTab === 'pricing' ? 'planId' : 'advertisementPlacementId';
-                                const item = filteredData.find(i => i[idAttribute] === selectedId);
-                                if (item) handleOpenModal('edit', item);
-                            }} 
-                            disabled={!selectedId}
-                            style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: selectedId ? '#3b82f6' : '#f1f5f9', color: selectedId ? 'white' : '#94a3b8', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
-                        >
-                            <Edit2 size={18} /> Update {getTabLabel()}
-                        </button>
-                        <button 
-                            onClick={() => {
-                                const idAttribute = activeTab === 'ad' ? 'advertisementId' : activeTab === 'campaign' ? 'advertisementCampaignId' : activeTab === 'pricing' ? 'planId' : 'advertisementPlacementId';
-                                const item = filteredData.find(i => i[idAttribute] === selectedId);
-                                if (item) handleOpenModal('view', item);
-                            }} 
-                            disabled={!selectedId}
-                            style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: selectedId ? 'var(--yellow)' : '#f1f5f9', color: selectedId ? 'black' : '#94a3b8', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
-                        >
-                            <Eye size={18} /> View {getTabLabel()}
-                        </button>
-                        <button 
-                            onClick={() => {
-                                if (selectedId && window.confirm(`Delete this ${getTabLabel()}?`)) {
-                                    setSelectedId(null);
-                                }
-                            }} 
-                            disabled={!selectedId}
-                            style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: selectedId ? '#ef4444' : '#f1f5f9', color: selectedId ? 'white' : '#94a3b8', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
-                        >
-                            <Trash2 size={18} /> Delete {getTabLabel()}
-                        </button>
-                    </div>
+                </div>
                 </div>
 
                 {showModal && (
                     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000 }}>
                         <div style={{ background: 'white', borderRadius: '16px', width: '600px', maxWidth: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
                             <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: 'white', zIndex: 10 }}>
-                                <h2 style={{ margin: 0, color: '#1e293b' }}>{modalMode === 'add' ? `Create New ${getTabLabel()}` : modalMode === 'view' ? `${getTabLabel()} Details` : `Edit ${getTabLabel()}`}</h2>
-                                <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={24} /></button>
+                                <h2 style={{ margin: 0, color: '#1e293b' }}>{modalMode === 'add' ? `Add ${getTabLabel()}` : modalMode === 'view' ? `View ${getTabLabel()}` : `Update ${getTabLabel()}`}</h2>
+                                <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><X size={24} /></button>
                             </div>
                             <div style={{ padding: '25px' }}>
                                 {/* Modal content - For now focusing on layout and navigation as requested */}
@@ -414,10 +455,6 @@ const ManagerAdsPage = () => {
                                                         <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Clicks</div>
                                                         <div style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{formData.advertisementClicks || 0}</div>
                                                     </div>
-                                                    <div style={{ textAlign: 'center' }}>
-                                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>CTR</div>
-                                                        <div style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{formData.advertisementImpressions > 0 ? ((formData.advertisementClicks / formData.advertisementImpressions) * 100).toFixed(1) : 0}%</div>
-                                                    </div>
                                                 </div>
                                             </div>
                                         )}
@@ -429,18 +466,49 @@ const ManagerAdsPage = () => {
                                     </div>
                                 )}
                             </div>
-                            {!viewOnly && (
+                            {modalMode === 'view' ? (
                                 <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px', position: 'sticky', bottom: 0, background: 'white', zIndex: 10 }}>
-                                    <button onClick={() => setShowModal(false)} style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white', cursor: 'pointer' }}>Cancel</button>
-                                    <button onClick={() => setShowModal(false)} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', cursor: 'pointer' }}>
-                                        {modalMode === 'add' ? `Create ${getTabLabel()}` : `Update ${getTabLabel()}`}
+                                    <button 
+                                        onClick={() => setModalMode('edit')}
+                                        style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#3b82f6', color: 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                    >
+                                        <Edit2 size={18} /> Update {getTabLabel()}
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            if (selectedId && window.confirm(`Permanently remove this ${getTabLabel()}?`)) {
+                                                alert('Asset decommissioning logic triggered.');
+                                                setShowModal(false);
+                                                setSelectedId(null);
+                                            }
+                                        }}
+                                        style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#ef4444', color: 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                    >
+                                        <Trash2 size={18} /> Delete {getTabLabel()}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px', position: 'sticky', bottom: 0, background: 'white', zIndex: 10 }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowModal(false)}
+                                        style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', color: '#64748b', fontWeight: 'bold', cursor: 'pointer' }}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => alert('Save logic will be connected to API.')}
+                                        style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                    >
+                                        <Save size={18} /> {modalMode === 'add' ? `Save ${getTabLabel()}` : 'Save Changes'}
                                     </button>
                                 </div>
                             )}
                         </div>
                     </div>
                 )}
-            </div>
+            </>
         </SidebarLayout>
     );
 };

@@ -204,7 +204,52 @@ Since JavaScript doesn't have traditional access modifiers like Java/C++, we use
 
 ---
 
-### 5. **userController.js**
+### 5. **paymentController.js**
+
+**Purpose:** Financial transactions and invoice management
+
+**Module Dependencies:**
+
+- 📦 `pool` - Database connection pool
+
+#### Methods (paymentController)
+
+##### 🟢 `createPayment(req, res)`
+
+- **Access:** public (exported)
+- **HTTP Method:** POST
+- **Route:** `/api/payments`
+- **Parameters:**
+  - `req.body.invoiceId` - Invoice ID (required)
+  - `req.body.paymentAmount` - Amount (required)
+  - `req.body.paymentMethod` - 'bank_transfer', 'credit_card', 'cash' (required)
+  - `req.body.paymentReference` - External reference (optional)
+  - `req.body.paymentSlipUrl` - URL of receipt photo (Bank Transfer only)
+  - `req.body.paymentCardBrand` - e.g., 'Visa', 'MasterCard' (Credit Card only)
+  - `req.body.paymentCardLastFour` - Last 4 digits (Credit Card only)
+- **Returns:** `{ success: boolean, data: { payment } }`
+- **Description:** Records a payment and automatically updates target status (e.g., activates Ads or marks Booking as accepted).
+
+##### 🟢 `getInvoiceByBookingId(req, res)`
+
+- **Access:** public (exported)
+- **HTTP Method:** GET
+- **Route:** `/api/payments/invoice/booking/:bookingId`
+- **Returns:** `{ success: boolean, data: { invoice + details } }`
+- **Description:** Retrieves billing information for a specific booking.
+
+##### 🟢 `getAllPayment(req, res)`
+
+- **Access:** public (exported)
+- **HTTP Method:** GET
+- **Route:** `/api/payments`
+- **Authorization:** Manager only
+- **Returns:** `{ success: boolean, data: [...payments] }`
+- **Description:** Lists all system payments with associated customer/business names.
+
+---
+
+### 6. **userController.js**
 
 **Purpose:** General user management (admin operations)
 
@@ -819,7 +864,48 @@ Since JavaScript doesn't have traditional access modifiers like Java/C++, we use
   - `startDate` - Start date (required)
   - `endDate` - End date (required)
 - **Returns:** `{ success: boolean, data: { reportPeriod, summary, byPlacement[], topAds[] } }`
-- **Description:** Analyzes ad impressions, clicks, CTR by placement and individual ads.
+- **Description:** Analyzes ad impressions and clicks by placement and individual ads.
+
+---
+
+### 14. **trackingController.js**
+
+**Purpose:** Handles tracking of service progress
+
+**Module Dependencies:**
+
+- 📦 `pool` - Database connection pool
+
+#### Methods (trackingController)
+
+##### 🟢 `getServiceTracking(req, res)`
+
+- **Access:** public (exported)
+- **HTTP Method:** GET
+- **Route:** `/api/tracking`
+- **Returns:** `{ success: boolean, data: [...tracks] }`
+- **Description:** Retrieves all active service tracking records for manager oversight.
+
+##### 🟢 `getHistory(req, res)`
+
+- **Access:** public (exported)
+- **HTTP Method:** GET
+- **Route:** `/api/tracking/history/:bookingId`
+- **Parameters:**
+  - `req.params.bookingId` - Booking ID
+- **Returns:** `{ success: boolean, data: [...history] }`
+- **Description:** Retrieves full tracking event history for a specific booking.
+
+##### 🟢 `updateStatus(req, res)`
+
+- **Access:** public (exported)
+- **HTTP Method:** POST
+- **Route:** `/api/tracking/update`
+- **Parameters:**
+  - `req.body.bookingId` - Booking ID (required)
+  - `req.body.status` - 'started', 'in_progress', 'completed' (required)
+- **Returns:** `{ success: boolean, message }`
+- **Description:** Adds a new tracking record and automatically synchronizes the associated booking's status.
 
 ---
 
@@ -891,8 +977,8 @@ router.get("/admin-only", authMiddleware, authorizeRole("admin"), handler);
 
 | Category                  | Count |
 | ------------------------- | ----- |
-| **Total Controllers**     | 13    |
-| **Total Public Methods**  | 66    |
+| **Total Controllers**     | 14    |
+| **Total Public Methods**  | 69    |
 | **Total Private Methods** | 1     |
 | **Middleware Functions**  | 2     |
 | **Database Tables Used**  | 19    |
@@ -911,6 +997,7 @@ router.get("/admin-only", authMiddleware, authorizeRole("admin"), handler);
 | `update*`   | Modify existing record                  | `updateService`                   |
 | `delete*`   | Remove record                           | `deleteService`                   |
 | `generate*` | Create report                           | `generateDailyBookingReport`      |
+| `get*`      | Retrieve records (general)              | `getServiceTracking`              |
 
 ---
 

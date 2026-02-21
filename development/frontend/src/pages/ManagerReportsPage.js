@@ -6,22 +6,28 @@ import { jsPDF } from "jspdf";
 import html2canvas from 'html2canvas';
 import { Eye, Download } from 'lucide-react';
 
-// Helper Components - Business Professional Design
-// Helper Components - Ledger Style
-const Table = ({ headers, rows, alignments }) => (
-    <div style={{ width: '100%', marginBottom: '40px', marginTop: '20px' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', tableLayout: 'auto' }}>
+// Helper Components - Ledger Style with Sticky Header and Scrolling Support
+const Table = ({ headers, rows, alignments, widths }) => (
+    <div style={{ 
+        width: '100%', 
+        marginBottom: '40px', 
+        marginTop: '20px', 
+        border: '1px solid #e2e8f0', 
+        borderRadius: '8px'
+    }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', tableLayout: widths ? 'fixed' : 'auto', background: '#fff' }}>
             <thead>
-                <tr style={{ background: 'var(--navy)', color: 'white' }}>
+                <tr style={{ background: 'var(--navy)', color: '#fff' }}>
                     {headers.map((h, i) => (
                         <th key={i} style={{ 
-                            padding: '10px 8px', 
+                            padding: '12px 15px', 
                             textAlign: alignments?.[i] || 'left', 
                             fontWeight: '800', 
                             textTransform: 'uppercase', 
-                            letterSpacing: '0.1px',
-                            wordBreak: 'break-word',
-                            minWidth: '60px'
+                            letterSpacing: '0.5px',
+                            borderRight: i === headers.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                            whiteSpace: 'nowrap',
+                            width: widths?.[i] || 'auto'
                         }}>{h}</th>
                     ))}
                 </tr>
@@ -29,30 +35,32 @@ const Table = ({ headers, rows, alignments }) => (
             <tbody>
                 {rows && rows.length > 0 ? (
                     rows.map((row, i) => (
-                        <tr key={i} style={{ borderBottom: '1px solid #e2e8f0', transition: 'background 0.2s' }}>
+                        <tr key={i} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.2s' }}>
                            {row.map((cell, j) => (
                                <td key={j} style={{ 
-                                   padding: '10px 8px', 
-                                   color: '#1e293b', 
-                                   fontWeight: '500',
+                                   padding: '10px 15px', 
+                                   color: '#334155', 
+                                   fontWeight: '600',
                                    textAlign: alignments?.[j] || 'left',
                                    fontVariantNumeric: 'tabular-nums',
-                                   wordBreak: 'break-word'
-                               }}>{cell}</td>
+                                   borderRight: j === row.length - 1 ? 'none' : '1px solid #f1f5f9',
+                                   background: i % 2 === 0 ? '#fff' : '#f8fafc',
+                                   overflow: 'hidden',
+                                   textOverflow: 'ellipsis',
+                                   whiteSpace: 'nowrap'
+                               }} title={typeof cell === 'string' ? cell : undefined}>{cell}</td>
                            ))}
                         </tr>
                     ))
                 ) : (
                     <tr>
-                        <td colSpan={headers.length} style={{ padding: '40px', textAlign: 'center', color: '#64748b', fontStyle: 'italic' }}>*** NO ENTRIES RECORDED ***</td>
+                        <td colSpan={headers.length} style={{ padding: '40px', textAlign: 'center', color: '#64748b', fontStyle: 'italic', fontWeight: '800' }}>--- NO DATA FOUND FOR SELECTED PERIOD ---</td>
                     </tr>
                 )}
             </tbody>
         </table>
     </div>
 );
-
-
 
 const ManagerReportsPage = () => {
     // Default to current month
@@ -69,28 +77,20 @@ const ManagerReportsPage = () => {
     const [settings, setSettings] = useState({});
     const reportRef = useRef(null);
 
-    // Fetch Report Function
+    // Unified Fetch Handler
     const fetchReport = useCallback(async () => {
-        // Validation
-        if (!startDate || !endDate) {
-            setError('Please select both start and end dates.');
-            return;
-        }
+        if (!startDate || !endDate) return;
 
+        // Date validation
         if (new Date(startDate) > new Date(endDate)) {
             setError('Start date cannot be after end date.');
             return;
         }
 
-        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-        if (!dateRegex.test(startDate) || !dateRegex.test(endDate)) {
-            setError('Invalid date format. Please use YYYY-MM-DD.');
-            return;
-        }
-
         setLoading(true);
         setError(null);
-        setData(null);
+        // We no longer call setData(null) here to prevent the UI from vanishing during updates
+        
         try {
             let res;
             if (activeTab === 'revenue') {
@@ -103,23 +103,23 @@ const ManagerReportsPage = () => {
                 res = await reportApi.getAdPerformance(startDate, endDate);
             }
             
-            if (res.success) {
+            if (res && res.success) {
                 setData(res.data);
             } else {
-                setError(res.error || 'Failed to load report data');
+                setError(res?.error || 'Failed to populate report ledger');
             }
         } catch (err) {
-            console.error(err);
-            setError(err.error || err.message || 'Error executing report request');
+            console.error('Report Generation Error:', err);
+            setError(err.message || 'Critical failure in report engine');
         } finally {
             setLoading(false);
         }
     }, [activeTab, startDate, endDate]);
 
-    // Fetch Report when params change
+    // Automotive Trigger: Execute report whenever parameters pivot
     useEffect(() => {
         fetchReport();
-    }, [fetchReport]);
+    }, [activeTab, startDate, endDate, fetchReport]);
 
     // Fetch System Settings for letterhead
     useEffect(() => {
@@ -140,19 +140,15 @@ const ManagerReportsPage = () => {
         fetchSettings();
     }, []);
 
-
-
-    // PDF Export Function using html2canvas
     const exportToPDF = async () => {
         if (!reportRef.current) return;
-
         const btn = document.getElementById('pdf-btn');
         const originalBtnText = btn.innerText;
         btn.innerText = 'Processing...';
         
         try {
             const canvas = await html2canvas(reportRef.current, {
-                scale: 2, // Higher scale for better quality
+                scale: 2,
                 useCORS: true,
                 logging: false,
                 backgroundColor: '#ffffff'
@@ -172,7 +168,6 @@ const ManagerReportsPage = () => {
             pdf.addImage(imgData, 'PNG', 0, position, imgFinalWidth, imgFinalHeight);
             heightLeft -= pdfHeight;
 
-            // Only add extra pages if there is meaningful content left (using > 1mm tolerance)
             while (heightLeft > 1) {
               position = heightLeft - imgFinalHeight;
               pdf.addPage();
@@ -198,313 +193,223 @@ const ManagerReportsPage = () => {
 
     return (
         <SidebarLayout role="manager">
-            <div style={{ marginBottom: '30px' }}>
-                <h1 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--navy)' }}>Business Intelligence</h1>
-                <p style={{ color: '#666' }}>Generate formal business reports for specific operational periods.</p>
-            </div>
-
-            {/* Controls */}
-            <div style={{ background: 'white', padding: '25px', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', marginBottom: '30px' }}>
-                
-                {/* Top Row: Report Type */}
-                <div style={{ marginBottom: '25px' }}>
-                    <label style={{ display: 'block', marginBottom: '10px', fontWeight: '700', fontSize: '0.9rem', color: '#64748b' }}>Report Category</label>
-                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                        {tabs.map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                style={{
-                                    padding: '12px 20px',
-                                    borderRadius: '8px',
-                                    border: 'none',
-                                    background: activeTab === tab.id ? 'var(--navy)' : '#f1f5f9',
-                                    color: activeTab === tab.id ? 'white' : '#64748b',
-                                    fontWeight: '600',
-                                    cursor: 'pointer',
-                                    transition: '0.2s',
-                                    flex: '1 0 auto',
-                                    textAlign: 'center'
-                                }}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
+            <div style={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ flexShrink: 0, marginBottom: '20px' }}>
+                    <h1 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--navy)' }}>Business Intelligence</h1>
+                    <p style={{ color: '#666' }}>Generate formal business reports for specific operational periods.</p>
                 </div>
 
-                {/* Middle Row: Dates */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '25px', marginBottom: '25px' }}>
-                    <div>
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.9rem', color: '#64748b' }}>Start Date</label>
-                        <input 
-                            type="date" 
-                            value={startDate} 
-                            onChange={(e) => setStartDate(e.target.value)} 
-                            disabled={activeTab === 'booking'}
-                            style={{ padding: '10px 15px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', background: '#fff', minWidth: '200px' }}
-                        />
+                {/* Controls */}
+                <div style={{ background: 'white', padding: '25px', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', marginBottom: '30px', flexShrink: 0 }}>
+                    <div style={{ marginBottom: '25px' }}>
+                        <label style={{ display: 'block', marginBottom: '10px', fontWeight: '700', fontSize: '0.9rem', color: '#64748b' }}>Report Category</label>
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            {tabs.map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    style={{
+                                        padding: '12px 20px',
+                                        borderRadius: '8px',
+                                        border: 'none',
+                                        background: activeTab === tab.id ? 'var(--navy)' : '#f1f5f9',
+                                        color: activeTab === tab.id ? 'white' : '#64748b',
+                                        fontWeight: '600',
+                                        cursor: 'pointer',
+                                        transition: '0.2s',
+                                        flex: '1 0 auto',
+                                        textAlign: 'center'
+                                    }}
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                    <div>
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.9rem', color: '#64748b' }}>
-                            {activeTab === 'booking' ? 'Select Date' : 'End Date'}
-                        </label>
-                        <input 
-                            type="date" 
-                            value={endDate} 
-                            onChange={(e) => setEndDate(e.target.value)} 
-                            style={{ padding: '10px 15px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', background: '#fff', minWidth: '200px' }}
-                        />
-                    </div>
-                </div>
 
-                {/* Bottom Row: Actions */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px', borderTop: '1px solid #f1f5f9', paddingTop: '20px' }}>
-                    <button 
-                        onClick={fetchReport}
-                        style={{
-                            display: 'flex', alignItems: 'center', gap: '8px',
-                            padding: '10px 24px', borderRadius: '8px', border: 'none',
-                            background: 'var(--navy)', color: 'white',
-                            fontWeight: '600', cursor: 'pointer',
-                            fontSize: '0.95rem'
-                        }}
-                    >
-                        <Eye size={18} />
-                        Generate Preview
-                    </button>
-
-                    <button 
-                        id="pdf-btn"
-                        onClick={exportToPDF}
-                        disabled={!data}
-                        style={{
-                            display: 'flex', alignItems: 'center', gap: '8px',
-                            padding: '10px 24px', borderRadius: '8px', border: 'none',
-                            background: data ? 'var(--crimson)' : '#e2e8f0',
-                            color: 'white',
-                            fontWeight: '600',
-                            cursor: data ? 'pointer' : 'not-allowed',
-                            fontSize: '0.95rem'
-                        }}
-                    >
-                        <Download size={18} />
-                        Export to PDF
-                    </button>
-                </div>
-            </div>
-
-            {/* Content Area */}
-            {loading && <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Processing Request...</div>}
-            
-            {error && <div style={{ padding: '20px', background: '#fee2e2', color: '#dc2626', borderRadius: '8px' }}>{error}</div>}
-
-            {!loading && !error && data && (
-                <div style={{ overflowX: 'auto', padding: '20px 0', background: '#f1f5f9' }}>
-                    <div ref={reportRef} style={{ 
-                        background: 'white', 
-                        width: '210mm', 
-                        minHeight: '297mm', 
-                        margin: '0 auto', 
-                        padding: '25.4mm', 
-                        boxSizing: 'border-box',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        boxShadow: '0 0 20px rgba(0,0,0,0.1)',
-                        fontFamily: "'Inter', sans-serif", 
-                        color: '#000',
-                        position: 'relative'
-                    }}>
-                        
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '25px' }}>
                         <div>
-                            {/* Official Letterhead Header - BRANDED */}
-                            <div style={{ borderBottom: '2px solid var(--navy)', paddingBottom: '20px', marginBottom: '30px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.9rem', color: '#64748b' }}>Start Date</label>
+                            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} disabled={activeTab === 'booking'} style={{ padding: '10px 15px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', background: '#fff', minWidth: '200px' }} />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.9rem', color: '#64748b' }}>{activeTab === 'booking' ? 'Select Date' : 'End Date'}</label>
+                            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={{ padding: '10px 15px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', background: '#fff', minWidth: '200px' }} />
+                        </div>
+                    </div>
+                </div>
+
+                {/* SCROLLABLE CONTENT AREA */}
+                <div style={{ flex: 1, overflowY: 'auto', paddingRight: '10px', paddingBottom: '100px', position: 'relative' }}>
+                    {/* Loading Overlay */}
+                    {loading && (
+                        <div style={{ 
+                            position: 'absolute', 
+                            top: 0, left: 0, right: 0, bottom: 0, 
+                            background: data ? 'rgba(255,255,255,0.6)' : 'transparent', 
+                            display: 'flex', 
+                            justifyContent: 'center', 
+                            alignItems: 'center', 
+                            zIndex: 100,
+                            backdropFilter: data ? 'blur(2px)' : 'none'
+                        }}>
+                            <div style={{ padding: '20px 40px', background: 'var(--navy)', color: 'white', borderRadius: '50px', fontWeight: '800', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
+                                {data ? 'Refreshing Analytics...' : 'Initializing Engine...'}
+                            </div>
+                        </div>
+                    )}
+
+                    {error && <div style={{ padding: '20px', background: '#fee2e2', color: '#dc2626', borderRadius: '8px', marginBottom: '20px' }}>{error}</div>}
+
+                    {!error && data && (
+                        <>
+                            <div style={{ padding: '20px 0', background: '#f1f5f9', display: 'flex', justifyContent: 'center' }}>
+                                <div ref={reportRef} style={{ 
+                                    background: 'white', 
+                                    width: '210mm', 
+                                    minHeight: '297mm', 
+                                    padding: '25.4mm', 
+                                    boxSizing: 'border-box',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'space-between',
+                                    boxShadow: '0 0 20px rgba(0,0,0,0.1)',
+                                    fontFamily: "'Inter', sans-serif", 
+                                    color: '#000',
+                                    position: 'relative'
+                                }}>
                                     <div>
-                                        <h1 style={{ fontSize: '2.4rem', fontWeight: '900', color: 'var(--navy)', margin: 0, letterSpacing: '-1.5px', textTransform: 'uppercase' }}>
-                                            SEATS<span style={{ color: 'var(--crimson)' }}>LABS</span>
-                                        </h1>
-                                        <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#64748b', marginTop: '4px', letterSpacing: '1px' }}>CERTIFIED AUTOMOTIVE SERVICE NETWORK</div>
-                                    </div>
-                                    <div style={{ textAlign: 'right', fontSize: '0.75rem', color: '#334155', lineHeight: '1.4' }}>
-                                        <div style={{ fontWeight: 'bold', color: 'var(--navy)', marginBottom: '4px', fontSize: '0.8rem' }}>CORPORATE OFFICE</div>
-                                        <div>{settings?.contact_address || '123 Automotive Way, Colombo 07, Sri Lanka'}</div>
-                                        <div>{settings?.contact_phone || '+94 11 234 5678'}</div>
-                                        <div style={{ fontWeight: '600', color: 'var(--crimson)' }}>{settings?.contact_email || 'contact@seatslabs.com'}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Report Metadata Block - Branded */}
-                            <div style={{ marginBottom: '30px' }}>
-                                <div style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '15px', color: 'var(--navy)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
-                                    {tabs.find(t => t.id === activeTab)?.label}
-                                </div>
-                                
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: '#f8fafc', padding: '15px', borderLeft: '4px solid var(--navy)', fontSize: '0.75rem' }}>
-                                     <div style={{ borderRight: '1px solid #e2e8f0', paddingRight: '10px' }}>
-                                        <div style={{ fontWeight: '800', color: 'var(--navy)', marginBottom: '3px' }}>PERIOD:</div>
-                                        <div style={{ fontWeight: '600' }}>{`${startDate} TO ${endDate}`}</div>
-                                    </div>
-                                    <div style={{ borderRight: '1px solid #e2e8f0', padding: '0 10px' }}>
-                                        <div style={{ fontWeight: '800', color: 'var(--navy)', marginBottom: '3px' }}>ISSUED BY:</div>
-                                        <div style={{ fontWeight: '600' }}>{user?.userName || 'MANAGER PORTAL'}</div>
-                                    </div>
-                                    <div style={{ borderRight: '1px solid #e2e8f0', padding: '0 10px' }}>
-                                        <div style={{ fontWeight: '800', color: 'var(--navy)', marginBottom: '3px' }}>DOCUMENT ID:</div>
-                                        <div style={{ fontWeight: '600' }}>SLX-{Math.floor(Math.random() * 1000000)}</div>
-                                    </div>
-                                    <div style={{ paddingLeft: '10px' }}>
-                                        <div style={{ fontWeight: '800', color: 'var(--navy)', marginBottom: '3px' }}>TIMESTAMP:</div>
-                                        <div style={{ fontWeight: '600' }}>{new Date().toLocaleDateString()} {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Report Content */}
-                            <div style={{ fontFamily: "'Inter', sans-serif" }}>
-                                
-                                {/* 1. Revenue Analysis */}
-                                {activeTab === 'revenue' && (
-                                    <>
-                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', textTransform: 'uppercase', paddingBottom: '5px', marginBottom: '10px', marginTop: '25px', borderBottom: '1px solid #eee' }}>Operational Revenue Stream</h3>
-                                        <Table 
-                                            headers={['Service Name', 'Bookings', 'Total Revenue']}
-                                            alignments={['left', 'right', 'right']}
-                                            rows={data?.serviceRevenue?.byService?.map(item => [
-                                                item.serviceName,
-                                                item.bookingCount,
-                                                `Rs. ${parseFloat(item.totalRevenue).toLocaleString()}`
-                                            ])}
-                                        />
-
-                                        <h4 style={{ fontSize: '0.9rem', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '10px' }}>Adjustments & Reversals:</h4>
-                                        <Table 
-                                            headers={['Category', 'Description', 'Amount']}
-                                            alignments={['left', 'left', 'right']}
-                                            rows={[
-                                                ['REFUNDS', 'Processed Reversals', `Rs. ${(data?.refunds?.total || 0).toLocaleString()}`]
-                                            ]}
-                                        />
-
-                                        <div style={{ borderTop: '2px double #000', paddingTop: '15px', marginTop: '20px' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.9rem' }}>
-                                                <div style={{ width: '280px' }}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                                                        <span>GROSS SERVICE REVENUE:</span>
-                                                        <span>Rs. {data?.serviceRevenue?.total?.toLocaleString()}</span>
-                                                    </div>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                                                        <span>ADVERTISING INCOME:</span>
-                                                        <span>Rs. {data?.advertisementRevenue?.total?.toLocaleString()}</span>
-                                                    </div>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', color: '#ef4444' }}>
-                                                        <span>LESS: REFUNDS:</span>
-                                                        <span>(Rs. {data?.refunds?.total?.toLocaleString()})</span>
-                                                    </div>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1.1rem', borderTop: '1px solid #000', paddingTop: '10px' }}>
-                                                        <span>NET REVENUE:</span>
-                                                        <span>Rs. {data?.combinedRevenue?.toLocaleString() ?? '0'}</span>
-                                                    </div>
+                                        {/* Letterhead */}
+                                        <div style={{ borderBottom: '2px solid var(--navy)', paddingBottom: '20px', marginBottom: '30px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                                <div>
+                                                    <h1 style={{ fontSize: '2.4rem', fontWeight: '900', color: 'var(--navy)', margin: 0, letterSpacing: '-1.5px', textTransform: 'uppercase' }}>
+                                                        SEATS<span style={{ color: 'var(--crimson)' }}>LABS</span>
+                                                    </h1>
+                                                    <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#64748b', marginTop: '4px', letterSpacing: '1px' }}>CERTIFIED AUTOMOTIVE SERVICE NETWORK</div>
+                                                </div>
+                                                <div style={{ textAlign: 'right', fontSize: '0.75rem', color: '#334155', lineHeight: '1.4' }}>
+                                                    <div style={{ fontWeight: 'bold', color: 'var(--navy)', marginBottom: '4px', fontSize: '0.8rem' }}>CORPORATE OFFICE</div>
+                                                    <div>{settings?.contact_address || '123 Automotive Way, Colombo 07, Sri Lanka'}</div>
+                                                    <div>{settings?.contact_phone || '+94 11 234 5678'}</div>
+                                                    <div style={{ fontWeight: '600', color: 'var(--crimson)' }}>{settings?.contact_email || 'contact@seatslabs.com'}</div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </>
-                                )}
 
-                                {/* 2. Daily Booking */}
-                                {activeTab === 'booking' && (
-                                    <>
-                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', textTransform: 'uppercase', paddingBottom: '5px', marginBottom: '10px', marginTop: '25px', borderBottom: '1px solid #eee' }}>Operations Log</h3>
-                                        <Table 
-                                            headers={['Time', 'Customer', 'Vehicle', 'Service', 'Technician', 'Status']}
-                                            alignments={['left', 'left', 'left', 'left', 'left', 'left']}
-                                            rows={data?.bookings?.map(b => [
-                                                b.bookingStartTime,
-                                                `${b.customerFirstName} ${b.customerLastName}`,
-                                                b.vehicleRegNumber,
-                                                b.serviceName,
-                                                b.technicianFirstName || '--',
-                                                b.bookingStatus.toUpperCase()
-                                            ])}
-                                        />
-                                        <div style={{ textAlign: 'right', fontWeight: 'bold', fontSize: '1rem', marginTop: '10px' }}>
-                                            TOTAL LOG ENTRIES: {data?.totalBookings ?? 0}
+                                        {/* Metadata */}
+                                        <div style={{ marginBottom: '30px' }}>
+                                            <div style={{ fontSize: '1.2rem', fontWeight: '900', marginBottom: '15px', color: '#000', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
+                                                {tabs.find(t => t.id === activeTab)?.label}
+                                            </div>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: '#fff', padding: '15px', border: '1px solid #000', fontSize: '0.75rem' }}>
+                                                <div style={{ borderRight: '1px solid #000', paddingRight: '10px' }}>
+                                                    <div style={{ fontWeight: '900', color: '#000', marginBottom: '3px' }}>PERIOD:</div>
+                                                    <div style={{ fontWeight: '700' }}>{activeTab === 'booking' ? endDate : `${startDate} TO ${endDate}`}</div>
+                                                </div>
+                                                <div style={{ borderRight: '1px solid #000', padding: '0 10px' }}>
+                                                    <div style={{ fontWeight: '900', color: '#000', marginBottom: '3px' }}>ISSUED BY:</div>
+                                                    <div style={{ fontWeight: '700' }}>{user?.userName || 'MANAGER PORTAL'}</div>
+                                                </div>
+                                                <div style={{ borderRight: '1px solid #000', padding: '0 10px' }}>
+                                                    <div style={{ fontWeight: '900', color: '#000', marginBottom: '3px' }}>DOCUMENT ID:</div>
+                                                    <div style={{ fontWeight: '700' }}>SLX-{Math.floor(Math.random() * 1000000)}</div>
+                                                </div>
+                                                <div style={{ paddingLeft: '10px' }}>
+                                                    <div style={{ fontWeight: '900', color: '#000', marginBottom: '3px' }}>TIMESTAMP:</div>
+                                                    <div style={{ fontWeight: '700' }}>{new Date().toLocaleDateString()} {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </>
-                                )}
 
-                                {/* 3. Technician Performance */}
-                                {activeTab === 'technician' && (
-                                    <>
-                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', textTransform: 'uppercase', paddingBottom: '5px', marginBottom: '10px', marginTop: '25px', borderBottom: '1px solid #eee' }}>Workforce Utilization</h3>
-                                        <Table 
-                                            headers={['Technician', 'Specialization', 'Total Jobs', 'Completed', 'Rating']}
-                                            alignments={['left', 'left', 'right', 'right', 'right']}
-                                            rows={data?.technicians?.map(t => [
-                                                `${t.technicianFirstName} ${t.technicianLastName}`,
-                                                t.technicianSpecialization,
-                                                t.totalJobs,
-                                                t.completedJobs,
-                                                t.averageRating ? `${parseFloat(t.averageRating).toFixed(1)} / 5.0` : 'N/A'
-                                            ])}
-                                        />
-                                    </>
-                                )}
+                                        {/* Content */}
+                                        <div style={{ fontFamily: "'Inter', sans-serif" }}>
+                                            {activeTab === 'revenue' && (
+                                                <>
+                                                    <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', textTransform: 'uppercase', paddingBottom: '5px', marginBottom: '10px', marginTop: '25px', borderBottom: '1px solid #eee' }}>Operational Revenue Stream</h3>
+                                                    <Table headers={['serviceName', 'bookingCount', 'totalRevenue']} alignments={['left', 'right', 'right']} rows={data?.serviceRevenue?.byService?.map(item => [item.serviceName, item.bookingCount, `Rs. ${parseFloat(item.totalRevenue).toLocaleString()}`])} />
+                                                    <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', textTransform: 'uppercase', paddingBottom: '5px', marginBottom: '10px', marginTop: '25px', borderBottom: '1px solid #eee' }}>Advertising Income Stream</h3>
+                                                    <Table headers={['advertiserBusinessName', 'paymentCount', 'advertiserRevenue']} alignments={['left', 'right', 'right']} rows={data?.advertisementRevenue?.byAdvertiser?.map(item => [item.advertiserBusinessName, item.paymentCount, `Rs. ${parseFloat(item.advertiserRevenue).toLocaleString()}`])} />
+                                                    <div style={{ borderTop: '2px double #000', paddingTop: '15px', marginTop: '20px' }}>
+                                                        <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.9rem' }}>
+                                                            <div style={{ width: '280px' }}>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}><span>GROSS SERVICE REVENUE:</span><span>Rs. {data?.serviceRevenue?.total?.toLocaleString()}</span></div>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}><span>ADVERTISING INCOME:</span><span>Rs. {data?.advertisementRevenue?.total?.toLocaleString()}</span></div>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', color: 'var(--crimson)', fontWeight: '700' }}><span>LESS: REFUNDS:</span><span>(Rs. {data?.refunds?.total?.toLocaleString()})</span></div>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1.1rem', borderTop: '1px solid #000', paddingTop: '10px' }}><span>NET REVENUE:</span><span>Rs. {data?.combinedRevenue?.toLocaleString() ?? '0'}</span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}
+                                            {activeTab === 'booking' && (
+                                                <>
+                                                    <div style={{ border: '2px solid #000', padding: '15px', marginTop: '20px', marginBottom: '30px', background: '#f8fafc' }}>
+                                                        <h4 style={{ margin: '0 0 15px 0', fontSize: '0.85rem', fontWeight: '900', color: '#000', borderBottom: '1px solid #000', paddingBottom: '5px' }}>DAILY PERFORMANCE OVERVIEW</h4>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px' }}>
+                                                            {[
+                                                                { label: 'Total Registry Entries', value: data?.totalBookings || 0 },
+                                                                { label: 'Completion Rate', value: `${data?.totalBookings > 0 ? ((data?.statusBreakdown?.find(s => s.bookingStatus === 'completed')?.count || 0) / data.totalBookings * 100).toFixed(0) : 0}%` },
+                                                                { label: 'Active Pipeline', value: data?.statusBreakdown?.find(s => s.bookingStatus === 'in_progress')?.count || 0 },
+                                                                { label: 'Gross Revenue', value: `Rs. ${parseFloat(data?.totalRevenue || 0).toLocaleString()}` }
+                                                            ].map((kpi, i) => (
+                                                                <div key={i} style={{ flex: 1, borderRight: i === 3 ? 'none' : '1px solid #cbd5e1', paddingRight: i === 3 ? 0 : '15px' }}>
+                                                                    <div style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: '800', textTransform: 'uppercase' }}>{kpi.label}</div>
+                                                                    <div style={{ fontSize: '1.1rem', fontWeight: '900', color: '#000' }}>{kpi.value}</div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#000', textTransform: 'uppercase', marginBottom: '15px', borderLeft: '4px solid #000', paddingLeft: '10px' }}>Technical Operation Ledger</h3>
+                                                    <Table headers={['ID.', 'REF.', 'TIME', 'CUSTOMER', 'REG. NO', 'SERVICE', 'STATUS']} alignments={['left', 'left', 'left', 'left', 'left', 'left', 'left']} rows={data?.bookings?.map(b => [ b.bookingId, b.bookingRefNumber, b.bookingStartTime, `${b.customerFirstName} ${b.customerLastName.charAt(0)}.`, b.vehicleRegNumber, b.serviceName, b.bookingStatus.toUpperCase() ])} />
+                                                </>
+                                            )}
+                                            {activeTab === 'technician' && (
+                                                <>
+                                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '900', textTransform: 'uppercase', paddingBottom: '5px', marginBottom: '10px', marginTop: '25px', borderBottom: '1px solid #000' }}>Workforce Utilization</h3>
+                                                    <Table headers={['TECH. ID', 'NAME', 'SPL.', 'TOTAL', 'CMPL.', 'RATING']} alignments={['left', 'left', 'left', 'right', 'right', 'right']} rows={data?.technicians?.map(t => [ t.technicianId, `${t.technicianFirstName} ${t.technicianLastName.charAt(0)}.`, t.technicianSpecialization, t.totalJobs, t.completedJobs, t.averageRating ? `${parseFloat(t.averageRating).toFixed(1)}` : 'N/A' ])} />
+                                                </>
+                                            )}
+                                            {activeTab === 'ad' && (
+                                                <>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '10px', marginTop: '25px', borderBottom: '1px solid #000', paddingBottom: '10px' }}>
+                                                        <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#000', textTransform: 'uppercase', margin: 0 }}>Marketing Asset Performance</h3>
+                                                    </div>
+                                                    <Table 
+                                                        headers={['ID', 'Placement', 'Impressions', 'Clicks']} 
+                                                        alignments={['left', 'left', 'right', 'right']} 
+                                                        widths={['10%', '60%', '15%', '15%']}
+                                                        rows={data?.byPlacement?.map(p => [ 
+                                                            p.advertisementPlacementId, 
+                                                            p.advertisementPlacementName, 
+                                                            p.advertisementImpressions || 0, 
+                                                            p.advertisementClicks || 0
+                                                        ])} 
+                                                    />
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
 
-                                {/* 4. Ad Performance */}
-                                {activeTab === 'ad' && (
-                                    <>
-                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', textTransform: 'uppercase', paddingBottom: '5px', marginBottom: '10px', marginTop: '25px', borderBottom: '1px solid #eee' }}>Marketing Asset Performance</h3>
-                                        <h4 style={{ fontSize: '0.85rem', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '5px' }}>Placement Matrix:</h4>
-                                        <Table 
-                                            headers={['ID', 'Placement', 'Impressions', 'Clicks', 'CTR']}
-                                            alignments={['left', 'left', 'right', 'right', 'right']}
-                                            rows={data?.byPlacement?.map(p => [
-                                                `#${p.advertisementPlacementId}`,
-                                                p.advertisementPlacementName,
-                                                p.advertisementImpressions || 0,
-                                                p.advertisementClicks || 0,
-                                                `${p.ctr}%`
-                                            ])}
-                                        />
-                                        
-                                        <h4 style={{ fontSize: '0.85rem', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '5px', marginTop: '20px' }}>Creative Breakdown:</h4>
-                                        <Table 
-                                            headers={['ID', 'Asset Title', 'Impressions', 'Clicks', 'CTR']}
-                                            alignments={['left', 'left', 'right', 'right', 'right']}
-                                            rows={data?.topAds?.map(ad => [
-                                                `#${ad.advertisementId}`,
-                                                ad.advertisementTitle,
-                                                ad.advertisementImpressions || 0,
-                                                ad.advertisementClicks || 0,
-                                                `${ad.ctr}%`
-                                            ])}
-                                        />
-                                    </>
-                                )}
+                                    {/* Footer */}
+                                    <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '15px', marginTop: '40px', textAlign: 'center' }}>
+                                        <div style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--navy)', textTransform: 'uppercase', letterSpacing: '1px' }}>Confidential - Internal Distribution Only</div>
+                                        <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '6px', lineHeight: '1.4' }}>This document contains proprietary information of Seats Labs Inc. Unauthorized distribution is strictly prohibited.<br />© {new Date().getFullYear()} Seats Labs Inc. All rights reserved.</div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Report Footer - Branded & Consistent */}
-                        <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '15px', marginTop: '40px', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--navy)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                Confidential - Internal Distribution Only
+                            {/* Persistent Floating Controls */}
+                            <div style={{ position: 'fixed', bottom: '30px', right: '30px', display: 'flex', gap: '15px', zIndex: 1000, background: 'rgba(255,255,255,0.9)', padding: '15px', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', backdropFilter: 'blur(10px)', border: '1px solid #e2e8f0' }}>
+                                <button onClick={fetchReport} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', fontWeight: '700', cursor: 'pointer', fontSize: '0.95rem', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}> <Eye size={18} /> Refresh Data </button>
+                                <button id="pdf-btn" onClick={exportToPDF} disabled={!data || loading} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '8px', border: 'none', background: data && !loading ? 'var(--crimson)' : '#e2e8f0', color: 'white', fontWeight: '700', cursor: data && !loading ? 'pointer' : 'not-allowed', fontSize: '0.95rem', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}> <Download size={18} /> Export PDF </button>
                             </div>
-                            <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '6px', lineHeight: '1.4' }}>
-                                This document contains proprietary information of Seats Labs Inc. Unauthorized distribution is strictly prohibited.<br />
-                                © {new Date().getFullYear()} Seats Labs Inc. All rights reserved.
-                            </div>
-                        </div>
-                    </div>
+                        </>
+                    )}
                 </div>
-            )}
+            </div>
         </SidebarLayout>
     );
 };
-
-
-
 
 export default ManagerReportsPage;

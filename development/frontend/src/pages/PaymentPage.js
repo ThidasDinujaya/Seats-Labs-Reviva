@@ -129,7 +129,7 @@ const PaymentPage = () => {
           <h1 style={{ color: 'var(--navy)', fontSize: '2.5rem', fontWeight: '800' }}>Secure Checkout</h1>
           <p style={{ color: '#64748b' }}>
             {invoice?.bookingRefNumber 
-              ? `Complete payment for Booking #${invoice.bookingRefNumber}` 
+              ? `Complete payment for Booking: ${invoice.bookingRefNumber}` 
               : `Complete payment for Advertisement: ${invoice?.advertisementTitle || 'Marketing Service'}`}
           </p>
         </div>

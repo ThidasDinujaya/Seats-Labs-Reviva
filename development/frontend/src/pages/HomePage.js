@@ -29,7 +29,7 @@ const HomePage = () => {
             ) : (
               <Link to={user.userRole === 'customer' ? '/dashboard' : '/manager'} className="btn btn-crimson">Book Now</Link>
             )}
-            <Link to="/services" className="btn btn-outline" style={{ border: '2px solid white', color: 'white' }}>View Services</Link>
+            <Link to="/services" className="btn btn-yellow" style={{ background: 'var(--yellow)', color: 'black', fontWeight: '800', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>View Services</Link>
           </div>
         </div>
       </header>

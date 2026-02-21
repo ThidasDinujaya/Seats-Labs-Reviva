@@ -111,7 +111,8 @@ const viewAdvertisement = async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT a.*, adv."advertiserBusinessName",
+      `SELECT a."advertisementId", a."advertisementTitle", a."advertisementImageUrl", a."advertisementStartDate", a."advertisementEndDate", a."advertisementStatus", a."advertiserId", a."advertisementPlacementId", a."advertisementCampaignId", a."advertisementCreatedAt",
+        adv."advertiserBusinessName",
         ap."advertisementPlacementName",
         ap."advertisementPlacementSlug",
         i."invoiceStatus",
@@ -145,7 +146,8 @@ const viewAllAdvertisement = async (req, res) => {
 
   try {
     let query = `
-      SELECT a.*, adv."advertiserBusinessName",
+      SELECT a."advertisementId", a."advertisementTitle", a."advertisementImageUrl", a."advertisementStartDate", a."advertisementEndDate", a."advertisementStatus", a."advertiserId", a."advertisementPlacementId", a."advertisementCampaignId", a."advertisementCreatedAt",
+        adv."advertiserBusinessName",
         ap."advertisementPlacementName",
         ap."advertisementPlacementSlug",
         i."invoiceStatus"

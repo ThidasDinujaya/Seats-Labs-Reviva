@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
-    Search, Eye, X, 
-    Download, CheckCircle
+    Search, Eye, X, CheckCircle, Clock,
+    Download
 } from 'lucide-react';
 import SidebarLayout from '../components/SidebarLayout';
 import { paymentApi } from '../api/api';
 import { jsPDF } from "jspdf";
 import html2canvas from 'html2canvas';
-import { formatDate } from '../utils/formatters';
+
 
 const ManagerPaymentsPage = () => {
     const [payments, setPayments] = useState([]);
@@ -71,17 +71,20 @@ const ManagerPaymentsPage = () => {
     };
 
     const getStatusStyle = (status) => {
-        switch(status) {
-            case 'paid': return { bg: '#ecfdf5', text: '#10b981' };
-            case 'pending': return { bg: '#fff7ed', text: '#f97316' };
-            default: return { bg: '#f1f5f9', text: '#64748b' };
+        const s = status?.toLowerCase();
+        switch(s) {
+            case 'completed': case 'paid': return { bg: '#ecfdf5', text: '#10b981', icon: <CheckCircle size={14} /> };
+            case 'pending': return { bg: '#fff7ed', text: '#f97316', icon: <Clock size={14} /> };
+            case 'failed': case 'cancelled': return { bg: '#fef2f2', text: '#ef4444', icon: <X size={14} /> };
+            default: return { bg: '#f1f5f9', text: '#64748b', icon: null };
         }
     };
 
-    const filteredPayments = payments.filter(p => 
-        (p.customerFirstName && (p.customerFirstName + ' ' + p.customerLastName).toLowerCase().includes(searchTerm.toLowerCase())) || 
-        (p.advertiserBusinessName && p.advertiserBusinessName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        p.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredPayments = payments.filter(p =>
+        String(p.paymentId || '').includes(searchTerm) ||
+        String(p.invoiceId || '').includes(searchTerm) ||
+        (p.paymentMethod || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.paymentStatus || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -93,8 +96,16 @@ const ManagerPaymentsPage = () => {
                 </div>
 
 
-                <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                    <div style={{ display: 'flex', gap: '15px', marginBottom: '25px' }}>
+                <div style={{ 
+                    background: '#fff', 
+                    borderRadius: '16px', 
+                    border: '1px solid #f1f5f9', 
+                    flex: 1, 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    overflow: 'hidden' 
+                }}>
+                    <div style={{ display: 'flex', gap: '15px', padding: '20px', borderBottom: '1px solid #f1f5f9' }}>
                         <div style={{ position: 'relative', flex: 1 }}>
                             <Search style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} size={20} />
                             <input 
@@ -102,63 +113,63 @@ const ManagerPaymentsPage = () => {
                                 placeholder="Search by invoice or client..." 
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none' }} 
+                                style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '0.9rem' }} 
                             />
                         </div>
                     </div>
 
-                    <div style={{ overflowY: 'auto', flex: 1, overflowX: 'auto', border: '1px solid #f1f5f9', borderRadius: '8px' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '2px solid #f1f5f9', textAlign: 'left', position: 'sticky', top: 0, background: 'white', zIndex: 1 }}>
-                                    <th style={{ padding: '15px', color: '#64748b' }}>Payment ID</th>
-                                    <th style={{ padding: '15px', color: '#64748b' }}>Invoice #</th>
-                                    <th style={{ padding: '15px', color: '#64748b' }}>Linked ID</th>
-                                    <th style={{ padding: '15px', color: '#64748b' }}>Client</th>
-                                    <th style={{ padding: '15px', color: '#64748b' }}>Amount</th>
-                                    <th style={{ padding: '15px', color: '#64748b' }}>Method</th>
-                                    <th style={{ padding: '15px', color: '#64748b' }}>Date</th>
-                                    <th style={{ padding: '15px', textAlign: 'right', color: '#64748b' }}>Status</th>
+                    <div style={{ flex: 1, border: '1px solid #f1f5f9', borderRadius: '8px', overflow: 'auto', background: '#fff' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', minWidth: '1400px' }}>
+                            <thead style={{ position: 'sticky', top: 0, zIndex: 10, background: '#fff' }}>
+                                <tr style={{ borderBottom: '2px solid #f1f5f9', textAlign: 'left' }}>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>paymentId</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>paymentAmount</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>paymentMethod</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>paymentStatus</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>paymentDate</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>paymentReference</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>invoiceId</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>bookingId</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>advertisementId</th>
+                                    <th style={{ padding: '15px', textAlign: 'right', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>paymentCreatedAt</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    <tr><td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading payment...</td></tr>
+                                    <tr><td colSpan="10" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading payment...</td></tr>
                                 ) : filteredPayments.length === 0 ? (
-                                    <tr><td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No payment found.</td></tr>
+                                    <tr><td colSpan="10" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No payment found.</td></tr>
                                 ) : (
                                     filteredPayments.map(p => (
-                                        <tr 
-                                            key={p.paymentId} 
+                                        <tr
+                                            key={p.paymentId}
                                             onClick={() => setSelectedPayment(selectedPayment?.paymentId === p.paymentId ? null : p)}
-                                            style={{ 
-                                                borderBottom: '1px solid #f1f5f9', 
+                                            style={{
+                                                borderBottom: '1px solid #f1f5f9',
                                                 cursor: 'pointer',
-                                                background: selectedPayment?.paymentId === p.paymentId ? '#f1f5f9' : 'transparent',
+                                                background: selectedPayment?.paymentId === p.paymentId ? '#f8fafc' : 'transparent',
                                                 transition: 'background 0.2s'
                                             }}
                                         >
-                                            <td style={{ padding: '15px' }}>
-                                                <div style={{ fontWeight: '600' }}>#{p.paymentId}</div>
-                                            </td>
-                                            <td style={{ padding: '15px' }}>{p.invoiceNumber}</td>
-                                            <td style={{ padding: '15px', fontStyle: 'italic', color: '#64748b' }}>
-                                                {p.bookingId ? `Booking: ${p.bookingId}` : `Ad: ${p.advertisementId}`}
-                                            </td>
-                                            <td style={{ padding: '15px' }}>
-                                                {p.bookingId ? `${p.customerFirstName} ${p.customerLastName}` : p.advertiserBusinessName}
-                                            </td>
-                                            <td style={{ padding: '15px', fontWeight: 'bold' }}>Rs. {p.paymentAmount.toLocaleString()}</td>
-                                            <td style={{ padding: '15px' }}>{p.paymentMethod}</td>
-                                            <td style={{ padding: '15px', color: '#64748b', fontSize: '0.85rem' }}>{formatDate(p.paymentCreatedAt)}</td>
-                                            <td style={{ padding: '15px', textAlign: 'right' }}>
-                                                <span style={{ 
-                                                    padding: '6px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '600',
-                                                    background: getStatusStyle(p.paymentStatus).bg, color: getStatusStyle(p.paymentStatus).text
+                                            <td style={{ padding: '12px 15px', fontWeight: '800', color: 'var(--navy)' }}>{p.paymentId}</td>
+                                            <td style={{ padding: '12px 15px', fontWeight: '700', color: '#1e293b' }}>{p.paymentAmount != null ? `Rs. ${parseFloat(p.paymentAmount).toLocaleString()}` : '-'}</td>
+                                            <td style={{ padding: '12px 15px', fontWeight: '600' }}>{p.paymentMethod || '-'}</td>
+                                            <td style={{ padding: '12px 15px' }}>
+                                                <span style={{
+                                                    padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800',
+                                                    background: getStatusStyle(p.paymentStatus).bg, color: getStatusStyle(p.paymentStatus).text,
+                                                    display: 'inline-flex', alignItems: 'center', gap: '5px', textTransform: 'uppercase'
                                                 }}>
-                                                    {p.paymentStatus.toUpperCase()}
+                                                    {getStatusStyle(p.paymentStatus).icon}
+                                                    {p.paymentStatus}
                                                 </span>
                                             </td>
+                                            <td style={{ padding: '12px 15px', fontWeight: '600' }}>{p.paymentDate ? new Date(p.paymentDate).toLocaleDateString() : '-'}</td>
+                                            <td style={{ padding: '12px 15px', fontFamily: 'monospace' }}>{p.paymentReference || '-'}</td>
+                                            <td style={{ padding: '12px 15px', fontWeight: '700' }}>{p.invoiceNumber || '-'}</td>
+                                            <td style={{ padding: '12px 15px' }}>{p.bookingId || '-'}</td>
+                                            <td style={{ padding: '12px 15px' }}>{p.advertisementId || '-'}</td>
+                                            <td style={{ padding: '12px 15px', textAlign: 'right', color: '#94a3b8' }}>{p.paymentCreatedAt ? new Date(p.paymentCreatedAt).toLocaleDateString() : '-'}</td>
                                         </tr>
                                     ))
                                 )}
@@ -166,71 +177,101 @@ const ManagerPaymentsPage = () => {
                         </table>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', padding: '20px 0 0 0', borderTop: '1px solid #f1f5f9', marginTop: '10px' }}>
+                    {/* Persistent Floating Action Container */}
+                    <div style={{ 
+                        position: 'fixed', 
+                        bottom: '30px', 
+                        right: '30px', 
+                        zIndex: 1000,
+                        background: 'rgba(255,255,255,0.9)',
+                        padding: '15px',
+                        borderRadius: '12px',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid #e2e8f0'
+                    }}>
                         <button 
                             onClick={() => {
                                 if (selectedPayment) setShowModal(true);
                             }} 
                             disabled={!selectedPayment}
-                            style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: selectedPayment ? 'var(--yellow)' : '#f1f5f9', color: selectedPayment ? 'black' : '#94a3b8', cursor: selectedPayment ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
+                            style={{ 
+                                padding: '12px 24px', 
+                                borderRadius: '8px', 
+                                border: 'none', 
+                                background: selectedPayment ? 'var(--yellow)' : '#f1f5f9', 
+                                color: selectedPayment ? 'black' : '#94a3b8', 
+                                cursor: selectedPayment ? 'pointer' : 'default', 
+                                fontWeight: '700', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '8px',
+                                fontSize: '0.9rem',
+                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                            }}
                         >
-                            <Eye size={18} /> View Transaction
+                            <Eye size={18} /> View Payment
                         </button>
                     </div>
                 </div>
 
-                {showModal && (
+                {showModal && selectedPayment && (
                     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000 }}>
-                        <div style={{ background: 'white', borderRadius: '16px', width: '500px', maxWidth: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
-                            <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: 'white', zIndex: 10 }}>
-                                <h2 style={{ margin: 0, color: '#1e293b' }}>Payment Information</h2>
-                                <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={24} /></button>
+                        <div style={{ background: 'white', borderRadius: '16px', width: '560px', maxWidth: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
+                            <div style={{ padding: '15px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: 'white', zIndex: 10 }}>
+                                <h2 style={{ margin: 0, color: '#1e293b', fontSize: '1.25rem' }}>View Payment</h2>
+                                <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><X size={24} /></button>
                             </div>
                             <div style={{ padding: '30px' }}>
-                                <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-                                    <div style={{ display: 'inline-flex', background: '#ecfdf5', padding: '15px', borderRadius: '50%', color: '#10b981', marginBottom: '15px' }}>
-                                        <CheckCircle size={40} />
-                                    </div>
-                                    <h3 style={{ fontSize: '1.25rem', marginBottom: '5px' }}>Payment Completed</h3>
-                                    <p style={{ color: '#64748b' }}>Invoice #{selectedPayment?.invoiceNumber}</p>
+                                <h4 style={{ margin: '0 0 16px 0', color: '#64748b', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: '800' }}>payment Table</h4>
+                                <div style={{ background: '#f8fafc', borderRadius: '10px', padding: '18px', marginBottom: '20px', display: 'grid', gap: '12px' }}>
+                                    {[
+                                        ['paymentId', selectedPayment.paymentId],
+                                        ['paymentAmount', selectedPayment.paymentAmount != null ? `Rs. ${parseFloat(selectedPayment.paymentAmount).toLocaleString()}` : '-'],
+                                        ['paymentMethod', selectedPayment.paymentMethod],
+                                        ['paymentStatus', selectedPayment.paymentStatus],
+                                        ['paymentDate', selectedPayment.paymentDate ? new Date(selectedPayment.paymentDate).toLocaleString() : '-'],
+                                        ['paymentReference', selectedPayment.paymentReference],
+                                        ['invoiceId', selectedPayment.invoiceId],
+                                        ['paymentCreatedAt', selectedPayment.paymentCreatedAt ? new Date(selectedPayment.paymentCreatedAt).toLocaleString() : '-'],
+                                    ].map(([key, val]) => (
+                                        <div key={key} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+                                            <span style={{ color: '#64748b', fontFamily: 'monospace', fontSize: '0.9rem' }}>{key}</span>
+                                            <span style={{ fontWeight: '600', color: '#1e293b' }}>{val ?? '-'}</span>
+                                        </div>
+                                    ))}
                                 </div>
-                                
-                                <div style={{ border: '1px solid #f1f5f9', borderRadius: '12px', padding: '20px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-                                        <span style={{ color: '#64748b' }}>{selectedPayment?.bookingId ? 'Customer' : 'Advertiser'}</span>
-                                        <span style={{ fontWeight: 'bold' }}>
-                                            {selectedPayment?.bookingId ? `${selectedPayment.customerFirstName} ${selectedPayment.customerLastName}` : selectedPayment?.advertiserBusinessName}
-                                        </span>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-                                        <span style={{ color: '#64748b' }}>{selectedPayment?.bookingId ? 'Service' : 'Ad Plan'}</span>
-                                        <span style={{ fontWeight: 'bold', color: 'var(--navy)' }}>
-                                            {selectedPayment?.bookingId ? selectedPayment?.serviceName : selectedPayment?.advertisementPlacementName}
-                                        </span>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-                                        <span style={{ color: '#64748b' }}>Amount Paid</span>
-                                        <span style={{ fontWeight: 'bold' }}>Rs. {selectedPayment?.paymentAmount.toLocaleString()}</span>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-                                        <span style={{ color: '#64748b' }}>Payment Method</span>
-                                        <span style={{ fontWeight: 'bold' }}>{selectedPayment?.paymentMethod}</span>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#64748b' }}>Date & Time</span>
-                                        <span style={{ fontWeight: 'bold' }}>{formatDate(selectedPayment?.paymentCreatedAt)}</span>
-                                    </div>
-                                </div>
+
+                                {(selectedPayment.invoiceNumber || selectedPayment.invoiceAmount) && (
+                                    <>
+                                        <h4 style={{ margin: '0 0 16px 0', color: '#64748b', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: '800' }}>invoice (via invoiceId)</h4>
+                                        <div style={{ background: '#f8fafc', borderRadius: '10px', padding: '18px', display: 'grid', gap: '12px' }}>
+                                            {[
+                                                ['invoiceId', selectedPayment.invoiceId],
+                                                ['invoiceNumber', selectedPayment.invoiceNumber],
+                                                ['invoiceAmount', selectedPayment.invoiceAmount != null ? `Rs. ${parseFloat(selectedPayment.invoiceAmount).toLocaleString()}` : '-'],
+                                                ['invoiceStatus', selectedPayment.invoiceStatus],
+                                                ['bookingId', selectedPayment.bookingId],
+                                                ['advertisementId', selectedPayment.advertisementId],
+                                                ['invoiceCreatedAt', selectedPayment.invoiceCreatedAt ? new Date(selectedPayment.invoiceCreatedAt).toLocaleString() : '-'],
+                                            ].map(([key, val]) => (
+                                                <div key={key} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+                                                    <span style={{ color: '#64748b', fontFamily: 'monospace', fontSize: '0.9rem' }}>{key}</span>
+                                                    <span style={{ fontWeight: '600', color: '#1e293b' }}>{val ?? '-'}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                             <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px', position: 'sticky', bottom: 0, background: 'white', zIndex: 10 }}>
-                                <button 
+                                <button
                                     onClick={() => handleDownloadInvoice(selectedPayment)}
                                     disabled={isDownloading}
                                     style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid var(--navy)', background: 'white', color: 'var(--navy)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
                                 >
-                                    <Download size={18} /> {isDownloading ? 'Processing...' : 'Download'}
+                                    <Download size={18} /> {isDownloading ? 'Processing...' : 'Download Invoice'}
                                 </button>
-                                <button onClick={() => setShowModal(false)} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>Close</button>
                             </div>
                         </div>
                     </div>
@@ -255,7 +296,7 @@ const ManagerPaymentsPage = () => {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--navy)', paddingBottom: '20px', marginBottom: '30px' }}>
                                     <div>
                                         <h1 style={{ margin: 0, fontSize: '2.2rem', fontWeight: '900', color: 'var(--navy)' }}>INVOICE</h1>
-                                        <p style={{ margin: '5px 0', color: '#64748b', fontWeight: '600' }}>#{invoiceData.bookingRefNumber || invoiceData.invoiceNumber}</p>
+                                        <p style={{ margin: '5px 0', color: '#64748b', fontWeight: '600' }}>{invoiceData.bookingRefNumber || invoiceData.invoiceNumber}</p>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
                                         <h2 style={{ margin: 0, color: 'var(--navy)', fontWeight: '900', fontSize: '1.4rem' }}>SEATS LABS</h2>

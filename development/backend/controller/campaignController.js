@@ -58,7 +58,7 @@ const getAllCampaign = async (req, res) => {
 
   try {
     let query = `
-      SELECT c.*, 
+      SELECT c."advertisementCampaignId", c."advertisementCampaignName", c."advertisementCampaignStartDate", c."advertisementCampaignEndDate", c."advertisementCampaignStatus", c."advertiserId", c."advertisementCampaignCreatedAt", 
         adv."advertiserBusinessName",
         COUNT(DISTINCT a."advertisementId") as "totalAds",
         SUM(CASE WHEN a."advertisementStatus" = 'active' THEN 1 ELSE 0 END) as "activeAds"
@@ -105,7 +105,8 @@ const getCampaign = async (req, res) => {
 
   try {
     const campaignResult = await pool.query(
-      `SELECT c.*, adv."advertiserBusinessName"
+      `SELECT c."advertisementCampaignId", c."advertisementCampaignName", c."advertisementCampaignStartDate", c."advertisementCampaignEndDate", c."advertisementCampaignStatus", c."advertiserId", c."advertisementCampaignCreatedAt",
+              adv."advertiserBusinessName"
        FROM "advertisementCampaign" c
        JOIN "advertiser" adv ON c."advertiserId" = adv."advertiserId"
        WHERE c."advertisementCampaignId" = $1`,
@@ -117,7 +118,8 @@ const getCampaign = async (req, res) => {
     }
 
     const adsResult = await pool.query(
-      `SELECT a.*, ap."advertisementPlacementName", i."invoiceStatus",
+      `SELECT a."advertisementId", a."advertisementTitle", a."advertisementImageUrl", a."advertisementStartDate", a."advertisementEndDate", a."advertisementStatus", a."advertiserId", a."advertisementPlacementId", a."advertisementCampaignId", a."advertisementCreatedAt",
+              ap."advertisementPlacementName", i."invoiceStatus",
         (SELECT COUNT(*) FROM "advertisementImpression" WHERE "advertisementId" = a."advertisementId") as "totalImpressions",
         (SELECT COUNT(*) FROM "advertisementClick" WHERE "advertisementId" = a."advertisementId") as "totalClicks"
        FROM "advertisement" a

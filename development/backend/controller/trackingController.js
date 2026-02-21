@@ -2,39 +2,40 @@ const pool = require('../config/database');
 
 // ============================================================
 // trackingController.js
-// PURPOSE: Handles tracking of service progress and technician tasks.
+// PURPOSE: Handles tracking of service progress.
 // ============================================================
 
 /**
- * @desc Get all active tracking tasks for manager view
- * @route GET /api/tracking/tasks
+ * @desc Get all active tracking records for manager view
+ * @route GET /api/tracking
  */
-const getTask = async (req, res) => {
+const getServiceTracking = async (req, res) => {
   try {
     const query = `
       SELECT 
+        st."serviceTrackingId",
+        st."serviceTrackingStatus",
+        st."serviceTrackingCreatedAt",
         b."bookingId",
         b."bookingStatus",
         b."bookingStartTime",
         b."bookingEndTime",
+        b."bookingRefNumber",
+        b."customerId",
+        b."vehicleId",
+        b."serviceId",
+        b."technicianId",
+        b."timeSlotId",
         s."serviceName",
         t."technicianFirstName",
-        t."technicianLastName",
-        st."serviceTrackingStatus",
-        st."serviceTrackingCreatedAt" as "lastUpdate"
-      FROM "booking" b
+        t."technicianLastName"
+      FROM "serviceTracking" st
+      JOIN "booking" b ON st."bookingId" = b."bookingId"
       JOIN "service" s ON b."serviceId" = s."serviceId"
       LEFT JOIN "technician" t ON b."technicianId" = t."technicianId"
-      LEFT JOIN LATERAL (
-        SELECT "serviceTrackingStatus", "serviceTrackingCreatedAt"
-        FROM "serviceTracking"
-        WHERE "bookingId" = b."bookingId"
-        ORDER BY "serviceTrackingCreatedAt" DESC
-        LIMIT 1
-      ) st ON true
-      WHERE b."technicianId" IS NOT NULL
+      WHERE 1=1
       AND b."bookingStatus" NOT IN ('pending', 'cancelled', 'rejected')
-      ORDER BY b."bookingDate" DESC, b."bookingStartTime" ASC
+      ORDER BY st."serviceTrackingCreatedAt" DESC
     `;
 
     const result = await pool.query(query);
@@ -44,8 +45,8 @@ const getTask = async (req, res) => {
       data: result.rows
     });
   } catch (error) {
-    console.error('Get tracking tasks error:', error);
-    return res.status(500).json({ success: false, error: 'Failed to fetch tracking tasks.' });
+    console.error('Get service tracking error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch service tracking data.' });
   }
 };
 
@@ -128,7 +129,7 @@ const updateStatus = async (req, res) => {
 };
 
 module.exports = {
-  getTask,
+  getServiceTracking,
   getHistory,
   updateStatus
 };

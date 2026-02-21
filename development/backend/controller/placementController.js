@@ -6,7 +6,7 @@ const pool = require('../config/database');
  */
 const getAllPlacements = async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM "advertisementPlacement" ORDER BY "advertisementPlacementCreatedAt" DESC');
+        const result = await pool.query('SELECT "advertisementPlacementId", "advertisementPlacementSlug", "advertisementPlacementName", "advertisementPlacementPage", "advertisementPlacementPosition", "advertisementPlacementDescription", "advertisementPlacementWidth", "advertisementPlacementHeight", "advertisementPlacementPrice", "advertisementPlacementIsFixed", "advertisementPlacementCreatedAt" FROM "advertisementPlacement" ORDER BY "advertisementPlacementCreatedAt" DESC');
         res.status(200).json({ success: true, data: result.rows });
     } catch (error) {
         console.error('Get all placements error:', error);

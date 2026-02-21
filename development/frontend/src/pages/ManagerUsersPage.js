@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SidebarLayout from '../components/SidebarLayout';
 import { userApi } from '../api/api';
-import { Edit2, Trash2, Plus, X, Search, Eye } from 'lucide-react';
+import { Edit2, Trash2, Plus, X, Search, Eye, Save } from 'lucide-react';
 
 const ManagerUsersPage = () => {
     const [users, setUsers] = useState([]);
@@ -15,9 +15,6 @@ const ManagerUsersPage = () => {
     const [currentUser, setCurrentUser] = useState(null);
     const [selectedId, setSelectedId] = useState(null);
     const [viewOnly, setViewOnly] = useState(false);
-    const [filterRole, setFilterRole] = useState('');
-    const [filterStatus, setFilterStatus] = useState('');
-    const [sortOrder, setSortOrder] = useState('desc'); // default to newest first
     
     // Form state
     const [formData, setFormData] = useState({
@@ -112,20 +109,6 @@ const ManagerUsersPage = () => {
         }
     };
 
-    const openEditModal = (user) => {
-        setModalMode('edit');
-        setViewOnly(false);
-        const target = user || users.find(u => u.userId === selectedId);
-        if (target) {
-            setCurrentUser(target);
-            setFormData({
-                ...formData,
-                ...target,
-                userPassword: ''
-            });
-            setShowModal(true);
-        }
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -158,24 +141,6 @@ const ManagerUsersPage = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        const targetId = id || selectedId;
-        if (!targetId) return;
-        if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-            try {
-                const res = await userApi.delete(targetId);
-                if (res.success) {
-                    fetchUsers();
-                    if (selectedId === targetId) setSelectedId(null);
-                } else {
-                    alert(res.error || 'Failed to delete user');
-                }
-            } catch (err) {
-                console.error(err);
-                alert('Delete failed');
-            }
-        }
-    };
 
     const filteredUsers = users.filter(user => {
         const matchesSearch = 
@@ -186,19 +151,12 @@ const ManagerUsersPage = () => {
              user.userEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
              user.userRole?.toLowerCase().includes(searchTerm.toLowerCase()));
             
-        const matchesRole = filterRole ? user.userRole === filterRole : true;
-        const matchesStatus = filterStatus ? (
-            filterStatus === 'active' ? user.userIsActive === true : user.userIsActive === false
-        ) : true;
-        
-        return matchesSearch && matchesRole && matchesStatus;
-    }).sort((a, b) => {
-        if (sortOrder === 'asc') return a.userId - b.userId;
-        return b.userId - a.userId;
+        return matchesSearch;
     });
 
     return (
         <SidebarLayout role="manager">
+            <>
             <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column' }}>
                 {error && (
                     <div style={{ padding: '15px', background: '#fee2e2', color: '#b91c1c', borderRadius: '8px', marginBottom: '15px' }}>
@@ -210,150 +168,119 @@ const ManagerUsersPage = () => {
                     <p style={{ color: '#666', margin: 0 }}>Manage system users, roles, and permissions.</p>
                 </div>
 
-            {/* Search and Filters */}
-            <div style={{ marginBottom: '20px', display: 'flex', gap: '15px' }}>
-                <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
-                    <Search size={20} style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} />
-                    <input 
-                        type="text" 
-                        placeholder="Search user..." 
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ 
-                            width: '100%', padding: '12px 12px 12px 40px', 
-                            borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none' 
-                        }}
-                    />
-                </div>
-                
-                <div style={{ minWidth: '160px' }}>
-                    <select 
-                        value={filterRole} 
-                        onChange={(e) => setFilterRole(e.target.value)}
-                        style={inputStyle}
-                    >
-                        <option value="">All Roles</option>
-                        <option value="manager">Manager</option>
-                        <option value="technician">Technician</option>
-                        <option value="advertiser">Advertiser</option>
-                        <option value="customer">Customer</option>
-                    </select>
-                </div>
-
-                <div style={{ minWidth: '160px' }}>
-                    <select 
-                        value={filterStatus} 
-                        onChange={(e) => setFilterStatus(e.target.value)}
-                        style={inputStyle}
-                    >
-                        <option value="">All Statuses</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-
-                <div style={{ minWidth: '180px' }}>
-                    <select 
-                        value={sortOrder} 
-                        onChange={(e) => setSortOrder(e.target.value)}
-                        style={{ ...inputStyle, background: '#f1f5f9' }}
-                    >
-                        <option value="desc">Sort: Newest (ID desc)</option>
-                        <option value="asc">Sort: Oldest (ID asc)</option>
-                    </select>
+                <div style={{ padding: '20px', borderBottom: '1px solid #f1f5f9', background: '#fff', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}>
+                    <div style={{ display: 'flex', gap: '15px' }}>
+                        <div style={{ position: 'relative', flex: 1 }}>
+                            <Search size={20} style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} />
+                            <input 
+                                type="text" 
+                                placeholder="Search user ID, email, or role..." 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{ 
+                                    width: '100%', padding: '12px 12px 12px 40px', 
+                                    borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '0.9rem'
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
 
 
                 {/* Users Table */}
-            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', overflowY: 'auto', flex: 1 }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 1 }}>
-                        <tr>
-                            <th style={headerStyle}>userId</th>
-                            <th style={headerStyle}>customerFirstName</th>
-                            <th style={headerStyle}>userEmail</th>
-                            <th style={headerStyle}>userRole</th>
-                            <th style={headerStyle}>customerPhone</th>
-                            <th style={{ ...headerStyle, textAlign: 'right' }}>userIsActive</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan="7" style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>Loading user...</td></tr>
-                        ) : filteredUsers.length > 0 ? (
-                            filteredUsers.map(user => (
-                                <tr 
-                                    key={user.userId} 
-                                    style={{ 
-                                        borderBottom: '1px solid #f1f5f9', 
-                                        background: selectedId === user.userId ? '#f1f5f9' : 'transparent',
-                                        cursor: 'pointer'
-                                    }}
-                                    onClick={() => setSelectedId(selectedId === user.userId ? null : user.userId)}
-                                >
-                                    <td style={cellStyle}>{user.userId}</td>
-                                    <td style={cellStyle}>
-                                        {user.userRole === 'customer' && `${user.customerFirstName} ${user.customerLastName}`}
-                                        {user.userRole === 'technician' && `${user.technicianFirstName} ${user.technicianLastName}`}
-                                        {user.userRole === 'manager' && `${user.managerFirstName} ${user.managerLastName}`}
-                                        {user.userRole === 'advertiser' && user.advertiserBusinessName}
-                                    </td>
-                                    <td style={cellStyle}>{user.userEmail}</td>
-                                    <td style={cellStyle}>
-                                        <span style={{ 
-                                            padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase',
-                                            background: getRoleColor(user.userRole).bg, color: getRoleColor(user.userRole).text
-                                        }}>
-                                            {user.userRole}
-                                        </span>
-                                    </td>
-                                    <td style={cellStyle}>
-                                        {user.customerPhone || user.technicianPhone || user.managerPhone || user.advertiserPhone || '-'}
-                                    </td>
-                                    <td style={{ ...cellStyle, textAlign: 'right' }}>
-                                        <span style={{ 
-                                            display: 'inline-flex', alignItems: 'center', gap: '5px',
-                                            color: user.userIsActive ? '#10b981' : '#ef4444', fontWeight: '600', fontSize: '0.9rem' 
-                                        }}>
-                                            {user.userIsActive ? 'Active' : 'Inactive'}
-                                        </span>
-                                    </td>
+                <div style={{ 
+                    background: '#fff', 
+                    borderRadius: '16px', 
+                    border: '1px solid #f1f5f9', 
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden'
+                }}>
+                    <div style={{ flex: 1, overflow: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', minWidth: '1000px' }}>
+                            <thead style={{ position: 'sticky', top: 0, zIndex: 10, background: '#fff' }}>
+                                <tr style={{ borderBottom: '2px solid #f1f5f9' }}>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'left' }}>userId</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'left' }}>userEmail</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'left' }}>userRole</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'left' }}>userIsActive</th>
+                                    <th style={{ padding: '15px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>userCreatedAt</th>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr><td colSpan="7" style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>No user found.</td></tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                            </thead>
+                            <tbody>
+                                {loading ? (
+                                    <tr><td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Synchronizing User Registry...</td></tr>
+                                ) : filteredUsers.length > 0 ? (
+                                    filteredUsers.map(user => (
+                                        <tr 
+                                            key={user.userId} 
+                                            style={{ 
+                                                borderBottom: '1px solid #f1f5f9', 
+                                                background: selectedId === user.userId ? '#f8fafc' : 'transparent',
+                                                transition: 'background 0.2s',
+                                                cursor: 'pointer'
+                                            }}
+                                            onClick={() => setSelectedId(selectedId === user.userId ? null : user.userId)}
+                                        >
+                                            <td style={{ padding: '12px 15px', fontWeight: '800', color: 'var(--navy)' }}>{user.userId}</td>
+                                            <td style={{ padding: '12px 15px', fontWeight: '700' }}>{user.userEmail}</td>
+                                            <td style={{ padding: '12px 15px' }}>
+                                                <span style={{ 
+                                                    padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase',
+                                                    background: getRoleColor(user.userRole).bg, color: getRoleColor(user.userRole).text
+                                                }}>
+                                                    {user.userRole}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '12px 15px' }}>
+                                                <span style={{ 
+                                                    display: 'inline-flex', alignItems: 'center', gap: '5px',
+                                                    color: user.userIsActive ? '#10b981' : '#ef4444', fontWeight: '800', fontSize: '0.8rem',
+                                                    textTransform: 'uppercase'
+                                                }}>
+                                                    {user.userIsActive ? 'Active' : 'Deactivated'}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '12px 15px', textAlign: 'right', color: '#94a3b8' }}>
+                                                {new Date(user.userCreatedAt || Date.now()).toLocaleDateString()}
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr><td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No Users Matched Search Criteria.</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', padding: '20px 0', borderTop: '1px solid #f1f5f9', marginTop: '10px' }}>
-                <button onClick={openAddModal} style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Plus size={18} /> Add User
-                </button>
-                <button 
-                    onClick={() => openEditModal()} 
-                    disabled={!selectedId}
-                    style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: selectedId ? '#3b82f6' : '#f1f5f9', color: selectedId ? 'white' : '#94a3b8', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                    <Edit2 size={18} /> Update User
-                </button>
-                <button 
-                    onClick={() => openViewModal()} 
-                    disabled={!selectedId}
-                    style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: selectedId ? 'var(--yellow)' : '#f1f5f9', color: selectedId ? 'black' : '#94a3b8', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                    <Eye size={18} /> View User
-                </button>
-                <button 
-                    onClick={() => handleDelete()} 
-                    disabled={!selectedId}
-                    style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: selectedId ? '#ef4444' : '#f1f5f9', color: selectedId ? 'white' : '#94a3b8', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                    <Trash2 size={18} /> Delete User
-                </button>
-            </div>
+                    {/* Persistent Control Deck */}
+                    <div style={{ 
+                        position: 'fixed', 
+                        bottom: '30px', 
+                        right: '30px', 
+                        display: 'flex', 
+                        gap: '12px', 
+                        zIndex: 1000,
+                        background: 'rgba(255,255,255,0.9)',
+                        padding: '15px',
+                        borderRadius: '12px',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid #e2e8f0'
+                    }}>
+                        <button onClick={openAddModal} style={{ padding: '12px 24px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
+                            <Plus size={18} /> Add User
+                        </button>
+                        <button 
+                            onClick={() => openViewModal()} 
+                            disabled={!selectedId}
+                            style={{ padding: '12px 24px', borderRadius: '8px', background: selectedId ? 'var(--yellow)' : '#f1f5f9', color: selectedId ? 'black' : '#94a3b8', border: 'none', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}
+                        >
+                            <Eye size={18} /> View User
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* Modal */}
@@ -364,7 +291,7 @@ const ManagerUsersPage = () => {
                 }}>
                     <div style={{ background: 'white', borderRadius: '12px', width: '600px', maxWidth: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
                         <div style={{ 
-                            padding: '20px', 
+                            padding: '15px 20px', 
                             borderBottom: '1px solid #e2e8f0', 
                             display: 'flex', 
                             justifyContent: 'space-between', 
@@ -375,9 +302,9 @@ const ManagerUsersPage = () => {
                             zIndex: 10
                         }}>
                             <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#1e293b' }}>
-                                {modalMode === 'add' ? 'Add New User' : modalMode === 'view' ? 'View User' : 'Edit User'}
+                                {modalMode === 'add' ? 'Add User' : modalMode === 'view' ? 'View User' : 'Update User'}
                             </h2>
-                            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+                            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><X size={20} /></button>
                         </div>
                         
                         <form onSubmit={handleSubmit} style={{ padding: '20px' }}>
@@ -554,7 +481,7 @@ const ManagerUsersPage = () => {
                                 </div>
                             </div>
 
-                            {!viewOnly && (
+                            {viewOnly ? (
                                 <div style={{ 
                                     marginTop: '30px', 
                                     display: 'flex', 
@@ -567,11 +494,62 @@ const ManagerUsersPage = () => {
                                     borderTop: '1px solid #e2e8f0',
                                     zIndex: 10
                                 }}>
-                                    <button type="button" onClick={() => setShowModal(false)} style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white', cursor: 'pointer' }}>
+                                    <button 
+                                        type="button"
+                                        onClick={() => { setViewOnly(false); setModalMode('edit'); }}
+                                        style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#3b82f6', color: 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                    >
+                                        <Edit2 size={18} /> Update User
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        onClick={async () => {
+                                            if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+                                                try {
+                                                    const res = await userApi.delete(currentUser.userId);
+                                                    if (res.success) {
+                                                        fetchUsers();
+                                                        setShowModal(false);
+                                                        setSelectedId(null);
+                                                    } else {
+                                                        alert(res.error || 'Failed to delete user');
+                                                    }
+                                                } catch (err) {
+                                                    console.error(err);
+                                                    alert('Delete failed');
+                                                }
+                                            }
+                                        }}
+                                        style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#ef4444', color: 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                    >
+                                        <Trash2 size={18} /> Delete User
+                                    </button>
+                                </div>
+                            ) : (
+                                <div style={{ 
+                                    marginTop: '30px', 
+                                    display: 'flex', 
+                                    justifyContent: 'flex-end', 
+                                    gap: '10px',
+                                    position: 'sticky',
+                                    bottom: 0,
+                                    backgroundColor: 'white',
+                                    padding: '20px 0',
+                                    borderTop: '1px solid #e2e8f0',
+                                    zIndex: 10
+                                }}>
+                                    <button 
+                                        type="button"
+                                        onClick={() => setShowModal(false)}
+                                        style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', color: '#64748b', fontWeight: 'bold', cursor: 'pointer' }}
+                                    >
                                         Cancel
                                     </button>
-                                    <button type="submit" style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', cursor: 'pointer' }}>
-                                        {modalMode === 'add' ? 'Create User' : 'Save Changes'}
+                                    <button 
+                                        type="submit"
+                                        style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                    >
+                                        <Save size={18} /> {modalMode === 'add' ? 'Save User' : 'Save Changes'}
                                     </button>
                                 </div>
                             )}
@@ -579,13 +557,12 @@ const ManagerUsersPage = () => {
                     </div>
                 </div>
             )}
+            </>
         </SidebarLayout>
     );
 };
 
 // Styles
-const headerStyle = { padding: '15px 20px', textAlign: 'left', fontWeight: '600', color: '#64748b', fontSize: '0.9rem', textTransform: 'uppercase' };
-const cellStyle = { padding: '15px 20px', color: '#334155', fontSize: '0.95rem' };
 const formRowStyle = { display: 'flex', gap: '15px', marginBottom: '15px' };
 const inputGroupStyle = { flex: 1 };
 const labelStyle = { display: 'block', marginBottom: '5px', fontSize: '0.85rem', fontWeight: 'bold', color: '#475569' };
