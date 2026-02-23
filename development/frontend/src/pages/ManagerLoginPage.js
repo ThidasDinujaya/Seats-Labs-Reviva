@@ -16,11 +16,11 @@ const ManagerLoginPage = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await login({ 
-        userEmail: formData.userEmail, 
-        userPassword: formData.userPassword 
+      const response = await login({
+        userEmail: formData.userEmail,
+        userPassword: formData.userPassword
       });
-      // Verification: Ensure the logged in user is actually a manager
+
       if (response.data.userRole === 'manager') {
         navigate('/manager');
       } else {
@@ -37,8 +37,8 @@ const ManagerLoginPage = () => {
     <div style={{ minHeight: '100vh', background: 'var(--white)' }}>
       <Navbar />
       <div style={{ display: 'flex', minHeight: 'calc(100vh - 80px)' }}>
-        <div style={{ 
-          flex: 1, 
+        <div style={{
+          flex: 1,
           background: 'linear-gradient(rgba(0, 47, 108, 0.95), rgba(0, 47, 108, 0.95)), url("https://images.unsplash.com/photo-1454165833767-02305596328a?auto=format&fit=crop&q=80&w=1600")',
           backgroundSize: 'cover',
           display: 'flex',
@@ -55,18 +55,18 @@ const ManagerLoginPage = () => {
           <div style={{ width: '100%', maxWidth: '400px' }}>
             <h2 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--navy)', marginBottom: '30px' }}>Staff Authorization</h2>
             {error && <div style={{ background: '#fee2e2', color: '#dc2626', padding: '15px', borderRadius: '8px', marginBottom: '20px', fontSize: '0.9rem' }}>{error}</div>}
-            
+
             <form onSubmit={handleLogin} style={{ display: 'grid', gap: '20px' }}>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 placeholder="Manager Email"
                 required
                 style={{ width: '100%', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#f8fafc' }}
                 value={formData.userEmail}
                 onChange={(e) => setFormData({...formData, userEmail: e.target.value})}
               />
-              <input 
-                type="password" 
+              <input
+                type="password"
                 placeholder="Security Password"
                 required
                 style={{ width: '100%', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#f8fafc' }}

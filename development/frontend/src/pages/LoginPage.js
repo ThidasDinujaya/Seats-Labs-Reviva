@@ -20,9 +20,7 @@ const LoginPage = () => {
       if (response.data.userRole === 'customer') {
         navigate('/customer');
       } else {
-        // If staff try to login here, we can either redirect them to their portal 
-        // or just redirect to their dashboard, but the user said "Don't redirect it into the customer portal"
-        // Let's ensure they go to their specific dashboard directly to avoid the "customer" feel.
+
         const role = response.data.userRole;
         navigate(`/${role}`);
       }
@@ -36,11 +34,11 @@ const LoginPage = () => {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--white)' }}>
       <Navbar />
-      
+
       <div style={{ display: 'flex', minHeight: 'calc(100vh - 80px)' }}>
-        {/* Left Side: Branding/Imagery */}
-        <div style={{ 
-          flex: 1, 
+        {}
+        <div style={{
+          flex: 1,
           background: 'linear-gradient(rgba(0, 47, 108, 0.9), rgba(0, 47, 108, 0.9)), url("https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1600")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -66,7 +64,7 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Right Side: Login Form */}
+        {}
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
           <div style={{ width: '100%', maxWidth: '420px' }}>
             <div style={{ marginBottom: '40px' }}>
@@ -79,8 +77,8 @@ const LoginPage = () => {
             <form onSubmit={handleLogin} style={{ display: 'grid', gap: '20px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', fontSize: '0.85rem', color: 'var(--navy)' }}>EMAIL ADDRESS</label>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   placeholder="name@example.com"
                   required
                   style={{ width: '100%', padding: '14px', borderRadius: '14px', border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: '1rem', outline: 'none' }}
@@ -91,8 +89,8 @@ const LoginPage = () => {
 
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', fontSize: '0.85rem', color: 'var(--navy)' }}>SECURE PASSWORD</label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   placeholder="••••••••"
                   required
                   style={{ width: '100%', padding: '14px', borderRadius: '14px', border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: '1rem', outline: 'none' }}
@@ -105,10 +103,10 @@ const LoginPage = () => {
                 <Link to="/coming-soon" style={{ fontSize: '0.85rem', color: 'var(--crimson)', textDecoration: 'none', fontWeight: '700' }}>Forgot password?</Link>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={loading}
-                className="btn btn-crimson" 
+                className="btn btn-crimson"
                 style={{ width: '100%', padding: '16px', borderRadius: '14px', justifyContent: 'center' }}
               >
                 {loading ? 'Authenticating...' : 'Access My Garage'}
@@ -121,7 +119,7 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
-      
+
       <Footer />
     </div>
   );

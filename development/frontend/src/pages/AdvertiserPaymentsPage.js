@@ -1,8 +1,3 @@
-// ============================================================
-// pages/AdvertiserPaymentsPage.js
-// PURPOSE: Display billing/payment history for the logged-in advertiser.
-// ============================================================
-
 import React, { useState, useEffect } from 'react';
 import SidebarLayout from '../components/SidebarLayout';
 import { paymentApi } from '../api/api';
@@ -43,7 +38,7 @@ const AdvertiserPaymentsPage = () => {
     <SidebarLayout role="advertiser">
       <div style={{ padding: '30px', maxWidth: '1200px', margin: '0 auto' }}>
 
-        {/* Header */}
+        {}
         <div style={{ marginBottom: '30px' }}>
           <h1 style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--navy)', margin: 0 }}>
             Payment & Billing
@@ -53,7 +48,7 @@ const AdvertiserPaymentsPage = () => {
           </p>
         </div>
 
-        {/* Search */}
+        {}
         <div style={{ position: 'relative', marginBottom: '20px' }}>
           <Search style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} size={18} />
           <input
@@ -114,7 +109,7 @@ const AdvertiserPaymentsPage = () => {
                       <td style={{ padding: '14px 15px', width: '120px', fontWeight: '700' }}>Rs. {parseFloat(p.paymentAmount).toLocaleString()}</td>
                       <td style={{ padding: '14px 15px', width: '120px', color: '#475569' }}>{p.paymentMethod}</td>
                       <td style={{ padding: '14px 15px', width: '100px' }}>
-                        <span style={{ 
+                        <span style={{
                           padding: '4px 10px', borderRadius: '20px', fontSize: '0.73rem', fontWeight: '800',
                           background: p.paymentStatus === 'completed' ? '#ecfdf5' : '#fff1f2',
                           color: p.paymentStatus === 'completed' ? '#10b981' : '#e11d48'
@@ -133,7 +128,7 @@ const AdvertiserPaymentsPage = () => {
               </tbody>
             </table>
 
-            {/* Bottom-right View Payment button */}
+            {}
             <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '14px 16px', borderTop: '1px solid #e2e8f0', background: '#f8fafc' }}>
               <button
                 disabled={!selectedPayment}
@@ -158,7 +153,7 @@ const AdvertiserPaymentsPage = () => {
           </div>
         </div>
 
-        {/* Payment Detail Modal */}
+        {}
         {showModal && selectedPayment && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,10,30,0.5)', backdropFilter: 'blur(6px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
             <div style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '550px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.3)', position: 'relative' }}>
@@ -168,14 +163,14 @@ const AdvertiserPaymentsPage = () => {
               >
                 <X size={20} />
               </button>
-              
+
               <div style={{ padding: '32px' }}>
                 <h2 style={{ color: 'var(--navy)', marginBottom: '24px', fontSize: '1.5rem', fontWeight: '800' }}>Payment Details</h2>
-                
+
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
                   <DetailField label="Payment ID" value={`PAY-${selectedPayment.paymentId}`} />
                   <DetailField label="Status" value={
-                    <span style={{ 
+                    <span style={{
                       padding: '4px 10px', borderRadius: '20px', fontSize: '0.73rem', fontWeight: '800',
                       background: selectedPayment.paymentStatus === 'completed' ? '#ecfdf5' : '#fff1f2',
                       color: selectedPayment.paymentStatus === 'completed' ? '#10b981' : '#e11d48'
@@ -208,16 +203,16 @@ const AdvertiserPaymentsPage = () => {
 };
 
 const X = ({ size, ...props }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
     {...props}
   >
     <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
@@ -225,10 +220,10 @@ const X = ({ size, ...props }) => (
 );
 
 const DetailField = ({ label, value, colSpan = 1 }) => (
-  <div style={{ 
+  <div style={{
     gridColumn: `span ${colSpan}`,
-    padding: '12px 16px', 
-    background: '#f8fafc', 
+    padding: '12px 16px',
+    background: '#f8fafc',
     borderRadius: '10px',
     border: '1px solid #f1f5f9'
   }}>

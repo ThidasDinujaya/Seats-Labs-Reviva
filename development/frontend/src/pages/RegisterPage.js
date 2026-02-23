@@ -54,12 +54,12 @@ const RegisterPage = () => {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--white)' }}>
       <Navbar />
-      
+
       <div style={{ display: 'flex', minHeight: 'calc(100vh - 80px)' }}>
-        {/* Left Side: Branding/Imagery */}
-        <div style={{ 
-          flex: 1, 
-          background: requestedRole === 'customer' 
+        {}
+        <div style={{
+          flex: 1,
+          background: requestedRole === 'customer'
             ? 'linear-gradient(rgba(193, 0, 5, 0.8), rgba(0, 47, 108, 0.9)), url("https://images.unsplash.com/photo-1530046339160-ce3e5b0c7a2f?auto=format&fit=crop&q=80&w=1600")'
             : 'linear-gradient(rgba(0, 47, 108, 0.95), rgba(0, 47, 108, 0.95)), url("https://images.unsplash.com/photo-1454165833767-0274b20476d0?auto=format&fit=crop&q=80&w=1600")',
           backgroundSize: 'cover',
@@ -101,7 +101,7 @@ const RegisterPage = () => {
           </ul>
         </div>
 
-        {/* Right Side: Register Form */}
+        {}
         <div style={{ flex: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
           <div style={{ width: '100%', maxWidth: '550px' }}>
             <div style={{ marginBottom: '30px' }}>
@@ -116,8 +116,8 @@ const RegisterPage = () => {
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', fontSize: '0.85rem', color: 'var(--navy)' }}>
                   {requestedRole === 'advertiser' ? 'CONTACT PERSON' : 'FIRST NAME'}
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Amila"
                   required
                   style={{ width: '100%', padding: '12px', borderRadius: '14px', border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: '0.95rem', outline: 'none' }}
@@ -136,8 +136,8 @@ const RegisterPage = () => {
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', fontSize: '0.85rem', color: 'var(--navy)' }}>
                   {requestedRole === 'advertiser' ? 'BUSINESS NAME' : 'LAST NAME'}
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Perera"
                   required
                   style={{ width: '100%', padding: '12px', borderRadius: '14px', border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: '0.95rem', outline: 'none' }}
@@ -154,8 +154,8 @@ const RegisterPage = () => {
 
               <div style={{ gridColumn: 'span 2' }}>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', fontSize: '0.85rem', color: 'var(--navy)' }}>EMAIL ADDRESS</label>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   placeholder="name@example.lk"
                   required
                   style={{ width: '100%', padding: '12px', borderRadius: '14px', border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: '0.95rem', outline: 'none' }}
@@ -166,8 +166,8 @@ const RegisterPage = () => {
 
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', fontSize: '0.85rem', color: 'var(--navy)' }}>PHONE NUMBER</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="077 XXXXXXX"
                   required
                   style={{ width: '100%', padding: '12px', borderRadius: '14px', border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: '0.95rem', outline: 'none' }}
@@ -184,8 +184,8 @@ const RegisterPage = () => {
 
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', fontSize: '0.85rem', color: 'var(--navy)' }}>SECURE PASSWORD</label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   placeholder="••••••••"
                   required
                   style={{ width: '100%', padding: '12px', borderRadius: '14px', border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: '0.95rem', outline: 'none' }}
@@ -195,10 +195,10 @@ const RegisterPage = () => {
               </div>
 
               <div style={{ gridColumn: 'span 2' }}>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={loading}
-                  className="btn btn-crimson" 
+                  className="btn btn-crimson"
                   style={{ width: '100%', padding: '16px', borderRadius: '14px', justifyContent: 'center' }}
                 >
                   {loading ? 'Creating Account...' : 'Join SeatsLabs Modern Workshop'}
@@ -217,7 +217,7 @@ const RegisterPage = () => {
           </div>
         </div>
       </div>
-      
+
       <Footer />
     </div>
   );

@@ -1,6 +1,5 @@
 const pool = require('../config/database');
 
-// GET all settings
 const getAllSettings = async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM "systemSettings"');
@@ -11,7 +10,6 @@ const getAllSettings = async (req, res) => {
   }
 };
 
-// GET a specific setting by key
 const getSettingByKey = async (req, res) => {
   const { key } = req.params;
   try {
@@ -26,16 +24,15 @@ const getSettingByKey = async (req, res) => {
   }
 };
 
-// UPDATE a setting
 const updateSetting = async (req, res) => {
   const { key } = req.params;
   const { settingValue } = req.body;
 
   try {
     const result = await pool.query(
-      `UPDATE "systemSettings" 
-       SET "settingValue" = $1, "settingUpdatedAt" = CURRENT_TIMESTAMP 
-       WHERE "settingKey" = $2 
+      `UPDATE "systemSettings"
+       SET "settingValue" = $1, "settingUpdatedAt" = CURRENT_TIMESTAMP
+       WHERE "settingKey" = $2
        RETURNING *`,
       [settingValue, key]
     );
@@ -51,12 +48,6 @@ const updateSetting = async (req, res) => {
   }
 };
 
-
-// ============================================================
-// SYSTEM ADMIN UTILITIES
-// ============================================================
-
-// Initialize Settings Table
 const initSettingsSchema = async () => {
     try {
         const check = await pool.query(`SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'systemSettings')`);
@@ -69,7 +60,7 @@ const initSettingsSchema = async () => {
                     "settingUpdatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
              `);
-             // Seed defaults (using checks to avoid duplicates if partial run)
+
              await pool.query(`
                 INSERT INTO "systemSettings" ("settingKey", "settingValue") VALUES
                 ('contact_address', '123 Automotive Way'),
@@ -85,7 +76,6 @@ const initSettingsSchema = async () => {
     }
 };
 
-// Inspect Database Schema (Debug)
 const inspectSchema = async () => {
   try {
     const tables = ['booking', 'service', 'payment', 'invoice', 'refund', 'report', 'timeSlot'];
@@ -94,14 +84,13 @@ const inspectSchema = async () => {
       const res = await pool.query(`SELECT column_name, data_type FROM information_schema.columns WHERE table_name = $1`, [table]);
       results[table] = res.rows;
     }
-    return results; // Function now returns data instead of just logging
+    return results;
   } catch (error) {
     console.error('Inspection error:', error);
     return { error: error.message };
   }
 };
 
-// List All Tables (Debug)
 const listTables = async () => {
   try {
     const res = await pool.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'");

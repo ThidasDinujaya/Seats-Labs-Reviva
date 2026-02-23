@@ -6,7 +6,7 @@ const ReviewsPage = () => {
   return (
     <div className="reviews-page">
       <Navbar />
-      
+
       <header className="page-hero" style={{ padding: '80px 0', background: 'var(--navy)', color: 'white', textAlign: 'center' }}>
         <div className="container">
           <h1 style={{ fontSize: '3.5rem', marginBottom: '10px' }}>Customer Reviews</h1>

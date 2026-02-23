@@ -57,14 +57,14 @@ const ManagerFeedbacksPage = () => {
                     <p style={{ color: '#64748b', fontSize: '1rem' }}>Review and manage customer ratings and testimonials</p>
                 </div>
 
-                <div style={{ 
-                    background: '#fff', 
-                    borderRadius: '16px', 
-                    border: '1px solid #f1f5f9', 
-                    flex: 1, 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    overflow: 'hidden' 
+                <div style={{
+                    background: '#fff',
+                    borderRadius: '16px',
+                    border: '1px solid #f1f5f9',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden'
                 }}>
                     <div style={{ display: 'flex', gap: '15px', padding: '20px', borderBottom: '1px solid #f1f5f9' }}>
                         <div style={{ position: 'relative', flex: 1 }}>
@@ -129,13 +129,13 @@ const ManagerFeedbacksPage = () => {
                         </table>
                     </div>
 
-                    {/* Persistent Control Deck */}
-                    <div style={{ 
-                        position: 'fixed', 
-                        bottom: '30px', 
-                        right: '30px', 
-                        display: 'flex', 
-                        gap: '12px', 
+                    {}
+                    <div style={{
+                        position: 'fixed',
+                        bottom: '30px',
+                        right: '30px',
+                        display: 'flex',
+                        gap: '12px',
                         zIndex: 1000,
                         background: 'rgba(255,255,255,0.9)',
                         padding: '15px',
@@ -181,7 +181,7 @@ const ManagerFeedbacksPage = () => {
                                     ))}
                                 </div>
 
-                                {/* Star rating visual */}
+                                {}
                                 <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginBottom: '20px' }}>
                                     {renderStars(selectedFeedback.feedbackRating)}
                                 </div>
@@ -208,7 +208,7 @@ const ManagerFeedbacksPage = () => {
                                 )}
                             </div>
                             <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px', position: 'sticky', bottom: 0, background: 'white', zIndex: 10 }}>
-                                <button 
+                                <button
                                     onClick={async () => {
                                         if (window.confirm('Are you sure you want to delete this feedback?')) {
                                             try {

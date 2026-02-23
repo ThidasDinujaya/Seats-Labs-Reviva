@@ -1,19 +1,10 @@
 const pool = require('../config/database');
 
-// ============================================================
-// controller/refundController.js
-// PURPOSE: Handle refund operations.
-// ============================================================
-
-/**
- * @desc Get all refunds for manager view
- * @route GET /api/refunds
- */
 const viewAllRefund = async (req, res) => {
   try {
     const query = `
       SELECT r."refundId", r."refundAmount", r."refundReason", r."refundStatus", r."refundDate", r."invoiceId", r."refundCreatedAt",
-             i."invoiceNumber", 
+             i."invoiceNumber",
              COALESCE(c."customerFirstName" || ' ' || c."customerLastName", adv."advertiserBusinessName") as "clientName"
       FROM "refund" r
       JOIN "invoice" i ON r."invoiceId" = i."invoiceId"
@@ -35,10 +26,6 @@ const viewAllRefund = async (req, res) => {
   }
 };
 
-/**
- * @desc Update refund status (complete/reject)
- * @route PUT /api/refunds/:refundId
- */
 const updateRefundStatus = async (req, res) => {
   const { refundId } = req.params;
   const { refundStatus } = req.body;
@@ -52,7 +39,6 @@ const updateRefundStatus = async (req, res) => {
         return res.status(400).json({ success: false, error: 'Invalid refund status. Must be completed or rejected.' });
     }
 
-    // Start a transaction to ensure both refund and invoice are updated atomically
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
@@ -70,7 +56,6 @@ const updateRefundStatus = async (req, res) => {
 
       const refund = result.rows[0];
 
-      // If refund is completed, update the corresponding invoice status to 'refunded'
       if (refundStatus === 'completed') {
           await client.query(
               `UPDATE "invoice" SET "invoiceStatus" = 'refunded' WHERE "invoiceId" = $1`,

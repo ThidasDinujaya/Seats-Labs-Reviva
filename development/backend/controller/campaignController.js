@@ -1,14 +1,5 @@
-// ============================================================
-// controllers/campaignController.js
-// PURPOSE: Advertisement campaign management operations
-// ============================================================
-
 const pool = require('../config/database');
 
-// ============================================================
-// 1. CREATE CAMPAIGN
-// POST /api/campaign
-// ============================================================
 const createCampaign = async (req, res) => {
   const {
     advertisementCampaignName,
@@ -49,16 +40,12 @@ const createCampaign = async (req, res) => {
   }
 };
 
-// ============================================================
-// 2. GET ALL CAMPAIGN
-// GET /api/campaign?status=active&advertiserId=1
-// ============================================================
 const getAllCampaign = async (req, res) => {
   const { status, advertiserId } = req.query;
 
   try {
     let query = `
-      SELECT c."advertisementCampaignId", c."advertisementCampaignName", c."advertisementCampaignStartDate", c."advertisementCampaignEndDate", c."advertisementCampaignStatus", c."advertiserId", c."advertisementCampaignCreatedAt", 
+      SELECT c."advertisementCampaignId", c."advertisementCampaignName", c."advertisementCampaignStartDate", c."advertisementCampaignEndDate", c."advertisementCampaignStatus", c."advertiserId", c."advertisementCampaignCreatedAt",
         adv."advertiserBusinessName",
         COUNT(DISTINCT a."advertisementId") as "totalAds",
         SUM(CASE WHEN a."advertisementStatus" = 'active' THEN 1 ELSE 0 END) as "activeAds"
@@ -96,10 +83,6 @@ const getAllCampaign = async (req, res) => {
   }
 };
 
-// ============================================================
-// 3. GET CAMPAIGN BY ID (with ad)
-// GET /api/campaign/:campaignId
-// ============================================================
 const getCampaign = async (req, res) => {
   const { advertisementCampaignId } = req.params;
 
@@ -143,10 +126,6 @@ const getCampaign = async (req, res) => {
   }
 };
 
-// ============================================================
-// 4. UPDATE CAMPAIGN
-// PUT /api/campaign/:campaignId
-// ============================================================
 const updateCampaign = async (req, res) => {
   const { advertisementCampaignId } = req.params;
   const {
@@ -185,10 +164,6 @@ const updateCampaign = async (req, res) => {
   }
 };
 
-// ============================================================
-// 5. DELETE CAMPAIGN
-// DELETE /api/campaign/:campaignId
-// ============================================================
 const deleteCampaign = async (req, res) => {
   const { advertisementCampaignId } = req.params;
 
@@ -202,7 +177,6 @@ const deleteCampaign = async (req, res) => {
       return res.status(404).json({ success: false, error: 'Campaign not found.' });
     }
 
-    // Cascade will handle related ads (set their advertisementCampaignId to NULL)
     await pool.query('DELETE FROM "advertisementCampaign" WHERE "advertisementCampaignId" = $1', [advertisementCampaignId]);
 
     return res.status(200).json({
@@ -215,10 +189,6 @@ const deleteCampaign = async (req, res) => {
   }
 };
 
-// ============================================================
-// 6. ADD AD TO CAMPAIGN
-// POST /api/campaign/:campaignId/advertisement
-// ============================================================
 const addAdToCampaign = async (req, res) => {
   const { advertisementCampaignId } = req.params;
   const {
@@ -230,7 +200,7 @@ const addAdToCampaign = async (req, res) => {
   } = req.body;
 
   try {
-    // Verify campaign exists
+
     const campaignCheck = await pool.query(
       'SELECT * FROM "advertisementCampaign" WHERE "advertisementCampaignId" = $1',
       [advertisementCampaignId]
@@ -260,7 +230,6 @@ const addAdToCampaign = async (req, res) => {
 
       const newAd = adResult.rows[0];
 
-      // Fetch placement price to calculate invoice amount
       let finalAmount = 0;
       if (advertisementPlacementId) {
         const placementRes = await client.query(
@@ -276,7 +245,6 @@ const addAdToCampaign = async (req, res) => {
         }
       }
 
-      // Create Invoice
       const invoiceNumber = `INV-AD-CPN-${newAd.advertisementId}-${Date.now().toString().slice(-4)}`;
       await client.query(
         `INSERT INTO "invoice" ("invoiceNumber", "invoiceAmount", "invoiceStatus", "advertisementId")

@@ -56,14 +56,14 @@ const ManagerServiceTrackingPage = () => {
                     </div>
                 </div>
 
-                <div style={{ 
-                    background: '#fff', 
-                    borderRadius: '16px', 
-                    border: '1px solid #f1f5f9', 
-                    flex: 1, 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    overflow: 'hidden' 
+                <div style={{
+                    background: '#fff',
+                    borderRadius: '16px',
+                    border: '1px solid #f1f5f9',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden'
                 }}>
                     <div style={{ display: 'flex', gap: '15px', padding: '20px', borderBottom: '1px solid #f1f5f9' }}>
                         <div style={{ position: 'relative', flex: 1 }}>
@@ -125,13 +125,13 @@ const ManagerServiceTrackingPage = () => {
                         </table>
                     </div>
 
-                    {/* Persistent Control Deck */}
-                    <div style={{ 
-                        position: 'fixed', 
-                        bottom: '30px', 
-                        right: '30px', 
-                        display: 'flex', 
-                        gap: '12px', 
+                    {}
+                    <div style={{
+                        position: 'fixed',
+                        bottom: '30px',
+                        right: '30px',
+                        display: 'flex',
+                        gap: '12px',
                         zIndex: 1000,
                         background: 'rgba(255,255,255,0.9)',
                         padding: '15px',
@@ -174,7 +174,7 @@ const ManagerServiceTrackingPage = () => {
                                     ))}
                                 </div>
 
-                                {/* Related booking data if available from JOIN */}
+                                {}
                                 {(selectedTracking.bookingDate || selectedTracking.bookingStatus || selectedTracking.bookingRefNumber) && (
                                     <>
                                         <h4 style={{ margin: '0 0 16px 0', color: '#64748b', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: '800' }}>booking (via bookingId)</h4>

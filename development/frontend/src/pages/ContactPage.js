@@ -23,7 +23,7 @@ const ContactPage = () => {
   return (
     <div className="contact-page">
       <Navbar />
-      
+
       <header className="page-hero" style={{ padding: '80px 0', background: 'var(--navy)', color: 'white', textAlign: 'center' }}>
         <div className="container">
           <h1 style={{ fontSize: '3.5rem', marginBottom: '10px' }}>Contact Us</h1>
@@ -39,7 +39,7 @@ const ContactPage = () => {
               <h4 style={{ color: 'var(--crimson)', marginBottom: '10px' }}>MAIN ADDRESS:</h4>
               <p style={{ fontSize: '1.2rem', fontWeight: '700' }}>{settings.contact_address || 'No. 123, Automotive Way, Colombo 07, Sri Lanka'}</p>
             </div>
-            
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               <div>
                 <h4 style={{ color: 'var(--crimson)', marginBottom: '10px' }}>PHONE:</h4>
@@ -58,7 +58,7 @@ const ContactPage = () => {
               <p>{settings.contact_opening_hours || 'Mon - Sat: 8:00 AM - 6:00 PM'}</p>
             </div>
           </div>
-          
+
           <div style={{ background: '#f8fafc', padding: '40px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
             <h2 style={{ fontSize: '1.5rem', marginBottom: '20px', color: 'var(--navy)' }}>Send a Message</h2>
             <form style={{ display: 'grid', gap: '20px' }}>

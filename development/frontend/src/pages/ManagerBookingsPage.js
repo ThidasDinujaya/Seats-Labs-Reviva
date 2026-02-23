@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
     Search,
     X, Eye, Edit2, Trash2, CheckCircle, Clock
 } from 'lucide-react';
 import SidebarLayout from '../components/SidebarLayout';
 import { bookingApi, technicianApi } from '../api/api';
-
 
 const ManagerBookingsPage = () => {
     const [bookings, setBookings] = useState([]);
@@ -103,8 +102,6 @@ const ManagerBookingsPage = () => {
         (b.bookingStatus || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-
-
     return (
         <SidebarLayout role="manager">
             <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column', padding: '10px' }}>
@@ -115,24 +112,24 @@ const ManagerBookingsPage = () => {
                     </div>
                 </div>
 
-                <div style={{ 
-                    background: '#fff', 
-                    borderRadius: '16px', 
-                    border: '1px solid #f1f5f9', 
-                    flex: 1, 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    overflow: 'hidden' 
+                <div style={{
+                    background: '#fff',
+                    borderRadius: '16px',
+                    border: '1px solid #f1f5f9',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden'
                 }}>
                     <div style={{ display: 'flex', gap: '15px', padding: '20px', borderBottom: '1px solid #f1f5f9' }}>
                         <div style={{ position: 'relative', flex: 1 }}>
                             <Search style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} size={20} />
-                            <input 
-                                type="text" 
-                                placeholder="Search by ID, customer or vehicle number..." 
+                            <input
+                                type="text"
+                                placeholder="Search by ID, customer or vehicle number..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '0.9rem' }} 
+                                style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '0.9rem' }}
                             />
                         </div>
                     </div>
@@ -161,12 +158,12 @@ const ManagerBookingsPage = () => {
                                     <tr><td colSpan="11" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No booking found.</td></tr>
                                 ) : (
                                     filteredBookings.map(booking => (
-                                        <tr 
-                                            key={booking.bookingId} 
+                                        <tr
+                                            key={booking.bookingId}
                                             onClick={() => setSelectedId(selectedId === booking.bookingId ? null : booking.bookingId)}
-                                            style={{ 
-                                                borderBottom: '1px solid #f1f5f9', 
-                                                transition: 'background 0.2s', 
+                                            style={{
+                                                borderBottom: '1px solid #f1f5f9',
+                                                transition: 'background 0.2s',
                                                 cursor: 'pointer',
                                                 background: selectedId === booking.bookingId ? '#f8fafc' : 'transparent'
                                             }}
@@ -176,7 +173,7 @@ const ManagerBookingsPage = () => {
                                             <td style={{ padding: '12px 15px', fontWeight: '600' }}>{booking.bookingStartTime || '-'}</td>
                                             <td style={{ padding: '12px 15px', fontWeight: '600' }}>{booking.bookingEndTime || '-'}</td>
                                             <td style={{ padding: '12px 15px' }}>
-                                                <span style={{ 
+                                                <span style={{
                                                     padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800',
                                                     background: getStatusColor(booking.bookingStatus).bg, color: getStatusColor(booking.bookingStatus).text,
                                                     display: 'inline-flex', alignItems: 'center', gap: '5px', textTransform: 'uppercase'
@@ -198,13 +195,13 @@ const ManagerBookingsPage = () => {
                         </table>
                     </div>
 
-                    {/* Persistent Floating Actions */}
-                    <div style={{ 
-                        position: 'fixed', 
-                        bottom: '30px', 
-                        right: '30px', 
-                        display: 'flex', 
-                        gap: '12px', 
+                    {}
+                    <div style={{
+                        position: 'fixed',
+                        bottom: '30px',
+                        right: '30px',
+                        display: 'flex',
+                        gap: '12px',
                         zIndex: 1000,
                         background: 'rgba(255,255,255,0.9)',
                         padding: '15px',
@@ -215,11 +212,11 @@ const ManagerBookingsPage = () => {
                     }}>
                         {(() => {
                             const selectedBooking = bookings.find(b => b.bookingId === selectedId);
-                            
+
                             return (
                                 <>
-                                    <button 
-                                        onClick={() => { if (selectedBooking) handleOpenModal('view', selectedBooking); }} 
+                                    <button
+                                        onClick={() => { if (selectedBooking) handleOpenModal('view', selectedBooking); }}
                                         disabled={!selectedId}
                                         style={{ padding: '12px 24px', borderRadius: '8px', border: 'none', background: selectedId ? 'var(--yellow)' : '#f1f5f9', color: selectedId ? 'black' : '#94a3b8', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}
                                     >
@@ -332,7 +329,7 @@ const ManagerBookingsPage = () => {
                              {modalMode !== 'view' && (
                                 <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px', position: 'sticky', bottom: 0, background: 'white', zIndex: 10 }}>
                                     <button onClick={() => setShowModal(false)} style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white', cursor: 'pointer' }}>Cancel</button>
-                                    <button 
+                                    <button
                                         onClick={async () => {
                                             try {
                                                 const res = await bookingApi.update(formData.bookingId, formData);
@@ -354,13 +351,13 @@ const ManagerBookingsPage = () => {
                             )}
                             {modalMode === 'view' && (
                                 <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px', position: 'sticky', bottom: 0, background: 'white', zIndex: 10 }}>
-                                    <button 
+                                    <button
                                         onClick={() => setModalMode('edit')}
                                         style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#3b82f6', color: 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                                     >
                                         <Edit2 size={18} /> Update Booking
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={async () => {
                                             if (window.confirm('Cancel this booking?')) {
                                                 try {

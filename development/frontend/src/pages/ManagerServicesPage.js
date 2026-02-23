@@ -9,20 +9,17 @@ const ManagerServicesPage = () => {
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Data states
     const [services, setServices] = useState([]);
     const [categories, setCategories] = useState([]);
     const [packages, setPackages] = useState([]);
     const [timeSlots, setTimeSlots] = useState([]);
 
-    // Modal states
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState('add');
     const [currentItem, setCurrentItem] = useState(null);
     const [viewOnly, setViewOnly] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
 
-    // Form states
     const [serviceForm, setServiceForm] = useState({
         serviceName: '',
         serviceDescription: '',
@@ -57,7 +54,7 @@ const ManagerServicesPage = () => {
     useEffect(() => {
         fetchData();
         setSelectedId(null);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [activeTab]);
 
     const fetchData = async () => {
@@ -65,7 +62,7 @@ const ManagerServicesPage = () => {
         try {
             if (activeTab === 'services') {
                 const [sRes, cRes, pRes] = await Promise.all([
-                    serviceApi.getAll(), 
+                    serviceApi.getAll(),
                     serviceApi.getCategory(),
                     serviceApi.getPackage()
                 ]);
@@ -94,7 +91,7 @@ const ManagerServicesPage = () => {
     const handleServiceSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = modalMode === 'add' 
+            const res = modalMode === 'add'
                 ? await serviceApi.create(serviceForm)
                 : await serviceApi.update(currentItem.serviceId, serviceForm);
             if (res.success) {
@@ -167,7 +164,7 @@ const ManagerServicesPage = () => {
             else if (activeTab === 'categories') res = await serviceApi.deleteCategory(id);
             else if (activeTab === 'packages') res = await serviceApi.deletePackage(id);
             else if (activeTab === 'timeslots') res = await timeSlotApi.delete(id);
-            
+
             if (res.success) fetchData();
             else alert(res.error || 'Delete failed');
         } catch (err) {
@@ -195,7 +192,6 @@ const ManagerServicesPage = () => {
         fillForm(item);
         setShowModal(true);
     };
-
 
     const findSelectedItem = () => {
         if (activeTab === 'services') return services.find(s => s.serviceId === selectedId);
@@ -289,22 +285,22 @@ const ManagerServicesPage = () => {
                     <div style={{ display: 'flex', gap: '15px' }}>
                         <div style={{ position: 'relative', flex: 1 }}>
                             <Search size={20} style={searchIconStyle} />
-                            <input 
-                                type="text" 
-                                placeholder={`Search ${activeTab === 'categories' ? 'Service Category' : activeTab === 'services' ? 'Service' : activeTab === 'packages' ? 'Service Package' : 'Time Slot'}...`} 
-                                value={searchTerm} 
-                                onChange={(e) => setSearchTerm(e.target.value)} 
-                                style={{ ...searchInputStyle, paddingLeft: '40px', fontSize: '0.9rem' }} 
+                            <input
+                                type="text"
+                                placeholder={`Search ${activeTab === 'categories' ? 'Service Category' : activeTab === 'services' ? 'Service' : activeTab === 'packages' ? 'Service Package' : 'Time Slot'}...`}
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{ ...searchInputStyle, paddingLeft: '40px', fontSize: '0.9rem' }}
                             />
                         </div>
                                             </div>
                 </div>
 
-            {/* Table */}
-            <div style={{ 
-                background: '#fff', 
-                borderRadius: '16px', 
-                border: '1px solid #f1f5f9', 
+            {}
+            <div style={{
+                background: '#fff',
+                borderRadius: '16px',
+                border: '1px solid #f1f5f9',
                 flex: 1,
                 display: 'flex',
                 flexDirection: 'column',
@@ -362,8 +358,8 @@ const ManagerServicesPage = () => {
                                     const id = activeTab === 'services' ? item.serviceId : activeTab === 'categories' ? item.serviceCategoryId : activeTab === 'packages' ? item.servicePackageId : item.timeSlotId;
                                     const isSelected = selectedId === id;
                                     return (
-                                        <tr 
-                                            key={idx} 
+                                        <tr
+                                            key={idx}
                                             style={{ borderBottom: '1px solid #f1f5f9', background: isSelected ? '#f8fafc' : 'transparent', cursor: 'pointer', transition: 'background 0.2s' }}
                                             onClick={() => setSelectedId(isSelected ? null : id)}
                                         >
@@ -375,8 +371,8 @@ const ManagerServicesPage = () => {
                                                     <td style={{ ...tdStyle, fontWeight: '600' }}>{item.serviceDuration} mins</td>
                                                     <td style={{ ...tdStyle, fontWeight: '800', color: 'var(--crimson)' }}>Rs. {parseFloat(item.servicePrice).toLocaleString()}</td>
                                                     <td style={{ ...tdStyle, textAlign: 'right' }}>
-                                                        <span style={{ 
-                                                            padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', 
+                                                        <span style={{
+                                                            padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800',
                                                             background: item.serviceIsActive ? '#dcfce7' : '#fee2e2', color: item.serviceIsActive ? '#15803d' : '#b91c1c',
                                                             textTransform: 'uppercase'
                                                         }}>
@@ -391,8 +387,8 @@ const ManagerServicesPage = () => {
                                                     <td style={{ ...tdStyle, fontWeight: '700' }}>{item.serviceCategoryName}</td>
                                                     <td style={{ ...tdStyle, fontSize: '0.75rem', color: '#64748b' }}>{item.serviceCategoryDescription || '-'}</td>
                                                     <td style={{ ...tdStyle, textAlign: 'right' }}>
-                                                        <span style={{ 
-                                                            padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', 
+                                                        <span style={{
+                                                            padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800',
                                                             background: item.serviceCategoryIsActive ? '#dcfce7' : '#fee2e2', color: item.serviceCategoryIsActive ? '#15803d' : '#b91c1c',
                                                             textTransform: 'uppercase'
                                                         }}>
@@ -408,8 +404,8 @@ const ManagerServicesPage = () => {
                                                     <td style={{ ...tdStyle, fontSize: '0.75rem', color: '#64748b' }}>{item.servicePackageDescription || '-'}</td>
                                                     <td style={{ ...tdStyle, fontWeight: '800', color: 'var(--crimson)' }}>Rs. {parseFloat(item.servicePackagePrice).toLocaleString()}</td>
                                                     <td style={{ ...tdStyle, textAlign: 'right' }}>
-                                                        <span style={{ 
-                                                            padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', 
+                                                        <span style={{
+                                                            padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800',
                                                             background: item.servicePackageIsActive ? '#dcfce7' : '#fee2e2', color: item.servicePackageIsActive ? '#15803d' : '#b91c1c',
                                                             textTransform: 'uppercase'
                                                         }}>
@@ -426,8 +422,8 @@ const ManagerServicesPage = () => {
                                                     <td style={{ ...tdStyle, fontWeight: '700' }}>{item.timeSlotEndTime}</td>
                                                     <td style={{ ...tdStyle, fontWeight: '800' }}>{item.timeSlotMaxCapacity} units</td>
                                                     <td style={{ ...tdStyle, textAlign: 'right' }}>
-                                                        <span style={{ 
-                                                            padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', 
+                                                        <span style={{
+                                                            padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800',
                                                             background: item.timeSlotIsActive ? '#dcfce7' : '#fee2e2', color: item.timeSlotIsActive ? '#15803d' : '#b91c1c',
                                                             textTransform: 'uppercase'
                                                         }}>
@@ -446,13 +442,13 @@ const ManagerServicesPage = () => {
                     </table>
                 </div>
 
-                {/* Persistent Control Deck */}
-                <div style={{ 
-                    position: 'fixed', 
-                    bottom: '30px', 
-                    right: '30px', 
-                    display: 'flex', 
-                    gap: '12px', 
+                {}
+                <div style={{
+                    position: 'fixed',
+                    bottom: '30px',
+                    right: '30px',
+                    display: 'flex',
+                    gap: '12px',
                     zIndex: 1000,
                     background: 'rgba(255,255,255,0.9)',
                     padding: '15px',
@@ -464,8 +460,8 @@ const ManagerServicesPage = () => {
                     <button onClick={openAddModal} style={{ padding: '12px 24px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
                         <Plus size={18} /> Add {entityLabel}
                     </button>
-                    <button 
-                        onClick={openViewModal} 
+                    <button
+                        onClick={openViewModal}
                         disabled={!selectedId}
                         style={{ padding: '12px 24px', borderRadius: '8px', border: 'none', background: selectedId ? 'var(--yellow)' : '#f1f5f9', color: selectedId ? 'black' : '#94a3b8', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}
                     >
@@ -475,15 +471,15 @@ const ManagerServicesPage = () => {
             </div>
             </div>
 
-            {/* Modal */}
+            {}
             {showModal && (
                 <div style={modalOverlayStyle}>
                     <div style={modalContentStyle}>
                         <div style={modalHeaderStyle}>
                             <h2 style={{ margin: 0 }}>
                                 {modalMode === 'add' ? 'Add' : modalMode === 'view' ? 'View' : 'Update'} {
-                                    activeTab === 'categories' ? 'Service Category' : 
-                                    activeTab === 'services' ? 'Service' : 
+                                    activeTab === 'categories' ? 'Service Category' :
+                                    activeTab === 'services' ? 'Service' :
                                     activeTab === 'packages' ? 'Service Package' :
                                     'Time Slot'
                                 }
@@ -492,8 +488,8 @@ const ManagerServicesPage = () => {
                         </div>
                         <form style={{ padding: '20px' }} onSubmit={
                             viewOnly ? (e) => e.preventDefault() :
-                            activeTab === 'services' ? handleServiceSubmit : 
-                            activeTab === 'categories' ? handleCategorySubmit : 
+                            activeTab === 'services' ? handleServiceSubmit :
+                            activeTab === 'categories' ? handleCategorySubmit :
                             activeTab === 'packages' ? handlePackageSubmit :
                             handleTimeSlotSubmit
                         }>
@@ -526,8 +522,8 @@ const ManagerServicesPage = () => {
                                     </div>
                                     <div style={formGroupStyle}>
                                          <label style={labelStyle}>Service Status</label>
-                                         <select 
-                                             value={serviceForm.serviceIsActive ? 'true' : 'false'} 
+                                         <select
+                                             value={serviceForm.serviceIsActive ? 'true' : 'false'}
                                              onChange={(e) => setServiceForm({...serviceForm, serviceIsActive: e.target.value === 'true'})}
                                              style={inputStyle}
                                              disabled={viewOnly}
@@ -551,8 +547,8 @@ const ManagerServicesPage = () => {
                                      </div>
                                      <div style={formGroupStyle}>
                                          <label style={labelStyle}>Category Status</label>
-                                         <select 
-                                             value={categoryForm.serviceCategoryIsActive ? 'true' : 'false'} 
+                                         <select
+                                             value={categoryForm.serviceCategoryIsActive ? 'true' : 'false'}
                                              onChange={(e) => setCategoryForm({...categoryForm, serviceCategoryIsActive: e.target.value === 'true'})}
                                              style={inputStyle}
                                              disabled={viewOnly}
@@ -583,12 +579,12 @@ const ManagerServicesPage = () => {
                                          <div style={{ maxHeight: '150px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '10px' }}>
                                              {services.filter(s => !viewOnly || packageForm.serviceIds.includes(s.serviceId)).map(s => (
                                                  <label key={s.serviceId} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px', cursor: 'pointer' }}>
-                                                     <input 
-                                                         type="checkbox" 
+                                                     <input
+                                                         type="checkbox"
                                                          disabled={viewOnly}
                                                          checked={packageForm.serviceIds.includes(s.serviceId)}
                                                          onChange={(e) => {
-                                                             const ids = e.target.checked 
+                                                             const ids = e.target.checked
                                                                  ? [...packageForm.serviceIds, s.serviceId]
                                                                  : packageForm.serviceIds.filter(id => id !== s.serviceId);
                                                              setPackageForm({...packageForm, serviceIds: ids});
@@ -601,8 +597,8 @@ const ManagerServicesPage = () => {
                                      </div>
                                      <div style={formGroupStyle}>
                                          <label style={labelStyle}>Package Status</label>
-                                         <select 
-                                             value={packageForm.servicePackageIsActive ? 'true' : 'false'} 
+                                         <select
+                                             value={packageForm.servicePackageIsActive ? 'true' : 'false'}
                                              onChange={(e) => setPackageForm({...packageForm, servicePackageIsActive: e.target.value === 'true'})}
                                              style={inputStyle}
                                              disabled={viewOnly}
@@ -618,54 +614,54 @@ const ManagerServicesPage = () => {
                                 <>
                                     <div style={formGroupStyle}>
                                          <label style={labelStyle}>Time Slot Date</label>
-                                         <input 
-                                             type="date" 
-                                             value={timeSlotForm.timeSlotDate} 
-                                             onChange={(e) => setTimeSlotForm({...timeSlotForm, timeSlotDate: e.target.value})} 
-                                             required 
-                                             style={inputStyle} 
-                                             disabled={viewOnly} 
+                                         <input
+                                             type="date"
+                                             value={timeSlotForm.timeSlotDate}
+                                             onChange={(e) => setTimeSlotForm({...timeSlotForm, timeSlotDate: e.target.value})}
+                                             required
+                                             style={inputStyle}
+                                             disabled={viewOnly}
                                          />
                                      </div>
                                     <div style={formGroupStyle}>
                                          <label style={labelStyle}>Start Time</label>
-                                         <input 
-                                             type="time" 
-                                             value={timeSlotForm.timeSlotStartTime} 
-                                             onChange={(e) => setTimeSlotForm({...timeSlotForm, timeSlotStartTime: e.target.value})} 
-                                             required 
-                                             style={inputStyle} 
-                                             disabled={viewOnly} 
+                                         <input
+                                             type="time"
+                                             value={timeSlotForm.timeSlotStartTime}
+                                             onChange={(e) => setTimeSlotForm({...timeSlotForm, timeSlotStartTime: e.target.value})}
+                                             required
+                                             style={inputStyle}
+                                             disabled={viewOnly}
                                          />
                                      </div>
                                      <div style={formGroupStyle}>
                                          <label style={labelStyle}>End Time</label>
-                                         <input 
-                                             type="time" 
-                                             value={timeSlotForm.timeSlotEndTime} 
-                                             onChange={(e) => setTimeSlotForm({...timeSlotForm, timeSlotEndTime: e.target.value})} 
-                                             required 
-                                             style={inputStyle} 
-                                             disabled={viewOnly} 
+                                         <input
+                                             type="time"
+                                             value={timeSlotForm.timeSlotEndTime}
+                                             onChange={(e) => setTimeSlotForm({...timeSlotForm, timeSlotEndTime: e.target.value})}
+                                             required
+                                             style={inputStyle}
+                                             disabled={viewOnly}
                                          />
                                      </div>
                                      <div style={formGroupStyle}>
                                          <label style={labelStyle}>Maximum Capacity (Bookings)</label>
-                                         <input 
-                                             type="number" 
+                                         <input
+                                             type="number"
                                              min="1"
                                              max="10"
-                                             value={timeSlotForm.timeSlotMaxCapacity} 
-                                             onChange={(e) => setTimeSlotForm({...timeSlotForm, timeSlotMaxCapacity: e.target.value})} 
-                                             required 
-                                             style={inputStyle} 
-                                             disabled={viewOnly} 
+                                             value={timeSlotForm.timeSlotMaxCapacity}
+                                             onChange={(e) => setTimeSlotForm({...timeSlotForm, timeSlotMaxCapacity: e.target.value})}
+                                             required
+                                             style={inputStyle}
+                                             disabled={viewOnly}
                                          />
                                      </div>
                                      <div style={formGroupStyle}>
                                          <label style={labelStyle}>Time Slot Status</label>
-                                         <select 
-                                             value={timeSlotForm.timeSlotIsActive ? 'true' : 'false'} 
+                                         <select
+                                             value={timeSlotForm.timeSlotIsActive ? 'true' : 'false'}
                                              onChange={(e) => setTimeSlotForm({...timeSlotForm, timeSlotIsActive: e.target.value === 'true'})}
                                              style={inputStyle}
                                              disabled={viewOnly}
@@ -679,14 +675,14 @@ const ManagerServicesPage = () => {
 
                             {viewOnly ? (
                                 <div style={modalFooterStyle}>
-                                    <button 
+                                    <button
                                         type="button"
                                         onClick={() => { setViewOnly(false); setModalMode('edit'); }}
                                         style={{ ...submitBtnStyle, background: '#3b82f6', display: 'flex', alignItems: 'center', gap: '8px' }}
                                     >
                                         <Edit2 size={18} /> Update {entityLabel}
                                     </button>
-                                    <button 
+                                    <button
                                         type="button"
                                         onClick={() => {
                                             handleDelete(selectedId);
@@ -724,7 +720,6 @@ const ManagerServicesPage = () => {
     );
 };
 
-// Styles
 const submitBtnStyle = { padding: '10px 20px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', cursor: 'pointer' };
 const tabContainerStyle = { display: 'flex', gap: '8px', marginBottom: '25px', padding: '6px', background: '#f1f5f9', borderRadius: '12px', alignSelf: 'flex-start', width: 'fit-content' };
 const tabStyle = { padding: '10px 20px', border: 'none', background: 'transparent', color: '#475569', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '8px', transition: 'all 0.2s ease' };
@@ -740,10 +735,10 @@ const modalHeaderStyle = { padding: '20px', borderBottom: '1px solid #e2e8f0', d
 const formGroupStyle = { marginBottom: '15px' };
 const labelStyle = { display: 'block', marginBottom: '5px', fontSize: '0.85rem', fontWeight: '700', color: '#475569' };
 const inputStyle = { width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' };
-const modalFooterStyle = { 
-    marginTop: '20px', 
-    display: 'flex', 
-    justifyContent: 'flex-end', 
+const modalFooterStyle = {
+    marginTop: '20px',
+    display: 'flex',
+    justifyContent: 'flex-end',
     gap: '10px',
     position: 'sticky',
     bottom: 0,

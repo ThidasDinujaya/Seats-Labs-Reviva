@@ -18,9 +18,7 @@ const ServicesPage = () => {
           serviceApi.getAll(),
           serviceApi.getPackage()
         ]);
-        
-        // Handle potential response structures (array or object with data property)
-        // Filter to show only ACTIVE items to customers
+
         setCategories((Array.isArray(catsRes) ? catsRes : catsRes.data || []).filter(c => c.serviceCategoryIsActive));
         setServices((Array.isArray(servsRes) ? servsRes : servsRes.data || []).filter(s => s.serviceIsActive));
         setPackages((Array.isArray(pkgsRes) ? pkgsRes : pkgsRes.data || []).filter(p => p.servicePackageIsActive));
@@ -35,14 +33,14 @@ const ServicesPage = () => {
   }, []);
 
   const getCategoryIcon = (name) => {
-    // Safety check just in case name is undefined
+
     if (!name) return 'fi fi-rr-wrench';
     const lowerName = name.toLowerCase();
     if (lowerName.includes('maintenance')) return 'fi fi-rr-settings';
     if (lowerName.includes('repair')) return 'fi fi-rr-car-mechanic';
     if (lowerName.includes('inspection') || lowerName.includes('diagnostic')) return 'fi fi-rr-dashboard';
     if (lowerName.includes('detail') || lowerName.includes('wash')) return 'fi fi-rr-paint-roller';
-    return 'fi fi-rr-wrench'; // Default
+    return 'fi fi-rr-wrench';
   };
 
   const getServicesByCategory = (catId) => {
@@ -52,7 +50,7 @@ const ServicesPage = () => {
   return (
     <div className="services-page">
       <Navbar />
-      
+
       <header className="page-hero" style={{ padding: '80px 0', background: 'var(--navy)', color: 'white', textAlign: 'center' }}>
         <div className="container">
           <h1 style={{ fontSize: '3.5rem', marginBottom: '10px' }}>Our Services</h1>
@@ -67,11 +65,11 @@ const ServicesPage = () => {
               <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>Loading services...</div>
             ) : (
               <div className="services-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '40px' }}>
-                
-                {/* Dynamic Category Cards */}
+
+                {}
                 {categories.map(category => {
                   const categoryServices = getServicesByCategory(category.serviceCategoryId);
-                  if (categoryServices.length === 0) return null; // Skip empty categories
+                  if (categoryServices.length === 0) return null;
 
                   return (
                     <div key={category.serviceCategoryId} className="service-card" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--bg-gray-mid)', background: 'white' }}>
@@ -107,8 +105,8 @@ const ServicesPage = () => {
                             Rs. {Number(pkg.servicePackagePrice).toLocaleString()}
                           </span>
                        </div>
-                       <button 
-                         className="btn btn-crimson" 
+                       <button
+                         className="btn btn-crimson"
                          style={{ width: '100%', marginTop: '20px', justifyContent: 'center' }}
                          onClick={() => window.location.href = '/book'}
                        >
@@ -121,7 +119,7 @@ const ServicesPage = () => {
               </div>
             )}
           </div>
-          
+
           <aside style={{ flex: '1 1 300px' }}>
             <div>
               <Advertisement type="Square" />

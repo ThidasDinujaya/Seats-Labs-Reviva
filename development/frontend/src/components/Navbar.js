@@ -28,9 +28,9 @@ const Navbar = () => {
               </Link>
             </>
           ) : (
-            <Link 
-              to={user.userRole === 'customer' ? '/dashboard' : '/manager'} 
-              className="btn btn-crimson" 
+            <Link
+              to={user.userRole === 'customer' ? '/dashboard' : '/manager'}
+              className="btn btn-crimson"
               style={{ padding: '10px 20px', fontSize: '0.85rem' }}
             >
               Profile

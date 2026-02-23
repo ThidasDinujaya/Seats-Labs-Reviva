@@ -1,12 +1,3 @@
--- ============================================================
--- SeatsLabs Database Schema & Dummy Data
--- PURPOSE: Complete database for automotive workshop
--- DATABASE: PostgreSQL (seatslabs_db)
--- ============================================================
--- FILE: seatslabs_db.sql
--- ============================================================
-
--- DROP existing tables
 DROP TABLE IF EXISTS "notification" CASCADE;
 DROP TABLE IF EXISTS "complaint" CASCADE;
 DROP TABLE IF EXISTS "enquiry" CASCADE;
@@ -36,14 +27,6 @@ DROP TABLE IF EXISTS "manager" CASCADE;
 DROP TABLE IF EXISTS "user" CASCADE;
 DROP TABLE IF EXISTS "systemSettings" CASCADE;
 DROP TABLE IF EXISTS "report" CASCADE;
-
--- ============================================================
--- SCHEMA DEFINITIONS 
--- ============================================================
-
--- ============================================================
--- CHAPTER 1: USER & IDENTITY MANAGEMENT
--- ============================================================
 
 CREATE TABLE "user" (
     "userId" SERIAL PRIMARY KEY,
@@ -97,10 +80,6 @@ CREATE TABLE "manager" (
     FOREIGN KEY ("userId") REFERENCES "user"("userId") ON DELETE CASCADE
 );
 
--- ============================================================
--- CHAPTER 2: SERVICE & PACKAGE MANAGEMENT
--- ============================================================
-
 CREATE TABLE "serviceCategory" (
     "serviceCategoryId" SERIAL PRIMARY KEY,
     "serviceCategoryName" VARCHAR(100) UNIQUE NOT NULL,
@@ -138,10 +117,6 @@ CREATE TABLE "servicePackageItem" (
     FOREIGN KEY ("serviceId") REFERENCES "service"("serviceId") ON DELETE CASCADE
 );
 
--- ============================================================
--- CHAPTER 3: CUSTOMER VEHICLE ASSETS
--- ============================================================
-
 CREATE TABLE "vehicle" (
     "vehicleId" SERIAL PRIMARY KEY,
     "vehicleMake" VARCHAR(100) NOT NULL,
@@ -151,10 +126,6 @@ CREATE TABLE "vehicle" (
     "vehicleCreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("customerId") REFERENCES "customer"("customerId") ON DELETE CASCADE
 );
-
--- ============================================================
--- CHAPTER 4: BOOKING & APPOINTMENT SYSTEM
--- ============================================================
 
 CREATE TABLE "timeSlot" (
     "timeSlotId" SERIAL PRIMARY KEY,
@@ -210,10 +181,6 @@ CREATE TABLE "bookingHistory" (
     FOREIGN KEY ("userId") REFERENCES "user"("userId") ON DELETE CASCADE
 );
 
--- ============================================================
--- CHAPTER 5: QUALITY ASSURANCE & FEEDBACK
--- ============================================================
-
 CREATE TABLE "feedback" (
     "feedbackId" SERIAL PRIMARY KEY,
     "feedbackRating" INTEGER NOT NULL CHECK ("feedbackRating" >= 1 AND "feedbackRating" <= 5),
@@ -226,10 +193,6 @@ CREATE TABLE "feedback" (
     FOREIGN KEY ("bookingId") REFERENCES "booking"("bookingId") ON DELETE CASCADE,
     FOREIGN KEY ("technicianId") REFERENCES "technician"("technicianId") ON DELETE SET NULL
 );
-
--- ============================================================
--- CHAPTER 6: MARKETING & ADVERTISEMENT SYSTEM
--- ============================================================
 
 CREATE TABLE "advertisementPlacement" (
     "advertisementPlacementId" SERIAL PRIMARY KEY,
@@ -301,10 +264,6 @@ CREATE TABLE "advertisementClick" (
     FOREIGN KEY ("advertisementId") REFERENCES "advertisement"("advertisementId") ON DELETE CASCADE
 );
 
--- ============================================================
--- CHAPTER 7: FINANCIAL BILLING & ACCOUNTING
--- ============================================================
-
 CREATE TABLE "invoice" (
     "invoiceId" SERIAL PRIMARY KEY,
     "invoiceNumber" VARCHAR(50) UNIQUE NOT NULL,
@@ -325,9 +284,9 @@ CREATE TABLE "payment" (
     "paymentStatus" VARCHAR(50) DEFAULT 'pending' CHECK ("paymentStatus" IN ('pending', 'completed', 'failed')),
     "paymentDate" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "paymentReference" VARCHAR(100),
-    "paymentSlipUrl" TEXT, -- Specific for Bank Transfer
-    "paymentCardBrand" VARCHAR(50), -- Specific for Credit Card
-    "paymentCardLastFour" VARCHAR(4), -- Specific for Credit Card
+    "paymentSlipUrl" TEXT,
+    "paymentCardBrand" VARCHAR(50),
+    "paymentCardLastFour" VARCHAR(4),
     "invoiceId" INTEGER NOT NULL,
     "paymentCreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("invoiceId") REFERENCES "invoice"("invoiceId") ON DELETE CASCADE
@@ -343,10 +302,6 @@ CREATE TABLE "refund" (
     "refundCreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("invoiceId") REFERENCES "invoice"("invoiceId") ON DELETE SET NULL
 );
-
--- ============================================================
--- CHAPTER 8: INTERNAL OPERATIONS & ANALYTICS
--- ============================================================
 
 CREATE TABLE "systemSettings" (
     "settingId" SERIAL PRIMARY KEY,
@@ -365,10 +320,6 @@ CREATE TABLE "report" (
     "reportCreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("userId") REFERENCES "user"("userId") ON DELETE CASCADE
 );
-
--- ============================================================
--- CHAPTER 9: COMMUNICATION & SUPPORT
--- ============================================================
 
 CREATE TABLE "notification" (
     "notificationId" SERIAL PRIMARY KEY,
@@ -410,19 +361,11 @@ CREATE TABLE "enquiry" (
     FOREIGN KEY ("customerId") REFERENCES "customer"("customerId") ON DELETE SET NULL
 );
 
--- ============================================================
--- INDEXES
--- ============================================================
 CREATE INDEX idx_user_email ON "user"("userEmail");
 CREATE INDEX idx_booking_date ON "booking"("bookingDate");
 CREATE INDEX idx_booking_status ON "booking"("bookingStatus");
 CREATE INDEX idx_ad_status ON "advertisement"("advertisementStatus");
 
--- ============================================================
--- DUMMY DATA (SEED)
--- ============================================================
-
--- 1. System Settings
 INSERT INTO "systemSettings" ("settingKey", "settingValue") VALUES
 ('contact_address', '123 Automotive Way, Colombo 07, Sri Lanka'),
 ('contact_phone', '+94 11 234 5678'),
@@ -431,8 +374,6 @@ INSERT INTO "systemSettings" ("settingKey", "settingValue") VALUES
 ('tax_rate', '0.08'),
 ('currency', 'LKR');
 
--- 2. Users (Passwords are 'password123' hashed)
--- Admin
 INSERT INTO "user" ("userEmail", "userPassword", "userRole") VALUES
 ('admin@seatslabs.com', '$2b$10$UrfFR8KQXvqgzGIjRrceROXyurKEpTkELikFjauEe6yGg63itTi5ky', 'admin'),
 ('manager@seatslabs.com', '$2b$10$UrfFR8KQXvqgzGIjRrceROXyurKEpTkELikFjauEe6yGg63itTi5ky', 'manager'),
@@ -444,8 +385,7 @@ INSERT INTO "user" ("userEmail", "userPassword", "userRole") VALUES
 ('toyota@advertiser.com', '$2b$10$UrfFR8KQXvqgzGIjRrceROXyurKEpTkELikFjauEe6yGg63itTi5ky', 'advertiser'),
 ('dialog@advertiser.com', '$2b$10$UrfFR8KQXvqgzGIjRrceROXyurKEpTkELikFjauEe6yGg63itTi5ky', 'advertiser');
 
--- 3. Profile Data
-INSERT INTO "manager" ("managerFirstName", "managerLastName", "managerPhone", "userId") VALUES 
+INSERT INTO "manager" ("managerFirstName", "managerLastName", "managerPhone", "userId") VALUES
 ('Main', 'Manager', '0771112223', 2);
 
 INSERT INTO "technician" ("technicianFirstName", "technicianLastName", "technicianPhone", "technicianSpecialization", "userId") VALUES
@@ -461,7 +401,6 @@ INSERT INTO "advertiser" ("advertiserBusinessName", "advertiserContactPerson", "
 ('Toyota Lanka', 'Kasun Abey', '0112344556', 'Wattala, Sri Lanka', 8),
 ('Dialog Axiata', 'Sarah Fernando', '0117778889', 'Union Place, Colombo 02', 9);
 
--- 4. Service Metadata
 INSERT INTO "serviceCategory" ("serviceCategoryName", "serviceCategoryDescription") VALUES
 ('Maintenance', 'Periodic preventive maintenance'),
 ('Repair', 'Mechanical and electrical repairs'),
@@ -480,43 +419,36 @@ INSERT INTO "servicePackage" ("servicePackageName", "servicePackageDescription",
 ('Safety Check Bundle', 'Brake Check + Tire Rotation', 12000.00);
 
 INSERT INTO "servicePackageItem" ("servicePackageId", "serviceId") VALUES
-(1, 1), (1, 5), (1, 4), -- Premium Care
-(2, 3); -- Safety Bundle
+(1, 1), (1, 5), (1, 4),
+(2, 3);
 
--- 5. Vehicles
 INSERT INTO "vehicle" ("vehicleMake", "vehicleModel", "vehicleRegNumber", "customerId") VALUES
 ('Toyota', 'Prius', 'KY-1234', 1),
 ('Honda', 'Vezel', 'CAS-5678', 2),
 ('Nissan', 'Leaf', 'KP-9012', 3),
 ('Toyota', 'Aqua', 'CAH-3344', 1);
 
--- 6. Time Slots (Date-specific scheduler)
 INSERT INTO "timeSlot" ("timeSlotDate", "timeSlotStartTime", "timeSlotEndTime", "timeSlotMaxCapacity") VALUES
--- Past slots for historical bookings
-(CURRENT_DATE - INTERVAL '5 days', '09:00:00', '10:00:00', 3), 
--- Today's slots
+
+(CURRENT_DATE - INTERVAL '5 days', '09:00:00', '10:00:00', 3),
+
 (CURRENT_DATE, '08:00:00', '09:00:00', 3),
 (CURRENT_DATE, '09:00:00', '10:00:00', 3),
 (CURRENT_DATE, '10:00:00', '11:00:00', 3),
 (CURRENT_DATE, '11:00:00', '12:00:00', 3),
 (CURRENT_DATE, '13:00:00', '14:00:00', 3),
--- Future slots for future demand
+
 (CURRENT_DATE + INTERVAL '2 days', '13:00:00', '14:00:00', 3);
 
--- 7. Bookings
--- Completed Booking
 INSERT INTO "booking" ("bookingDate", "bookingStartTime", "bookingEndTime", "bookingStatus", "bookingRefNumber", "customerId", "vehicleId", "serviceId", "technicianId", "timeSlotId") VALUES
 (CURRENT_DATE - INTERVAL '5 days', '09:00:00', '10:00:00', 'completed', 'REF-0001', 1, 1, 1, 1, 1);
 
--- In Progress
 INSERT INTO "booking" ("bookingDate", "bookingStartTime", "bookingEndTime", "bookingStatus", "bookingRefNumber", "customerId", "vehicleId", "serviceId", "technicianId", "timeSlotId") VALUES
 (CURRENT_DATE, '10:00:00', '11:00:00', 'in_progress', 'REF-0002', 2, 2, 2, 1, 4);
 
--- Future Pending
 INSERT INTO "booking" ("bookingDate", "bookingStartTime", "bookingEndTime", "bookingStatus", "bookingRefNumber", "customerId", "vehicleId", "serviceId", "timeSlotId") VALUES
 (CURRENT_DATE + INTERVAL '2 days', '13:00:00', '14:00:00', 'pending', 'REF-0003', 3, 3, 3, 7);
 
--- 8. Tracking & Feedback
 INSERT INTO "serviceTracking" ("serviceTrackingStatus", "bookingId") VALUES
 ('started', 1), ('completed', 1),
 ('started', 2);
@@ -542,7 +474,6 @@ INSERT INTO "advertisement" ("advertisementTitle", "advertisementImageUrl", "adv
 INSERT INTO "advertisementImpression" ("advertisementId") VALUES (1), (1), (1);
 INSERT INTO "advertisementClick" ("advertisementId") VALUES (1);
 
--- 10. Financials
 INSERT INTO "invoice" ("invoiceNumber", "invoiceAmount", "invoiceStatus", "bookingId", "advertisementId") VALUES
 ('INV-1001', 18500.00, 'paid', 1, NULL),
 ('INV-1002', 12500.00, 'pending', 2, NULL),
@@ -552,7 +483,6 @@ INSERT INTO "payment" ("paymentAmount", "paymentMethod", "paymentStatus", "invoi
 (18500.00, 'Card', 'completed', 1),
 (15000.00, 'Bank Transfer', 'completed', 3);
 
--- 11. Maintenance & Support
 INSERT INTO "complaint" ("complaintTitle", "complaintDescription", "complaintPriority", "complaintStatus", "customerId", "bookingId") VALUES
 ('Oil Leak Detected', 'Seeing small oil spots after service', 'high', 'open', 1, 1);
 
@@ -562,7 +492,3 @@ INSERT INTO "enquiry" ("enquiryName", "enquiryEmail", "enquiryPhone", "enquirySu
 INSERT INTO "notification" ("userId", "notificationTitle", "notificationMessage", "notificationType") VALUES
 (1, 'System Ready', 'SeatsLabs database migration successful.', 'success'),
 (5, 'Booking Confirmed', 'Your booking REF-0001 is ready for service.', 'info');
-
--- ============================================================
--- END OF SQL
--- ============================================================

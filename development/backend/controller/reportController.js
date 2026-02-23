@@ -1,26 +1,5 @@
-// ============================================================
-// controllers/reportController.js
-// PURPOSE: Generate the 4 essential business reports.
-// REPORTS:
-//   1. Daily Booking Report    - All bookings for a specific day
-//   2. Revenue Analysis Report - Service + ad revenue breakdown
-//   3. Technician Performance  - Work done by each technician
-//   4. Customer Satisfaction   - Ratings and feedback analysis
-// ============================================================
-// THINKING: These 4 reports are critical for Auto M's business
-// decisions and growth planning. Each report queries specific
-// data, aggregates it, and returns structured results.
-// ============================================================
-
 const pool = require("../config/database");
 
-// ============================================================
-// REPORT 1: Daily Booking Report
-// GET /api/reports/dailyBooking?date=2025-03-15
-// ============================================================
-// PURPOSE: Shows all bookings for a specific day with status
-// breakdown. Helps admin plan daily operations and track capacity.
-// ============================================================
 const generateDailyBookingReport = async (req, res) => {
   const { date } = req.query;
 
@@ -31,7 +10,7 @@ const generateDailyBookingReport = async (req, res) => {
   }
 
   try {
-    // Get all bookings for the specified date
+
     const bookingsResult = await pool.query(
       `SELECT b.*,
         c."customerFirstName", c."customerLastName", c."customerPhone",
@@ -48,7 +27,6 @@ const generateDailyBookingReport = async (req, res) => {
       [date],
     );
 
-    // Get status breakdown counts
     const statusResult = await pool.query(
       `SELECT "bookingStatus", COUNT(*) as count
        FROM "booking"
@@ -57,7 +35,6 @@ const generateDailyBookingReport = async (req, res) => {
       [date],
     );
 
-    // Calculate total revenue for the day
     const revenueResult = await pool.query(
       `SELECT SUM(s."servicePrice") as "totalRevenue"
        FROM "booking" b
@@ -66,7 +43,6 @@ const generateDailyBookingReport = async (req, res) => {
       [date],
     );
 
-    // Get peak load analysis (bookings per hour)
     const peakLoadResult = await pool.query(
       `SELECT EXTRACT(HOUR FROM "bookingStartTime") as hour, COUNT(*) as count
        FROM "booking"
@@ -76,7 +52,6 @@ const generateDailyBookingReport = async (req, res) => {
       [date]
     );
 
-    // Get service distribution (popularity of services)
     const serviceDistResult = await pool.query(
       `SELECT s."serviceName", COUNT(b."bookingId") as count
        FROM "booking" b
@@ -87,7 +62,6 @@ const generateDailyBookingReport = async (req, res) => {
       [date]
     );
 
-    // Get workforce allocation (technician jobs)
     const techLoadResult = await pool.query(
       `SELECT t."technicianFirstName", t."technicianLastName", COUNT(b."bookingId") as count
        FROM "booking" b
@@ -98,7 +72,6 @@ const generateDailyBookingReport = async (req, res) => {
       [date]
     );
 
-    // Build the report object with strategic insights
     const reportData = {
       reportDate: date,
       totalBookings: bookingsResult.rows.length,
@@ -110,7 +83,6 @@ const generateDailyBookingReport = async (req, res) => {
       bookings: bookingsResult.rows,
     };
 
-    // Save report to database
     await pool.query(
       `INSERT INTO "report" ("reportType", "reportStartDate", "reportEndDate", "reportData", "userId")
        VALUES ('dailyBooking', $1, $1, $2, $3)`,
@@ -126,13 +98,6 @@ const generateDailyBookingReport = async (req, res) => {
   }
 };
 
-// ============================================================
-// REPORT 2: Revenue Analysis Report
-// GET /api/reports/revenueAnalysis?startDate=2025-03-01&endDate=2025-03-31
-// ============================================================
-// PURPOSE: Shows service revenue + advertisement revenue for a
-// date range. Helps admin understand income sources and trends.
-// ============================================================
 const generateRevenueReport = async (req, res) => {
   const { startDate, endDate } = req.query;
 
@@ -147,9 +112,9 @@ const generateRevenueReport = async (req, res) => {
   }
 
   try {
-    // Service revenue by service type
+
     const serviceRevenueResult = await pool.query(
-      `SELECT s."serviceName", 
+      `SELECT s."serviceName",
         COUNT(b."bookingId") as "bookingCount",
         SUM(s."servicePrice") as "totalRevenue"
        FROM "booking" b
@@ -161,7 +126,6 @@ const generateRevenueReport = async (req, res) => {
       [startDate, endDate],
     );
 
-    // Daily revenue trend
     const dailyRevenueResult = await pool.query(
       `SELECT b."bookingDate",
         COUNT(b."bookingId") as "bookingCount",
@@ -175,7 +139,6 @@ const generateRevenueReport = async (req, res) => {
       [startDate, endDate],
     );
 
-    // Advertisement revenue breakdown by advertiser
     const adRevenueBreakdownResult = await pool.query(
       `SELECT ad."advertiserBusinessName",
         COUNT(p."paymentId") as "paymentCount",
@@ -191,7 +154,6 @@ const generateRevenueReport = async (req, res) => {
       [startDate, endDate]
     );
 
-    // Advertisement revenue total
     const adRevenueResult = await pool.query(
       `SELECT SUM(p."paymentAmount") as "totalAdRevenue"
        FROM "payment" p
@@ -202,7 +164,6 @@ const generateRevenueReport = async (req, res) => {
       [startDate, endDate],
     );
 
-    // Refunds in period
     const refundResult = await pool.query(
       `SELECT SUM("refundAmount") as "totalRefunds"
        FROM "refund"
@@ -211,7 +172,6 @@ const generateRevenueReport = async (req, res) => {
       [startDate, endDate],
     );
 
-    // Total calculations
     const totalServiceRevenue = serviceRevenueResult.rows.reduce(
       (sum, row) => sum + parseFloat(row.totalRevenue || 0),
       0,
@@ -259,13 +219,6 @@ const generateRevenueReport = async (req, res) => {
   }
 };
 
-// ============================================================
-// REPORT 3: Technician Performance Report
-// GET /api/reports/technicianPerformance?startDate=2025-03-01&endDate=2025-03-31
-// ============================================================
-// PURPOSE: Shows each technician's workload, completion rate,
-// and average rating. Helps optimize technician allocation.
-// ============================================================
 const generateTechnicianPerformanceReport = async (req, res) => {
   const { startDate, endDate } = req.query;
 
@@ -281,7 +234,7 @@ const generateTechnicianPerformanceReport = async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT 
+      `SELECT
         t."technicianId",
         t."technicianFirstName",
         t."technicianLastName",
@@ -337,12 +290,6 @@ const generateTechnicianPerformanceReport = async (req, res) => {
   }
 };
 
-// ============================================================
-// REPORT 4: Ad Performance Report
-// GET /api/reports/adPerformance?startDate=2025-03-01&endDate=2025-03-31
-// ============================================================
-// PURPOSE: Analyzes advertisement performance (impressions, clicks).
-// ============================================================
 const generateAdPerformanceReport = async (req, res) => {
   const { startDate, endDate } = req.query;
 
@@ -357,26 +304,24 @@ const generateAdPerformanceReport = async (req, res) => {
   }
 
   try {
-    // Total Impressions in period
+
     const impressionsResult = await pool.query(
-      `SELECT COUNT(*) as "totalImpressions" 
-       FROM "advertisementImpression" 
+      `SELECT COUNT(*) as "totalImpressions"
+       FROM "advertisementImpression"
        WHERE "advertisementImpressionCreatedAt" BETWEEN $1 AND $2`,
       [startDate, endDate],
     );
 
-    // Total Clicks in period
     const clicksResult = await pool.query(
-      `SELECT COUNT(*) as "totalClicks" 
-       FROM "advertisementClick" 
+      `SELECT COUNT(*) as "totalClicks"
+       FROM "advertisementClick"
        WHERE "advertisementClickCreatedAt" BETWEEN $1 AND $2`,
       [startDate, endDate],
     );
 
-    // Ads Active in period (overlap check)
     const activeAdsResult = await pool.query(
-      `SELECT COUNT(*) as "activeAds" 
-       FROM "advertisement" 
+      `SELECT COUNT(*) as "activeAds"
+       FROM "advertisement"
        WHERE "advertisementStartDate" <= $2 AND "advertisementEndDate" >= $1`,
       [startDate, endDate],
     );
@@ -387,9 +332,8 @@ const generateAdPerformanceReport = async (req, res) => {
     const totalClicks = parseInt(clicksResult.rows[0].totalClicks || 0);
     const activeAds = parseInt(activeAdsResult.rows[0].activeAds || 0);
 
-    // Performance by Placement
     const placementPerformanceResult = await pool.query(
-      `SELECT 
+      `SELECT
          ap."advertisementPlacementId",
          ap."advertisementPlacementName",
          ap."advertisementPlacementSlug",
@@ -397,27 +341,26 @@ const generateAdPerformanceReport = async (req, res) => {
          COUNT(DISTINCT ac."advertisementClickId") as "advertisementClicks"
        FROM "advertisementPlacement" ap
        LEFT JOIN "advertisement" a ON ap."advertisementPlacementId" = a."advertisementPlacementId"
-       LEFT JOIN "advertisementImpression" ai ON a."advertisementId" = ai."advertisementId" 
+       LEFT JOIN "advertisementImpression" ai ON a."advertisementId" = ai."advertisementId"
          AND ai."advertisementImpressionCreatedAt" BETWEEN $1 AND $2
-       LEFT JOIN "advertisementClick" ac ON a."advertisementId" = ac."advertisementId" 
+       LEFT JOIN "advertisementClick" ac ON a."advertisementId" = ac."advertisementId"
          AND ac."advertisementClickCreatedAt" BETWEEN $1 AND $2
        GROUP BY ap."advertisementPlacementId", ap."advertisementPlacementName", ap."advertisementPlacementSlug"
        ORDER BY "advertisementImpressions" DESC`,
       [startDate, endDate],
     );
 
-    // Top Performing Ads
     const topAdsResult = await pool.query(
-      `SELECT 
+      `SELECT
          a."advertisementId",
          a."advertisementTitle",
          a."advertisementImageUrl",
          COUNT(DISTINCT ai."advertisementImpressionId") as "advertisementImpressions",
          COUNT(DISTINCT ac."advertisementClickId") as "advertisementClicks"
        FROM "advertisement" a
-       LEFT JOIN "advertisementImpression" ai ON a."advertisementId" = ai."advertisementId" 
+       LEFT JOIN "advertisementImpression" ai ON a."advertisementId" = ai."advertisementId"
          AND ai."advertisementImpressionCreatedAt" BETWEEN $1 AND $2
-       LEFT JOIN "advertisementClick" ac ON a."advertisementId" = ac."advertisementId" 
+       LEFT JOIN "advertisementClick" ac ON a."advertisementId" = ac."advertisementId"
          AND ac."advertisementClickCreatedAt" BETWEEN $1 AND $2
        WHERE a."advertisementStartDate" <= $2 AND a."advertisementEndDate" >= $1
        GROUP BY a."advertisementId", a."advertisementTitle", a."advertisementImageUrl"
@@ -437,7 +380,6 @@ const generateAdPerformanceReport = async (req, res) => {
       topAds: topAdsResult.rows,
     };
 
-    // Save report to database
     await pool.query(
       `INSERT INTO "report" ("reportType", "reportStartDate", "reportEndDate", "reportData", "userId")
        VALUES ('adPerformance', $1, $2, $3, $4)`,
@@ -452,8 +394,6 @@ const generateAdPerformanceReport = async (req, res) => {
       .json({ success: false, error: "Failed to generate ad report: " + error.message });
   }
 };
-
-// DB MIGRATION: Outdated initReportSchema removed as it is handled by the main schema file.
 
 module.exports = {
   generateDailyBookingReport,

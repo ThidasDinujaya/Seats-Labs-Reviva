@@ -1,19 +1,11 @@
-// ============================================================
-// server.js
-// PURPOSE: Main Express server with Swagger API documentation
-// LOGIC: Sets up Express app, middleware, routes, and Swagger UI
-// ============================================================
-
 const express = require('express');
 const cors = require('cors');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 require('dotenv').config();
 
-// Import database connection to test on startup
 const pool = require('./config/database');
 
-// Import all route modules
 const authRoutes = require('./routes/authRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
@@ -32,9 +24,6 @@ const refundRoutes = require('./routes/refundRoutes');
 const placementRoutes = require('./routes/placementRoutes');
 const complaintRoutes = require('./routes/complaintRoutes');
 
-// ============================================================
-// SWAGGER CONFIGURATION
-// ============================================================
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -86,15 +75,9 @@ const swaggerOptions = {
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-// ============================================================
-// EXPRESS APP SETUP
-// ============================================================
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ============================================================
-// MIDDLEWARE
-// ============================================================
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   credentials: true
@@ -103,23 +86,16 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Request logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
 });
 
-// ============================================================
-// SWAGGER UI ROUTE
-// ============================================================
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: 'SeatsLabs API Docs'
 }));
 
-// ============================================================
-// API ROUTES  — all singular noun paths
-// ============================================================
 app.use('/api/auth',            authRoutes);
 app.use('/api/service',         serviceRoutes);
 app.use('/api/booking',         bookingRoutes);
@@ -138,9 +114,6 @@ app.use('/api/refund',          refundRoutes);
 app.use('/api/placement',       placementRoutes);
 app.use('/api/complaint',       complaintRoutes);
 
-// ============================================================
-// ROOT ROUTE
-// ============================================================
 app.get('/', (req, res) => {
   res.json({
     message: 'Welcome to SeatsLabs API',
@@ -168,9 +141,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// ============================================================
-// 404 HANDLER
-// ============================================================
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -179,9 +149,6 @@ app.use((req, res) => {
   });
 });
 
-// ============================================================
-// ERROR HANDLER
-// ============================================================
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(err.status || 500).json({
@@ -190,9 +157,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ============================================================
-// START SERVER
-// ============================================================
 app.listen(PORT, () => {
   console.log('============================================================');
   console.log('🚀 SeatsLabs API Server Started');
@@ -203,9 +167,6 @@ app.listen(PORT, () => {
   console.log('============================================================');
 });
 
-// ============================================================
-// GRACEFUL SHUTDOWN
-// ============================================================
 process.on('SIGINT', async () => {
   console.log('\n🛑 Shutting down gracefully...');
   await pool.end();

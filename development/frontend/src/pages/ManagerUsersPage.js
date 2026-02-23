@@ -8,15 +8,13 @@ const ManagerUsersPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    
-    // Modal states
+
     const [showModal, setShowModal] = useState(false);
-    const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
+    const [modalMode, setModalMode] = useState('add');
     const [currentUser, setCurrentUser] = useState(null);
     const [selectedId, setSelectedId] = useState(null);
     const [viewOnly, setViewOnly] = useState(false);
-    
-    // Form state
+
     const [formData, setFormData] = useState({
         customerFirstName: '',
         customerLastName: '',
@@ -109,7 +107,6 @@ const ManagerUsersPage = () => {
         }
     };
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -122,11 +119,11 @@ const ManagerUsersPage = () => {
                     alert(res.error || 'Failed to create user');
                 }
             } else {
-                // Update
+
                 const updateData = { ...formData };
-                delete updateData.userEmail; // Cannot update email
-                delete updateData.userPassword; 
-                
+                delete updateData.userEmail;
+                delete updateData.userPassword;
+
                 const res = await userApi.update(currentUser.userId, updateData);
                 if (res.success) {
                     fetchUsers();
@@ -141,16 +138,15 @@ const ManagerUsersPage = () => {
         }
     };
 
-
     const filteredUsers = users.filter(user => {
-        const matchesSearch = 
-            (user.customerFirstName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        const matchesSearch =
+            (user.customerFirstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
              user.technicianFirstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
              user.managerFirstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
              user.advertiserBusinessName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
              user.userEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
              user.userRole?.toLowerCase().includes(searchTerm.toLowerCase()));
-            
+
         return matchesSearch;
     });
 
@@ -172,13 +168,13 @@ const ManagerUsersPage = () => {
                     <div style={{ display: 'flex', gap: '15px' }}>
                         <div style={{ position: 'relative', flex: 1 }}>
                             <Search size={20} style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} />
-                            <input 
-                                type="text" 
-                                placeholder="Search user ID, email, or role..." 
+                            <input
+                                type="text"
+                                placeholder="Search user ID, email, or role..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{ 
-                                    width: '100%', padding: '12px 12px 12px 40px', 
+                                style={{
+                                    width: '100%', padding: '12px 12px 12px 40px',
                                     borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '0.9rem'
                                 }}
                             />
@@ -186,12 +182,11 @@ const ManagerUsersPage = () => {
                     </div>
                 </div>
 
-
-                {/* Users Table */}
-                <div style={{ 
-                    background: '#fff', 
-                    borderRadius: '16px', 
-                    border: '1px solid #f1f5f9', 
+                {}
+                <div style={{
+                    background: '#fff',
+                    borderRadius: '16px',
+                    border: '1px solid #f1f5f9',
                     flex: 1,
                     display: 'flex',
                     flexDirection: 'column',
@@ -213,10 +208,10 @@ const ManagerUsersPage = () => {
                                     <tr><td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Synchronizing User Registry...</td></tr>
                                 ) : filteredUsers.length > 0 ? (
                                     filteredUsers.map(user => (
-                                        <tr 
-                                            key={user.userId} 
-                                            style={{ 
-                                                borderBottom: '1px solid #f1f5f9', 
+                                        <tr
+                                            key={user.userId}
+                                            style={{
+                                                borderBottom: '1px solid #f1f5f9',
                                                 background: selectedId === user.userId ? '#f8fafc' : 'transparent',
                                                 transition: 'background 0.2s',
                                                 cursor: 'pointer'
@@ -226,7 +221,7 @@ const ManagerUsersPage = () => {
                                             <td style={{ padding: '12px 15px', fontWeight: '800', color: 'var(--navy)' }}>{user.userId}</td>
                                             <td style={{ padding: '12px 15px', fontWeight: '700' }}>{user.userEmail}</td>
                                             <td style={{ padding: '12px 15px' }}>
-                                                <span style={{ 
+                                                <span style={{
                                                     padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase',
                                                     background: getRoleColor(user.userRole).bg, color: getRoleColor(user.userRole).text
                                                 }}>
@@ -234,7 +229,7 @@ const ManagerUsersPage = () => {
                                                 </span>
                                             </td>
                                             <td style={{ padding: '12px 15px' }}>
-                                                <span style={{ 
+                                                <span style={{
                                                     display: 'inline-flex', alignItems: 'center', gap: '5px',
                                                     color: user.userIsActive ? '#10b981' : '#ef4444', fontWeight: '800', fontSize: '0.8rem',
                                                     textTransform: 'uppercase'
@@ -254,13 +249,13 @@ const ManagerUsersPage = () => {
                         </table>
                     </div>
 
-                    {/* Persistent Control Deck */}
-                    <div style={{ 
-                        position: 'fixed', 
-                        bottom: '30px', 
-                        right: '30px', 
-                        display: 'flex', 
-                        gap: '12px', 
+                    {}
+                    <div style={{
+                        position: 'fixed',
+                        bottom: '30px',
+                        right: '30px',
+                        display: 'flex',
+                        gap: '12px',
                         zIndex: 1000,
                         background: 'rgba(255,255,255,0.9)',
                         padding: '15px',
@@ -272,8 +267,8 @@ const ManagerUsersPage = () => {
                         <button onClick={openAddModal} style={{ padding: '12px 24px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
                             <Plus size={18} /> Add User
                         </button>
-                        <button 
-                            onClick={() => openViewModal()} 
+                        <button
+                            onClick={() => openViewModal()}
                             disabled={!selectedId}
                             style={{ padding: '12px 24px', borderRadius: '8px', background: selectedId ? 'var(--yellow)' : '#f1f5f9', color: selectedId ? 'black' : '#94a3b8', border: 'none', cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}
                         >
@@ -283,18 +278,18 @@ const ManagerUsersPage = () => {
                 </div>
             </div>
 
-            {/* Modal */}
+            {}
             {showModal && (
-                <div style={{ 
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
-                    background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000 
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000
                 }}>
                     <div style={{ background: 'white', borderRadius: '12px', width: '600px', maxWidth: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
-                        <div style={{ 
-                            padding: '15px 20px', 
-                            borderBottom: '1px solid #e2e8f0', 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
+                        <div style={{
+                            padding: '15px 20px',
+                            borderBottom: '1px solid #e2e8f0',
+                            display: 'flex',
+                            justifyContent: 'space-between',
                             alignItems: 'center',
                             position: 'sticky',
                             top: 0,
@@ -306,17 +301,17 @@ const ManagerUsersPage = () => {
                             </h2>
                             <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><X size={20} /></button>
                         </div>
-                        
+
                         <form onSubmit={handleSubmit} style={{ padding: '20px' }}>
-                            {/* Common Fields */}
+                            {}
                             <div style={formRowStyle}>
                                 <div style={inputGroupStyle}>
                                     <label style={labelStyle}>Role</label>
-                                    <select 
-                                        name="userRole" 
-                                        value={formData.userRole} 
-                                        onChange={handleInputChange} 
-                                        disabled={modalMode === 'edit' || viewOnly} 
+                                    <select
+                                        name="userRole"
+                                        value={formData.userRole}
+                                        onChange={handleInputChange}
+                                        disabled={modalMode === 'edit' || viewOnly}
                                         style={inputStyle}
                                     >
                                         <option value="customer">Customer</option>
@@ -327,14 +322,14 @@ const ManagerUsersPage = () => {
                                 </div>
                                 <div style={inputGroupStyle}>
                                     <label style={labelStyle}>userEmail</label>
-                                    <input 
-                                        type="email" 
-                                        name="userEmail" 
-                                        value={formData.userEmail} 
-                                        onChange={handleInputChange} 
-                                        disabled={modalMode === 'edit' || viewOnly} 
-                                        required 
-                                        style={inputStyle} 
+                                    <input
+                                        type="email"
+                                        name="userEmail"
+                                        value={formData.userEmail}
+                                        onChange={handleInputChange}
+                                        disabled={modalMode === 'edit' || viewOnly}
+                                        required
+                                        style={inputStyle}
                                     />
                                 </div>
                             </div>
@@ -343,21 +338,21 @@ const ManagerUsersPage = () => {
                                 <div style={formRowStyle}>
                                     <div style={inputGroupStyle}>
                                         <label style={labelStyle}>Password</label>
-                                        <input 
-                                            type="password" 
-                                            name="password" 
-                                            value={formData.password} 
-                                            onChange={handleInputChange} 
-                                            required 
-                                            style={inputStyle} 
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={handleInputChange}
+                                            required
+                                            style={inputStyle}
                                         />
                                     </div>
                                 </div>
                             )}
 
-                            {/* Role Specific Fields */}
+                            {}
                             <h3 style={{ fontSize: '1rem', color: '#64748b', marginTop: '20px', marginBottom: '15px', borderBottom: '1px solid #f1f5f9', paddingBottom: '5px' }}>Personal Information</h3>
-                            
+
                             {formData.userRole === 'customer' && (
                                 <div style={formRowStyle}>
                                     <div style={inputGroupStyle}>
@@ -408,37 +403,37 @@ const ManagerUsersPage = () => {
                             <div style={formRowStyle}>
                                 <div style={inputGroupStyle}>
                                     <label style={labelStyle}>
-                                        {formData.userRole === 'customer' ? 'customerPhone' : 
-                                         formData.userRole === 'technician' ? 'technicianPhone' : 
+                                        {formData.userRole === 'customer' ? 'customerPhone' :
+                                         formData.userRole === 'technician' ? 'technicianPhone' :
                                          formData.userRole === 'manager' ? 'managerPhone' : 'advertiserPhone'}
                                     </label>
-                                    <input 
-                                        type="text" 
-                                        name={formData.userRole === 'customer' ? 'customerPhone' : formData.userRole === 'technician' ? 'technicianPhone' : formData.userRole === 'manager' ? 'managerPhone' : 'advertiserPhone'} 
-                                        value={formData.customerPhone || formData.technicianPhone || formData.managerPhone || formData.advertiserPhone || ''} 
-                                        onChange={handleInputChange} 
-                                        style={inputStyle} 
-                                        disabled={viewOnly} 
+                                    <input
+                                        type="text"
+                                        name={formData.userRole === 'customer' ? 'customerPhone' : formData.userRole === 'technician' ? 'technicianPhone' : formData.userRole === 'manager' ? 'managerPhone' : 'advertiserPhone'}
+                                        value={formData.customerPhone || formData.technicianPhone || formData.managerPhone || formData.advertiserPhone || ''}
+                                        onChange={handleInputChange}
+                                        style={inputStyle}
+                                        disabled={viewOnly}
                                     />
                                 </div>
                                 <div style={inputGroupStyle}>
                                     <label style={labelStyle}>
-                                        {formData.userRole === 'customer' ? 'customerAddress' : 
-                                         formData.userRole === 'advertiser' ? 'advertiserAddress' : 
+                                        {formData.userRole === 'customer' ? 'customerAddress' :
+                                         formData.userRole === 'advertiser' ? 'advertiserAddress' :
                                          formData.userRole === 'technician' ? 'Technician (N/A)' : 'Manager (N/A)'}
                                     </label>
-                                    <input 
-                                        type="text" 
-                                        name={formData.userRole === 'customer' ? 'customerAddress' : formData.userRole === 'advertiser' ? 'advertiserAddress' : 'n/a'} 
-                                        value={formData.customerAddress || formData.advertiserAddress || ''} 
-                                        onChange={handleInputChange} 
-                                        style={inputStyle} 
-                                        disabled={viewOnly || (formData.userRole !== 'customer' && formData.userRole !== 'advertiser')} 
+                                    <input
+                                        type="text"
+                                        name={formData.userRole === 'customer' ? 'customerAddress' : formData.userRole === 'advertiser' ? 'advertiserAddress' : 'n/a'}
+                                        value={formData.customerAddress || formData.advertiserAddress || ''}
+                                        onChange={handleInputChange}
+                                        style={inputStyle}
+                                        disabled={viewOnly || (formData.userRole !== 'customer' && formData.userRole !== 'advertiser')}
                                     />
                                 </div>
                             </div>
 
-                            {/* Extra Fields based on Role */}
+                            {}
                             {formData.role === 'advertiser' && (
                                 <>
                                     <div style={formRowStyle}>
@@ -468,9 +463,9 @@ const ManagerUsersPage = () => {
                             <div style={formRowStyle}>
                                 <div style={inputGroupStyle}>
                                     <label style={labelStyle}>userIsActive</label>
-                                    <select 
-                                        name="userIsActive" 
-                                        value={formData.userIsActive ? 'true' : 'false'} 
+                                    <select
+                                        name="userIsActive"
+                                        value={formData.userIsActive ? 'true' : 'false'}
                                         onChange={(e) => setFormData({...formData, userIsActive: e.target.value === 'true'})}
                                         style={inputStyle}
                                         disabled={viewOnly}
@@ -482,10 +477,10 @@ const ManagerUsersPage = () => {
                             </div>
 
                             {viewOnly ? (
-                                <div style={{ 
-                                    marginTop: '30px', 
-                                    display: 'flex', 
-                                    justifyContent: 'flex-end', 
+                                <div style={{
+                                    marginTop: '30px',
+                                    display: 'flex',
+                                    justifyContent: 'flex-end',
                                     gap: '10px',
                                     position: 'sticky',
                                     bottom: 0,
@@ -494,14 +489,14 @@ const ManagerUsersPage = () => {
                                     borderTop: '1px solid #e2e8f0',
                                     zIndex: 10
                                 }}>
-                                    <button 
+                                    <button
                                         type="button"
                                         onClick={() => { setViewOnly(false); setModalMode('edit'); }}
                                         style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#3b82f6', color: 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                                     >
                                         <Edit2 size={18} /> Update User
                                     </button>
-                                    <button 
+                                    <button
                                         type="button"
                                         onClick={async () => {
                                             if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
@@ -526,10 +521,10 @@ const ManagerUsersPage = () => {
                                     </button>
                                 </div>
                             ) : (
-                                <div style={{ 
-                                    marginTop: '30px', 
-                                    display: 'flex', 
-                                    justifyContent: 'flex-end', 
+                                <div style={{
+                                    marginTop: '30px',
+                                    display: 'flex',
+                                    justifyContent: 'flex-end',
                                     gap: '10px',
                                     position: 'sticky',
                                     bottom: 0,
@@ -538,14 +533,14 @@ const ManagerUsersPage = () => {
                                     borderTop: '1px solid #e2e8f0',
                                     zIndex: 10
                                 }}>
-                                    <button 
+                                    <button
                                         type="button"
                                         onClick={() => setShowModal(false)}
                                         style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', color: '#64748b', fontWeight: 'bold', cursor: 'pointer' }}
                                     >
                                         Cancel
                                     </button>
-                                    <button 
+                                    <button
                                         type="submit"
                                         style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                                     >
@@ -562,7 +557,6 @@ const ManagerUsersPage = () => {
     );
 };
 
-// Styles
 const formRowStyle = { display: 'flex', gap: '15px', marginBottom: '15px' };
 const inputGroupStyle = { flex: 1 };
 const labelStyle = { display: 'block', marginBottom: '5px', fontSize: '0.85rem', fontWeight: 'bold', color: '#475569' };

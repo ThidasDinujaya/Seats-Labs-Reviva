@@ -15,7 +15,6 @@ const PaymentPage = () => {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [error, setError] = useState(null);
 
-  // Form Details
   const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvv: '', name: '' });
   const [bankDetails, setBankDetails] = useState({ reference: '', file: null });
 
@@ -30,7 +29,7 @@ const PaymentPage = () => {
         } else if (adId) {
           res = await paymentApi.getAdInvoice(adId);
         }
-        
+
         if (res && res.data) {
           setInvoice(res.data);
         } else {
@@ -72,7 +71,7 @@ const PaymentPage = () => {
         paymentMethod: paymentMethod === 'card' ? 'Credit Card' : 'Bank Transfer',
         paymentReference: paymentMethod === 'card' ? `CARD-XXXX-${cardDetails.number.slice(-4)}` : bankDetails.reference
       });
-      
+
       setPaymentSuccess(true);
       setTimeout(() => {
         navigate(adId ? '/advertiser' : '/dashboard');
@@ -98,7 +97,7 @@ const PaymentPage = () => {
   if (error) return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
       <h2 style={{ color: 'var(--crimson)' }}>{error}</h2>
-      <button 
+      <button
         onClick={() => navigate('/dashboard')}
         style={{ marginTop: '20px', padding: '10px 20px', backgroundColor: 'var(--navy)', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
       >
@@ -123,29 +122,29 @@ const PaymentPage = () => {
   return (
     <div className="payment-page" style={{ background: '#f8fafc', minHeight: '100vh', direction: 'ltr' }}>
       <Navbar />
-      
+
       <div className="container" style={{ padding: '60px 20px', maxWidth: '1000px', margin: '0 auto' }}>
         <div style={{ marginBottom: '40px' }}>
           <h1 style={{ color: 'var(--navy)', fontSize: '2.5rem', fontWeight: '800' }}>Secure Checkout</h1>
           <p style={{ color: '#64748b' }}>
-            {invoice?.bookingRefNumber 
-              ? `Complete payment for Booking: ${invoice.bookingRefNumber}` 
+            {invoice?.bookingRefNumber
+              ? `Complete payment for Booking: ${invoice.bookingRefNumber}`
               : `Complete payment for Advertisement: ${invoice?.advertisementTitle || 'Marketing Service'}`}
           </p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '40px' }}>
-          
+
           <div style={{ background: 'white', padding: '40px', borderRadius: '24px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)' }}>
             <h3 style={{ marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <ShieldCheck size={24} color="var(--navy)" /> Payment details
             </h3>
 
-            {/* Method Toggles */}
+            {}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '30px' }}>
-              <div 
+              <div
                 onClick={() => setPaymentMethod('card')}
-                style={{ 
+                style={{
                   padding: '15px', borderRadius: '12px', border: `2px solid ${paymentMethod === 'card' ? 'var(--crimson)' : '#f1f5f9'}`,
                   cursor: 'pointer', textAlign: 'center', background: paymentMethod === 'card' ? '#fffafb' : 'white', transition: 'all 0.2s'
                 }}
@@ -153,9 +152,9 @@ const PaymentPage = () => {
                 <CreditCard size={24} color={paymentMethod === 'card' ? 'var(--crimson)' : '#64748b'} />
                 <div style={{ fontWeight: '700', marginTop: '5px' }}>Card Payment</div>
               </div>
-              <div 
+              <div
                 onClick={() => setPaymentMethod('bank')}
-                style={{ 
+                style={{
                   padding: '15px', borderRadius: '12px', border: `2px solid ${paymentMethod === 'bank' ? 'var(--crimson)' : '#f1f5f9'}`,
                   cursor: 'pointer', textAlign: 'center', background: paymentMethod === 'bank' ? '#fffafb' : 'white', transition: 'all 0.2s'
                 }}
@@ -165,7 +164,7 @@ const PaymentPage = () => {
               </div>
             </div>
 
-            {/* Dynamic Forms */}
+            {}
             {paymentMethod === 'card' ? (
               <div style={{ display: 'grid', gap: '15px' }}>
                 <div>
@@ -215,11 +214,11 @@ const PaymentPage = () => {
               </div>
             )}
 
-            <button 
+            <button
               onClick={handlePayment}
               disabled={processing}
-              style={{ 
-                width: '100%', marginTop: '40px', padding: '20px', borderRadius: '16px', background: 'var(--navy)', 
+              style={{
+                width: '100%', marginTop: '40px', padding: '20px', borderRadius: '16px', background: 'var(--navy)',
                 color: 'white', border: 'none', fontWeight: '800', fontSize: '1.2rem', cursor: processing ? 'default' : 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', opacity: processing ? 0.7 : 1
               }}

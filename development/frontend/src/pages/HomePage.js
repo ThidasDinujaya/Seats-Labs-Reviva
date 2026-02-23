@@ -12,7 +12,7 @@ const HomePage = () => {
     <div className="homepage">
       <Navbar />
 
-      {/* Hero Section */}
+      {}
       <header className="hero" style={{ height: '80vh', display: 'flex', alignItems: 'center' }}>
         <div className="container">
           <div style={{ textTransform: 'uppercase', letterSpacing: '3px', fontWeight: '700', color: 'var(--crimson)', marginBottom: '10px' }}>
@@ -20,7 +20,7 @@ const HomePage = () => {
           </div>
           <h1 style={{ fontSize: '4.5rem', lineHeight: '1.1' }}>Honest Repairs,<br/>Exceptional Service</h1>
           <p style={{ fontSize: '1.25rem', maxWidth: '600px', margin: '20px auto 40px' }}>
-            From routine maintenance to complex engine diagnostics, SEATSLABS provides the high-quality 
+            From routine maintenance to complex engine diagnostics, SEATSLABS provides the high-quality
             service your vehicle deserves. Locally owned and operated in the heart of the community.
           </p>
           <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
@@ -38,7 +38,7 @@ const HomePage = () => {
         <Advertisement type="Homepage Banner" />
       </div>
 
-      {/* Brand Coverage Banner */}
+      {}
       <div className="brands-banner" style={{ background: 'var(--navy)', padding: '40px 0', color: 'white' }}>
         <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.1)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
           <div style={{ textAlign: 'right', fontWeight: '800', fontSize: '1.2rem' }}>
@@ -52,16 +52,16 @@ const HomePage = () => {
 
       <section style={{ padding: '80px 0 40px', background: 'white' }}>
         <div className="container" style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
-          {/* Left Side Ad */}
+          {}
           <div style={{ flex: '0 0 180px' }}>
             <Advertisement type="Tower" />
           </div>
 
-          {/* Center Content */}
+          {}
           <div style={{ flex: 1, textAlign: 'center' }}>
             <h2 style={{ fontSize: '2.5rem', color: 'var(--navy)', marginBottom: '20px' }}>Drive With Confidence</h2>
             <p style={{ maxWidth: '800px', margin: '0 auto 40px', fontSize: '1.1rem', color: '#666' }}>
-              We understand how important your vehicle is to your daily life. That's why we've built a facility 
+              We understand how important your vehicle is to your daily life. That's why we've built a facility
               that combines expert craftsmanship with a customer-first philosophy. Discover the SEATSLABS difference today.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
@@ -70,7 +70,7 @@ const HomePage = () => {
                   <h3 style={{ marginTop: '20px', color: 'var(--navy)' }}>Guaranteed Quality</h3>
                   <p style={{ fontSize: '0.9rem' }}>We use only certified parts and stand behind our work with a nationwide warranty.</p>
                </div>
-               
+
                <div style={{ padding: '30px', background: '#f8fafc', borderRadius: '8px' }}>
                   <i className="fi fi-rr-user-md" style={{ fontSize: '2.5rem', color: 'var(--crimson)' }}></i>
                   <h3 style={{ marginTop: '20px', color: 'var(--navy)' }}>Certified Experts</h3>
@@ -85,7 +85,7 @@ const HomePage = () => {
             </div>
           </div>
 
-          {/* Right Side Ad */}
+          {}
           <div style={{ flex: '0 0 180px' }}>
             <Advertisement type="Tower" />
           </div>

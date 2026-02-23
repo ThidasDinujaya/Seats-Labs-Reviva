@@ -1,14 +1,5 @@
 const pool = require('../config/database');
 
-// ============================================================
-// controllers/complaintController.js
-// PURPOSE: Handle customer complaints.
-// ============================================================
-
-/**
- * @desc Add a new complaint
- * @route POST /api/complaints
- */
 const addComplaint = async (req, res) => {
   const { complaintTitle, complaintDescription, complaintPriority, customerId, bookingId } = req.body;
 
@@ -17,7 +8,6 @@ const addComplaint = async (req, res) => {
         return res.status(400).json({ success: false, error: 'Title, description and customerId are required.' });
     }
 
-    // Check if booking exists and is completed (if bookingId provided)
     if (bookingId) {
         const bookingResult = await pool.query(
             'SELECT "bookingStatus" FROM "booking" WHERE "bookingId" = $1',
@@ -37,7 +27,7 @@ const addComplaint = async (req, res) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO "complaint" 
+      `INSERT INTO "complaint"
        ("complaintTitle", "complaintDescription", "complaintPriority", "complaintStatus", "customerId", "bookingId")
        VALUES ($1, $2, $3, 'open', $4, $5)
        RETURNING *`,
@@ -51,10 +41,6 @@ const addComplaint = async (req, res) => {
   }
 };
 
-/**
- * @desc Get all complaints
- * @route GET /api/complaints
- */
 const viewAllComplaint = async (req, res) => {
   const { customerId } = req.query;
   try {
@@ -81,10 +67,6 @@ const viewAllComplaint = async (req, res) => {
   }
 };
 
-/**
- * @desc Update complaint status/response (Manager only)
- * @route PUT /api/complaints/:id
- */
 const updateComplaint = async (req, res) => {
     const { id } = req.params;
     const { complaintStatus, complaintManagerResponse } = req.body;
@@ -92,7 +74,7 @@ const updateComplaint = async (req, res) => {
     try {
         const resolvedAt = complaintStatus === 'resolved' ? 'CURRENT_TIMESTAMP' : 'NULL';
         const result = await pool.query(
-            `UPDATE "complaint" SET 
+            `UPDATE "complaint" SET
              "complaintStatus" = COALESCE($1, "complaintStatus"),
              "complaintManagerResponse" = COALESCE($2, "complaintManagerResponse"),
              "complaintResolvedAt" = CASE WHEN $1 = 'resolved' THEN CURRENT_TIMESTAMP ELSE "complaintResolvedAt" END

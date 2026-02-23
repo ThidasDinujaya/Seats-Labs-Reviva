@@ -14,7 +14,6 @@ const BookingPage = () => {
     const [loading, setLoading] = useState(true);
     const [confirming, setConfirming] = useState(false);
 
-    // Form State
     const [bookingData, setBookingData] = useState({
         serviceId: '',
         servicePackageId: '',
@@ -52,7 +51,7 @@ const BookingPage = () => {
     };
 
     const handleConfirmBooking = async () => {
-        // Validation (simplified)
+
         if (!bookingData.bookingDate || !bookingData.timeSlotId || !bookingData.vehicleRegNumber) {
             alert("Please fill in all required details.");
             return;
@@ -70,15 +69,15 @@ const BookingPage = () => {
             const payload = {
                 bookingDate: bookingData.bookingDate,
                 bookingCustomerNotes: bookingData.customerNotes,
-                customerId: user.customerId || 1, 
-                vehicleId: 1, 
+                customerId: user.customerId || 1,
+                vehicleId: 1,
                 serviceId: bookingData.serviceId || null,
                 servicePackageId: bookingData.servicePackageId || null,
                 timeSlotId: bookingData.timeSlotId
             };
 
             const response = await bookingApi.create(payload);
-            
+
             if (response.success) {
                 navigate(`/payment/${response.data.bookingId}`);
             }
@@ -96,7 +95,7 @@ const BookingPage = () => {
         const selectedSlot = timeSlots.find(s => s.timeSlotId === Number(bookingData.timeSlotId));
 
         switch(step) {
-            case 1: // SERVICE SELECTION
+            case 1:
                 return (
                     <div>
                         <h2 className="step-title">1. Select Service or Package</h2>
@@ -104,8 +103,8 @@ const BookingPage = () => {
                             <div className="booking-section">
                                 <h4 style={{ marginBottom: '15px', color: 'var(--navy)' }}>Individual Services</h4>
                                 {services.map(s => (
-                                    <div 
-                                        key={s.serviceId} 
+                                    <div
+                                        key={s.serviceId}
                                         className={`selectable-item ${bookingData.serviceId === String(s.serviceId) ? 'active' : ''}`}
                                         onClick={() => {
                                             updateData('serviceId', String(s.serviceId));
@@ -121,8 +120,8 @@ const BookingPage = () => {
                             <div className="booking-section">
                                 <h4 style={{ marginBottom: '15px', color: 'var(--crimson)' }}>Service Packages</h4>
                                 {packages.map(p => (
-                                    <div 
-                                        key={p.servicePackageId} 
+                                    <div
+                                        key={p.servicePackageId}
                                         className={`selectable-item package ${bookingData.servicePackageId === String(p.servicePackageId) ? 'active' : ''}`}
                                         onClick={() => {
                                             updateData('servicePackageId', String(p.servicePackageId));
@@ -140,15 +139,15 @@ const BookingPage = () => {
                     </div>
                 );
 
-            case 2: // SCHEDULE
+            case 2:
                 return (
                     <div>
                         <h2 className="step-title">2. Choose Date & Time</h2>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
                             <div>
                                 <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>Appointment Date</label>
-                                <input 
-                                    type="date" 
+                                <input
+                                    type="date"
                                     style={inputStyle}
                                     value={bookingData.bookingDate}
                                     min={new Date().toISOString().split('T')[0]}
@@ -159,8 +158,8 @@ const BookingPage = () => {
                                 <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>Available Time Slots</label>
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
                                     {timeSlots.map(slot => (
-                                        <div 
-                                            key={slot.timeSlotId} 
+                                        <div
+                                            key={slot.timeSlotId}
                                             style={slotPillStyle(bookingData.timeSlotId === String(slot.timeSlotId))}
                                             onClick={() => updateData('timeSlotId', String(slot.timeSlotId))}
                                         >
@@ -177,7 +176,7 @@ const BookingPage = () => {
                     </div>
                 );
 
-            case 3: // VEHICLE
+            case 3:
                 return (
                     <div>
                         <h2 className="step-title">3. Vehicle Information</h2>
@@ -202,7 +201,7 @@ const BookingPage = () => {
                     </div>
                 );
 
-            case 4: // SUMMARY & CONFIRM
+            case 4:
                 return (
                     <div style={{ background: '#f8fafc', padding: '30px', borderRadius: '15px' }}>
                         <h2 className="step-title">4. Summary & Confirmation</h2>
@@ -224,13 +223,13 @@ const BookingPage = () => {
                                 Rs. {Number(selectedService?.servicePrice || selectedPackage?.servicePackagePrice || 0).toLocaleString()}
                             </strong>
                         </div>
-                        
+
                         <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
                             <button onClick={() => setStep(3)} className="btn btn-navy-outline">Edit Details</button>
-                            <button 
-                                onClick={handleConfirmBooking} 
+                            <button
+                                onClick={handleConfirmBooking}
                                 disabled={confirming}
-                                className="btn btn-crimson" 
+                                className="btn btn-crimson"
                                 style={{ flex: 2, fontSize: '1.1rem' }}
                             >
                                 {confirming ? 'PROSECESSING...' : 'CONFIRM & PROCEED TO PAYMENT'}
@@ -242,16 +241,15 @@ const BookingPage = () => {
         }
     };
 
-    // Inline Styles
     const itemStyle = (isActive) => ({
         padding: '15px', border: isActive ? '2px solid var(--crimson)' : '1px solid #e2e8f0',
-        borderRadius: '10px', marginBottom: '10px', cursor: 'pointer', display: 'flex', 
+        borderRadius: '10px', marginBottom: '10px', cursor: 'pointer', display: 'flex',
         justifyContent: 'space-between', background: isActive ? '#fffafb' : 'white', transition: 'all 0.2s'
     });
 
     const slotPillStyle = (isActive) => ({
-        padding: '10px', textBy: 'center', border: '1px solid #e2e8f0', borderRadius: '8px', 
-        cursor: 'pointer', textAlign: 'center', background: isActive ? 'var(--navy)' : 'white', 
+        padding: '10px', textBy: 'center', border: '1px solid #e2e8f0', borderRadius: '8px',
+        cursor: 'pointer', textAlign: 'center', background: isActive ? 'var(--navy)' : 'white',
         color: isActive ? 'white' : 'black'
     });
 
@@ -264,16 +262,16 @@ const BookingPage = () => {
     return (
         <div style={{ background: '#f8fafc', minHeight: '100vh' }}>
             <Navbar />
-            
+
             <header style={{ background: 'var(--navy)', color: 'white', padding: '60px 0 100px', textAlign: 'center' }}>
                 <div className="container">
                     <h1>Book a Service</h1>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '60px', marginTop: '40px' }}>
                         {[1, 2, 3, 4].map(s => (
                             <div key={s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: step >= s ? 1 : 0.4 }}>
-                                <div style={{ 
-                                    width: '40px', height: '40px', borderRadius: '50%', border: '2px solid white', 
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', 
+                                <div style={{
+                                    width: '40px', height: '40px', borderRadius: '50%', border: '2px solid white',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold',
                                     marginBottom: '10px', background: step >= s ? 'var(--crimson)' : 'transparent'
                                 }}>{s}</div>
                                 <div style={{ fontSize: '0.9rem' }}>
@@ -286,9 +284,9 @@ const BookingPage = () => {
             </header>
 
             <main className="container" style={{ padding: '0 20px 100px' }}>
-                <div style={{ 
-                    background: 'white', borderRadius: '20px', padding: '40px', marginTop: '-60px', 
-                    boxShadow: '0 15px 35px -5px rgba(0,0,0,0.1)', maxWidth: '900px', margin: '-60px auto 0' 
+                <div style={{
+                    background: 'white', borderRadius: '20px', padding: '40px', marginTop: '-60px',
+                    boxShadow: '0 15px 35px -5px rgba(0,0,0,0.1)', maxWidth: '900px', margin: '-60px auto 0'
                 }}>
                     <div style={{ color: 'var(--navy)', marginBottom: '30px', borderBottom: '2px solid #f1f5f9', paddingBottom: '15px' }}>
                         {renderStepContent()}

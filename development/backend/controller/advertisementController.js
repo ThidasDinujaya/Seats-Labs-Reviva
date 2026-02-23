@@ -1,24 +1,5 @@
-// ============================================================
-// controllers/advertisementController.js
-// PURPOSE: CRUD #5 - Advertisement management operations.
-// CRUD OPERATIONS:
-//   1. addAdvertisement      - POST   /api/advertisement
-//   2. viewAdvertisement     - GET    /api/advertisement/:advertisementId
-//   3. viewAllAdvertisement  - GET    /api/advertisement
-//   4. updateAdvertisement   - PUT    /api/advertisement/:advertisementId
-//   5. deleteAdvertisement   - DELETE /api/advertisement/:advertisementId
-// ============================================================
-
 const pool = require('../config/database');
 
-// ============================================================
-// 1. ADD ADVERTISEMENT
-// POST /api/advertisement
-// WHO CAN USE: Advertiser, Admin
-// ============================================================
-// THINKING: When an advertiser creates an ad, it starts with
-// status "pending" and needs admin approval before it goes live.
-// ============================================================
 const addAdvertisement = async (req, res) => {
   const {
     advertisementTitle,
@@ -38,7 +19,6 @@ const addAdvertisement = async (req, res) => {
       });
     }
 
-    // Validate dates: end date must be after start date
     if (new Date(advertisementEndDate) <= new Date(advertisementStartDate)) {
       return res.status(400).json({
         success: false,
@@ -49,7 +29,7 @@ const addAdvertisement = async (req, res) => {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
-      
+
       const adResult = await client.query(
         `INSERT INTO "advertisement"
          ("advertisementTitle", "advertisementImageUrl",
@@ -64,7 +44,6 @@ const addAdvertisement = async (req, res) => {
 
       const newAd = adResult.rows[0];
 
-      // Fetch placement price to calculate invoice amount
       let finalAmount = 0;
       if (advertisementPlacementId) {
         const placementRes = await client.query(
@@ -80,7 +59,6 @@ const addAdvertisement = async (req, res) => {
         }
       }
 
-      // Create Invoice
       const invoiceNumber = `INV-AD-${newAd.advertisementId}-${Date.now().toString().slice(-4)}`;
       await client.query(
         `INSERT INTO "invoice" ("invoiceNumber", "invoiceAmount", "invoiceStatus", "advertisementId")
@@ -102,10 +80,6 @@ const addAdvertisement = async (req, res) => {
   }
 };
 
-// ============================================================
-// 2. VIEW ADVERTISEMENT
-// GET /api/advertisement/:advertisementId
-// ============================================================
 const viewAdvertisement = async (req, res) => {
   const { advertisementId } = req.params;
 
@@ -137,10 +111,6 @@ const viewAdvertisement = async (req, res) => {
   }
 };
 
-// ============================================================
-// 3. VIEW ALL ADVERTISEMENT
-// GET /api/advertisement?status=active&advertiserId=1
-// ============================================================
 const viewAllAdvertisement = async (req, res) => {
   const { status, advertiserId } = req.query;
 
@@ -186,10 +156,6 @@ const viewAllAdvertisement = async (req, res) => {
   }
 };
 
-// ============================================================
-// 4. UPDATE ADVERTISEMENT
-// PUT /api/advertisement/:advertisementId
-// ============================================================
 const updateAdvertisement = async (req, res) => {
   const { advertisementId } = req.params;
   const {
@@ -231,10 +197,6 @@ const updateAdvertisement = async (req, res) => {
   }
 };
 
-// ============================================================
-// 5. DELETE ADVERTISEMENT
-// DELETE /api/advertisement/:advertisementId
-// ============================================================
 const deleteAdvertisement = async (req, res) => {
   const { advertisementId } = req.params;
 
@@ -248,7 +210,6 @@ const deleteAdvertisement = async (req, res) => {
       return res.status(404).json({ success: false, error: 'Advertisement not found.' });
     }
 
-    // Delete related impressions and clicks first (cascading)
     await pool.query('DELETE FROM "advertisementImpression" WHERE "advertisementId" = $1', [advertisementId]);
     await pool.query('DELETE FROM "advertisementClick" WHERE "advertisementId" = $1', [advertisementId]);
     await pool.query('DELETE FROM "advertisement" WHERE "advertisementId" = $1', [advertisementId]);
@@ -263,10 +224,6 @@ const deleteAdvertisement = async (req, res) => {
   }
 };
 
-// ============================================================
-// 6. VIEW ADVERTISEMENT PLACEMENT
-// GET /api/advertisement/placement
-// ============================================================
 const viewAdvertisementPlacements = async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM "advertisementPlacement"');

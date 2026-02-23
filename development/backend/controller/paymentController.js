@@ -1,16 +1,10 @@
-// ============================================================
-// controller/paymentController.js
-// PURPOSE: Handle payment and invoice operations.
-// ============================================================
-
 const pool = require('../config/database');
 
-// Create a payment for an invoice
 const createPayment = async (req, res) => {
-  const { 
-    invoiceId, 
-    paymentAmount, 
-    paymentMethod, 
+  const {
+    invoiceId,
+    paymentAmount,
+    paymentMethod,
     paymentReference,
     paymentSlipUrl,
     paymentCardBrand,
@@ -45,15 +39,10 @@ const createPayment = async (req, res) => {
         return res.status(400).json({ success: false, error: 'Invoice is already paid.' });
     }
 
-    // Optional: Check if payment amount matches invoice amount
-    // if (parseFloat(invoice.invoiceAmount) !== amountNum) { ... }
-
-    // Start a transaction
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
 
-      // 1. Insert payment
       const paymentResult = await client.query(
         `INSERT INTO "payment" ("paymentAmount", "paymentMethod", "paymentStatus", "invoiceId", "paymentReference", "paymentSlipUrl", "paymentCardBrand", "paymentCardLastFour")
          VALUES ($1, $2, 'completed', $3, $4, $5, $6, $7)
@@ -61,29 +50,24 @@ const createPayment = async (req, res) => {
         [amountNum, paymentMethod, invoiceId, paymentReference || null, paymentSlipUrl || null, paymentCardBrand || null, paymentCardLastFour || null]
       );
 
-      // 2. Update invoice status
       await client.query(
         `UPDATE "invoice" SET "invoiceStatus" = 'paid' WHERE "invoiceId" = $1`,
         [invoiceId]
       );
 
-      // 3. Handle specific logic based on what the invoice is for
       if (invoice.bookingId) {
-          // If it's a booking, we might want to update its status or at least log the payment
-          // Note: In this system, we keep it as 'pending' or move to 'accepted' if desired.
-          // For now, let's just ensure it's at least 'accepted' if it was 'pending'
+
           await client.query(
               `UPDATE "booking" SET "bookingStatus" = 'accepted' WHERE "bookingId" = $1 AND "bookingStatus" = 'pending'`,
               [invoice.bookingId]
           );
-          
-          // Also add a tracking record for the payment
+
           await client.query(
               `INSERT INTO "serviceTracking" ("serviceTrackingStatus", "bookingId") VALUES ($1, $2)`,
               ['payment_received', invoice.bookingId]
           );
       } else if (invoice.advertisementId) {
-          // If it's an ad, we activate it
+
           await client.query(
               `UPDATE "advertisement" SET "advertisementStatus" = 'active' WHERE "advertisementId" = $1 AND "advertisementStatus" = 'pending'`,
               [invoice.advertisementId]
@@ -112,7 +96,6 @@ const createPayment = async (req, res) => {
   }
 };
 
-// Get invoice by booking ID
 const getInvoiceByBookingId = async (req, res) => {
   const { bookingId } = req.params;
   const { userRole, customerId } = req.user;
@@ -122,8 +105,6 @@ const getInvoiceByBookingId = async (req, res) => {
         return res.status(400).json({ success: false, error: 'Valid bookingId is required.' });
     }
 
-    // Fetch invoice and booking ownership info
-    // We join with user to get the email since it's not in the customer table
     const result = await pool.query(
       `SELECT i."invoiceId", i."invoiceNumber", i."invoiceAmount", i."invoiceStatus", i."bookingId", i."advertisementId", i."invoiceCreatedAt", b."bookingRefNumber", b."customerId" as "ownerCustomerId",
               c."customerFirstName", c."customerLastName", u."userEmail" as "customerEmail", c."customerPhone", c."customerAddress",
@@ -147,7 +128,6 @@ const getInvoiceByBookingId = async (req, res) => {
 
     const invoice = result.rows[0];
 
-    // Ownership check: Manager can see all, Customer can only see their own
     if (userRole !== 'manager' && (customerId === undefined || invoice.ownerCustomerId !== customerId)) {
         return res.status(403).json({ success: false, error: 'Access denied. You do not own this invoice.' });
     }
@@ -162,7 +142,6 @@ const getInvoiceByBookingId = async (req, res) => {
   }
 };
 
-// Get invoice by advertisement ID
 const getInvoiceByAdId = async (req, res) => {
   const { advertisementId } = req.params;
   const { userRole, advertiserId } = req.user;
@@ -189,7 +168,6 @@ const getInvoiceByAdId = async (req, res) => {
 
     const invoice = result.rows[0];
 
-    // Ownership check: Manager or the Advertiser
     if (userRole !== 'manager' && (advertiserId === undefined || advertiserId !== invoice.ownerAdvertiserId)) {
         return res.status(403).json({ success: false, error: 'Access denied. You do not own this invoice.' });
     }
@@ -204,7 +182,6 @@ const getInvoiceByAdId = async (req, res) => {
   }
 };
 
-// Get all payment for manager
 const getAllPayment = async (req, res) => {
   const { userRole } = req.user;
 

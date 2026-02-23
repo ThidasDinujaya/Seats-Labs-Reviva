@@ -4,11 +4,11 @@ import SidebarLayout from '../components/SidebarLayout';
 const ComingSoon = ({ role, title }) => {
     return (
         <SidebarLayout role={role}>
-            <div style={{ 
-                height: 'calc(100vh - 80px)', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                justifyContent: 'center', 
+            <div style={{
+                height: 'calc(100vh - 80px)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
                 alignItems: 'center',
                 color: '#64748b'
             }}>

@@ -1,28 +1,6 @@
-// ============================================================
-// controllers/technicianController.js
-// PURPOSE: CRUD #3 - Technician management operations.
-// CRUD OPERATIONS:
-//   1. addTechnician      - POST   /api/technicians
-//   2. viewTechnician     - GET    /api/technicians/:technicianId
-//   3. viewAllTechnician  - GET    /api/technician
-//   4. updateTechnician   - PUT    /api/technicians/:technicianId
-//   5. deleteTechnician   - DELETE /api/technicians/:technicianId
-// ============================================================
-
 const pool = require('../config/database');
 const bcrypt = require('bcrypt');
 
-// ============================================================
-// 1. ADD TECHNICIAN
-// POST /api/technician
-// WHO CAN USE: Admin only
-// ============================================================
-// THINKING: Adding a technician requires TWO database inserts:
-// 1. Create a "user" record (for login credentials)
-// 2. Create a "technician" record (for technician-specific data)
-// This follows the inheritance pattern in our class diagram:
-// User <|-- Technician
-// ============================================================
 const addTechnician = async (req, res) => {
   const {
     technicianFirstName,
@@ -34,7 +12,7 @@ const addTechnician = async (req, res) => {
   } = req.body;
 
   try {
-    // Validate required fields
+
     if (!technicianFirstName || !technicianLastName || !userEmail || !userPassword) {
       return res.status(400).json({
         success: false,
@@ -42,7 +20,6 @@ const addTechnician = async (req, res) => {
       });
     }
 
-    // Check if email already exists
     const existing = await pool.query(
       'SELECT "userId" FROM "user" WHERE "userEmail" = $1',
       [userEmail]
@@ -55,10 +32,8 @@ const addTechnician = async (req, res) => {
       });
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(userPassword, 10);
 
-    // Step 1: Create user record with role 'technician'
     const userResult = await pool.query(
       `INSERT INTO "user" ("userEmail", "userPassword", "userRole")
        VALUES ($1, $2, 'technician')
@@ -68,7 +43,6 @@ const addTechnician = async (req, res) => {
 
     const userId = userResult.rows[0].userId;
 
-    // Step 2: Create technician record linked to the user
     const techResult = await pool.query(
       `INSERT INTO "technician"
        ("technicianFirstName", "technicianLastName", "technicianPhone",
@@ -89,10 +63,6 @@ const addTechnician = async (req, res) => {
   }
 };
 
-// ============================================================
-// 2. VIEW TECHNICIAN
-// GET /api/technician/:technicianId
-// ============================================================
 const viewTechnician = async (req, res) => {
   const { technicianId } = req.params;
 
@@ -116,10 +86,6 @@ const viewTechnician = async (req, res) => {
   }
 };
 
-// ============================================================
-// 3. VIEW ALL TECHNICIANS
-// GET /api/technicians
-// ============================================================
 const viewAllTechnician = async (req, res) => {
   try {
     const result = await pool.query(
@@ -141,10 +107,6 @@ const viewAllTechnician = async (req, res) => {
   }
 };
 
-// ============================================================
-// 4. UPDATE TECHNICIAN
-// PUT /api/technician/:technicianId
-// ============================================================
 const updateTechnician = async (req, res) => {
   const { technicianId } = req.params;
   const { technicianFirstName, technicianLastName, technicianPhone, technicianSpecialization } = req.body;
@@ -177,10 +139,6 @@ const updateTechnician = async (req, res) => {
   }
 };
 
-// ============================================================
-// 5. DELETE TECHNICIAN (Soft delete via user deactivation)
-// DELETE /api/technician/:technicianId
-// ============================================================
 const deleteTechnician = async (req, res) => {
   const { technicianId } = req.params;
 
@@ -194,7 +152,6 @@ const deleteTechnician = async (req, res) => {
       return res.status(404).json({ success: false, error: 'Technician not found.' });
     }
 
-    // Soft delete by deactivating the user account
     await pool.query(
       'UPDATE "user" SET "userIsActive" = false WHERE "userId" = $1',
       [existing.rows[0].userId]

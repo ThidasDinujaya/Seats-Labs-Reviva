@@ -21,7 +21,7 @@ const AdvertiserDashboard = () => {
   const [selectedCampaignRow, setSelectedCampaignRow] = useState(null);
   const [showAdModal, setShowAdModal] = useState(false);
   const [showCampaignRowModal, setShowCampaignRowModal] = useState(false);
-  
+
   const [adFormData, setAdFormData] = useState({
     advertisementTitle: '',
     advertisementImageUrl: '',
@@ -43,12 +43,11 @@ const AdvertiserDashboard = () => {
     fetchPlacements();
   }, [user]);
 
-
   const fetchAds = async () => {
     try {
-      const res = await advertisementApi.getAll(); 
+      const res = await advertisementApi.getAll();
       if (res.success) {
-        // Filter only standalone ads (no campaign)
+
         setAds(res.data);
       }
     } catch (err) {
@@ -67,7 +66,7 @@ const AdvertiserDashboard = () => {
 
   const fetchPlacements = async () => {
     try {
-      // For demonstration with requested data, using hardcoded values
+
       const mockPlacements = [
         { advertisementPlacementId: 1, advertisementPlacementName: 'Homepage Banner', advertisementPlacementPrice: '5000.00' },
         { advertisementPlacementId: 2, advertisementPlacementName: 'Sidebar', advertisementPlacementPrice: '2500.00' },
@@ -75,8 +74,7 @@ const AdvertiserDashboard = () => {
         { advertisementPlacementId: 4, advertisementPlacementName: 'Booking Page', advertisementPlacementPrice: '3500.00' }
       ];
       setPlacements(mockPlacements);
-      
-      // Attempt to fetch from API as well
+
       const res = await advertisementApi.getPlacements();
       if (res.success && res.data.length > 0) setPlacements(res.data);
     } catch (err) {
@@ -96,12 +94,12 @@ const AdvertiserDashboard = () => {
     if (!adFormData.advertisementPlacementId || !adFormData.advertisementStartDate || !adFormData.advertisementEndDate) return 0;
     const placement = placements.find(p => p.advertisementPlacementId === parseInt(adFormData.advertisementPlacementId));
     if (!placement) return 0;
-    
+
     const start = new Date(adFormData.advertisementStartDate);
     const end = new Date(adFormData.advertisementEndDate);
     const diffTime = Math.abs(end - start);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-    
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
     return (parseFloat(placement.advertisementPlacementPrice) * Math.max(1, diffDays)).toFixed(2);
   };
 
@@ -111,7 +109,7 @@ const AdvertiserDashboard = () => {
     try {
       const payload = {
         ...adFormData,
-        advertiserId: user.advertiserId || user.userId // Ensure correct ID mapping
+        advertiserId: user.advertiserId || user.userId
       };
 
       const res = await advertisementApi.create(payload);
@@ -120,7 +118,7 @@ const AdvertiserDashboard = () => {
         const newAdId = res.data.advertisementId;
         setShowAdForm(false);
         setAdFormData({ advertisementTitle: '', advertisementImageUrl: '', advertisementStartDate: '', advertisementEndDate: '', advertisementPlacementId: '' });
-        navigate(`/payment/ad/${newAdId}`); // Using navigate from react-router-dom
+        navigate(`/payment/ad/${newAdId}`);
       } else {
         alert("Failed to create ad");
       }
@@ -200,9 +198,9 @@ const AdvertiserDashboard = () => {
         <p style={{ color: '#666' }}>Create standalone ad or multi-ad campaign.</p>
       </div>
 
-      {/* Tabs */}
+      {}
       <div style={{ display: 'flex', gap: '8px', background: '#f1f5f9', padding: '6px', borderRadius: '12px', marginBottom: '30px', width: 'fit-content' }}>
-        <button 
+        <button
           onClick={() => { setActiveTab('ad'); setSelectedCampaign(null); }}
           style={{
             padding: '10px 24px',
@@ -218,7 +216,7 @@ const AdvertiserDashboard = () => {
         >
           Ad
         </button>
-        <button 
+        <button
           onClick={() => { setActiveTab('campaign'); setShowAdForm(false); }}
           style={{
             padding: '10px 24px',
@@ -236,7 +234,7 @@ const AdvertiserDashboard = () => {
         </button>
       </div>
 
-      {/* AD TAB */}
+      {}
       {activeTab === 'ad' && (
         <>
           {!showAdForm ? (
@@ -244,24 +242,24 @@ const AdvertiserDashboard = () => {
               <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
                 <div style={{ position: 'relative', flex: 1 }}>
                   <Search style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} size={20} />
-                  <input 
-                    type="text" 
-                    placeholder="Search standalone ad..." 
+                  <input
+                    type="text"
+                    placeholder="Search standalone ad..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none' }} 
+                    style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none' }}
                   />
                 </div>
               </div>
 
-              {/* Table container with scrollable content */}
-              {/* Table container: Parent is responsible for overflow-x */}
-              <div style={{ 
-                background: 'rgba(255, 255, 255, 0.7)', 
+              {}
+              {}
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.7)',
                 backdropFilter: 'blur(10px)',
-                borderRadius: '16px', 
-                border: '1px solid rgba(226, 232, 240, 0.8)', 
-                display: 'flex', 
+                borderRadius: '16px',
+                border: '1px solid rgba(226, 232, 240, 0.8)',
+                display: 'flex',
                 flexDirection: 'column',
                 boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                 overflow: 'hidden'
@@ -288,11 +286,11 @@ const AdvertiserDashboard = () => {
                       ) : (
                         ads.filter(ad => ad.advertisementTitle.toLowerCase().includes(searchTerm.toLowerCase())).map(ad => {
                           return (
-                            <tr 
+                            <tr
                               key={ad.advertisementId}
                               onClick={() => setSelectedAd(selectedAd?.advertisementId === ad.advertisementId ? null : ad)}
-                                style={{ 
-                                  borderBottom: '1px solid rgba(241, 245, 249, 0.5)', 
+                                style={{
+                                  borderBottom: '1px solid rgba(241, 245, 249, 0.5)',
                                   cursor: 'pointer',
                                   background: 'transparent',
                                   outline: selectedAd?.advertisementId === ad.advertisementId ? '2px solid #eab308' : 'none',
@@ -311,19 +309,19 @@ const AdvertiserDashboard = () => {
                               <td style={{ padding: '16px 20px', fontSize: '0.9rem' }}>{new Date(ad.advertisementStartDate).toLocaleDateString()}</td>
                               <td style={{ padding: '16px 20px', fontSize: '0.9rem' }}>{new Date(ad.advertisementEndDate).toLocaleDateString()}</td>
                               <td style={{ padding: '16px 20px' }}>
-                                <span style={{ 
+                                <span style={{
                                   padding: '6px 14px', borderRadius: '100px', fontSize: '0.7rem', fontWeight: '800',
                                   display: 'inline-flex', alignItems: 'center', gap: '4px',
                                   boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)',
-                                  background: ad.advertisementStatus === 'active' ? '#ecfdf5' : 
-                                              ad.advertisementStatus === 'pending' ? '#fff7ed' : 
+                                  background: ad.advertisementStatus === 'active' ? '#ecfdf5' :
+                                              ad.advertisementStatus === 'pending' ? '#fff7ed' :
                                               ad.advertisementStatus === 'rejected' ? '#fef2f2' : '#f8fafc',
-                                  color: ad.advertisementStatus === 'active' ? '#10b981' : 
-                                         ad.advertisementStatus === 'pending' ? '#f59e0b' : 
+                                  color: ad.advertisementStatus === 'active' ? '#10b981' :
+                                         ad.advertisementStatus === 'pending' ? '#f59e0b' :
                                          ad.advertisementStatus === 'rejected' ? '#ef4444' : '#64748b',
                                   border: `1px solid ${
-                                    ad.advertisementStatus === 'active' ? '#bbf7d0' : 
-                                    ad.advertisementStatus === 'pending' ? '#fed7aa' : 
+                                    ad.advertisementStatus === 'active' ? '#bbf7d0' :
+                                    ad.advertisementStatus === 'pending' ? '#fed7aa' :
                                     ad.advertisementStatus === 'rejected' ? '#fecaca' : '#e2e8f0'
                                   }`
                                 }}>
@@ -345,7 +343,7 @@ const AdvertiserDashboard = () => {
                 </div>
               </div>
 
-              {/* Ad Detail Modal */}
+              {}
               {showAdModal && selectedAd && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,10,30,0.5)', backdropFilter: 'blur(6px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
                   <div style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.3)', position: 'relative' }}>
@@ -357,10 +355,10 @@ const AdvertiserDashboard = () => {
                     >
                       <X size={20} />
                     </button>
-                    
+
                     <div style={{ padding: '32px' }}>
                       <h2 style={{ color: 'var(--navy)', marginBottom: '24px', fontSize: '1.5rem', fontWeight: '800' }}>Advertisement Details</h2>
-                      
+
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
                         <DetailField label="ID" value={`AD-${selectedAd.advertisementId}`} />
                         <DetailField label="Status" value={
@@ -396,34 +394,34 @@ const AdvertiserDashboard = () => {
                 </div>
               )}
 
-              {/* Fixed action bar — View and New */}
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'flex-end', 
-                gap: '12px', 
-                padding: '20px', 
-                position: 'sticky', 
-                bottom: '0', 
-                background: 'rgba(255,255,255,0.9)', 
+              {}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '12px',
+                padding: '20px',
+                position: 'sticky',
+                bottom: '0',
+                background: 'rgba(255,255,255,0.9)',
                 backdropFilter: 'blur(10px)',
                 borderTop: '1px solid #e2e8f0',
-                margin: '20px -40px -40px -40px', // Pull out to align with container edges if needed, adjust accordingly
+                margin: '20px -40px -40px -40px',
                 zIndex: 20
               }}>
                 <button
                   onClick={() => selectedAd && setShowAdModal(true)}
                   disabled={!selectedAd}
-                  style={{ 
-                    padding: '10px 24px', 
-                    background: selectedAd ? '#eab308' : '#f1f5f9', 
-                    color: selectedAd ? 'white' : '#94a3b8', 
-                    border: 'none', 
-                    borderRadius: '10px', 
-                    cursor: selectedAd ? 'pointer' : 'not-allowed', 
-                    fontWeight: '700', 
-                    fontSize: '0.9rem', 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                  style={{
+                    padding: '10px 24px',
+                    background: selectedAd ? '#eab308' : '#f1f5f9',
+                    color: selectedAd ? 'white' : '#94a3b8',
+                    border: 'none',
+                    borderRadius: '10px',
+                    cursor: selectedAd ? 'pointer' : 'not-allowed',
+                    fontWeight: '700',
+                    fontSize: '0.9rem',
+                    display: 'flex',
+                    alignItems: 'center',
                     gap: '8px',
                     transition: 'all 0.2s',
                     boxShadow: selectedAd ? '0 4px 6px -1px rgba(0,0,0,0.1)' : 'none'
@@ -435,8 +433,8 @@ const AdvertiserDashboard = () => {
                 </button>
                 <button
                   onClick={() => setShowAdForm(true)}
-                  style={{ 
-                    padding: '10px 24px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: '10px', 
+                  style={{
+                    padding: '10px 24px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: '10px',
                     cursor: 'pointer', fontWeight: '700', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px',
                     transition: 'transform 0.2s, background 0.2s', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
                   }}
@@ -462,7 +460,7 @@ const AdvertiserDashboard = () => {
         </>
       )}
 
-      {/* CAMPAIGN TAB */}
+      {}
       {activeTab === 'campaign' && (
         <>
           {!showCampaignForm && !selectedCampaign ? (
@@ -470,23 +468,23 @@ const AdvertiserDashboard = () => {
               <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
                 <div style={{ position: 'relative', flex: 1 }}>
                   <Search style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} size={20} />
-                  <input 
-                    type="text" 
-                    placeholder="Search campaign..." 
+                  <input
+                    type="text"
+                    placeholder="Search campaign..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none' }} 
+                    style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none' }}
                   />
                 </div>
               </div>
 
-              {/* Table container for Campaigns */}
-              <div style={{ 
-                background: 'rgba(255, 255, 255, 0.7)', 
+              {}
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.7)',
                 backdropFilter: 'blur(10px)',
-                borderRadius: '16px', 
-                border: '1px solid rgba(226, 232, 240, 0.8)', 
-                display: 'flex', 
+                borderRadius: '16px',
+                border: '1px solid rgba(226, 232, 240, 0.8)',
+                display: 'flex',
                 flexDirection: 'column',
                 boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                 overflow: 'hidden'
@@ -514,7 +512,7 @@ const AdvertiserDashboard = () => {
                               key={campaign.advertisementCampaignId}
                               onClick={() => setSelectedCampaignRow(selectedCampaignRow?.advertisementCampaignId === campaign.advertisementCampaignId ? null : campaign)}
                               style={{
-                                borderBottom: '1px solid rgba(241, 245, 249, 0.5)', 
+                                borderBottom: '1px solid rgba(241, 245, 249, 0.5)',
                                 cursor: 'pointer',
                                 background: 'transparent',
                                 outline: selectedCampaignRow?.advertisementCampaignId === campaign.advertisementCampaignId ? '2px solid #eab308' : 'none',
@@ -527,22 +525,22 @@ const AdvertiserDashboard = () => {
                               <td style={{ padding: '16px 20px', fontSize: '0.9rem' }}>{new Date(campaign.advertisementCampaignStartDate).toLocaleDateString()}</td>
                               <td style={{ padding: '16px 20px', fontSize: '0.9rem' }}>{new Date(campaign.advertisementCampaignEndDate).toLocaleDateString()}</td>
                               <td style={{ padding: '16px 20px' }}>
-                                <span style={{ 
+                                <span style={{
                                   padding: '6px 14px', borderRadius: '100px', fontSize: '0.7rem', fontWeight: '800',
                                   display: 'inline-flex', alignItems: 'center', gap: '4px',
                                   boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)',
-                                  background: campaign.advertisementCampaignStatus === 'active' ? '#ecfdf5' : 
-                                              campaign.advertisementCampaignStatus === 'pending' ? '#fff7ed' : 
-                                              campaign.advertisementCampaignStatus === 'paused' ? '#fffbeb' : 
+                                  background: campaign.advertisementCampaignStatus === 'active' ? '#ecfdf5' :
+                                              campaign.advertisementCampaignStatus === 'pending' ? '#fff7ed' :
+                                              campaign.advertisementCampaignStatus === 'paused' ? '#fffbeb' :
                                               campaign.advertisementCampaignStatus === 'cancelled' ? '#fef2f2' : '#f8fafc',
-                                  color: campaign.advertisementCampaignStatus === 'active' ? '#10b981' : 
-                                         campaign.advertisementCampaignStatus === 'pending' ? '#f59e0b' : 
-                                         campaign.advertisementCampaignStatus === 'paused' ? '#d97706' : 
+                                  color: campaign.advertisementCampaignStatus === 'active' ? '#10b981' :
+                                         campaign.advertisementCampaignStatus === 'pending' ? '#f59e0b' :
+                                         campaign.advertisementCampaignStatus === 'paused' ? '#d97706' :
                                          campaign.advertisementCampaignStatus === 'cancelled' ? '#ef4444' : '#64748b',
                                   border: `1px solid ${
-                                    campaign.advertisementCampaignStatus === 'active' ? '#bbf7d0' : 
-                                    campaign.advertisementCampaignStatus === 'pending' ? '#fed7aa' : 
-                                    campaign.advertisementCampaignStatus === 'paused' ? '#fef3c7' : 
+                                    campaign.advertisementCampaignStatus === 'active' ? '#bbf7d0' :
+                                    campaign.advertisementCampaignStatus === 'pending' ? '#fed7aa' :
+                                    campaign.advertisementCampaignStatus === 'paused' ? '#fef3c7' :
                                     campaign.advertisementCampaignStatus === 'cancelled' ? '#fecaca' : '#e2e8f0'
                                   }`
                                 }}>
@@ -562,7 +560,7 @@ const AdvertiserDashboard = () => {
                 </div>
               </div>
 
-              {/* Campaign Detail Modal */}
+              {}
               {showCampaignRowModal && selectedCampaignRow && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,10,30,0.5)', backdropFilter: 'blur(6px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
                   <div style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.3)', position: 'relative' }}>
@@ -574,10 +572,10 @@ const AdvertiserDashboard = () => {
                     >
                       <X size={20} />
                     </button>
-                    
+
                     <div style={{ padding: '32px' }}>
                       <h2 style={{ color: 'var(--navy)', marginBottom: '24px', fontSize: '1.5rem', fontWeight: '800' }}>Campaign Details</h2>
-                      
+
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
                         <DetailField label="ID" value={`CMP-${selectedCampaignRow.advertisementCampaignId}`} />
                         <DetailField label="Status" value={
@@ -612,15 +610,15 @@ const AdvertiserDashboard = () => {
                 </div>
               )}
 
-              {/* Action bar — View and New */}
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'flex-end', 
-                gap: '12px', 
-                padding: '20px', 
-                position: 'sticky', 
-                bottom: '0', 
-                background: 'rgba(255,255,255,0.9)', 
+              {}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '12px',
+                padding: '20px',
+                position: 'sticky',
+                bottom: '0',
+                background: 'rgba(255,255,255,0.9)',
                 backdropFilter: 'blur(10px)',
                 borderTop: '1px solid #e2e8f0',
                 margin: '20px -40px -40px -40px',
@@ -629,17 +627,17 @@ const AdvertiserDashboard = () => {
                 <button
                   onClick={() => selectedCampaignRow && setShowCampaignRowModal(true)}
                   disabled={!selectedCampaignRow}
-                  style={{ 
-                    padding: '10px 24px', 
-                    background: selectedCampaignRow ? '#eab308' : '#f1f5f9', 
-                    color: selectedCampaignRow ? 'white' : '#94a3b8', 
-                    border: 'none', 
-                    borderRadius: '10px', 
-                    cursor: selectedCampaignRow ? 'pointer' : 'not-allowed', 
-                    fontWeight: '700', 
-                    fontSize: '0.9rem', 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                  style={{
+                    padding: '10px 24px',
+                    background: selectedCampaignRow ? '#eab308' : '#f1f5f9',
+                    color: selectedCampaignRow ? 'white' : '#94a3b8',
+                    border: 'none',
+                    borderRadius: '10px',
+                    cursor: selectedCampaignRow ? 'pointer' : 'not-allowed',
+                    fontWeight: '700',
+                    fontSize: '0.9rem',
+                    display: 'flex',
+                    alignItems: 'center',
                     gap: '8px',
                     transition: 'all 0.2s',
                     boxShadow: selectedCampaignRow ? '0 4px 6px -1px rgba(0,0,0,0.1)' : 'none'
@@ -651,8 +649,8 @@ const AdvertiserDashboard = () => {
                 </button>
                 <button
                   onClick={() => setShowCampaignForm(true)}
-                  style={{ 
-                    padding: '10px 24px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: '10px', 
+                  style={{
+                    padding: '10px 24px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: '10px',
                     cursor: 'pointer', fontWeight: '700', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px',
                     transition: 'transform 0.2s, background 0.2s', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
                   }}
@@ -672,8 +670,8 @@ const AdvertiserDashboard = () => {
               submitting={submitting}
             />
           ) : (
-            <CampaignDetails 
-              campaign={selectedCampaign} 
+            <CampaignDetails
+              campaign={selectedCampaign}
               onBack={() => setSelectedCampaign(null)}
               placements={placements}
               user={user}
@@ -686,7 +684,6 @@ const AdvertiserDashboard = () => {
   );
 };
 
-// ===== Ad Form Component =====
 const AdForm = ({ formData, placements, onChange, onSubmit, onCancel, setFormData, submitting }) => (
   <div style={{ maxWidth: '800px', margin: '0 auto' }}>
     <div style={{ background: 'white', padding: '40px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
@@ -694,8 +691,8 @@ const AdForm = ({ formData, placements, onChange, onSubmit, onCancel, setFormDat
       <form onSubmit={onSubmit}>
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#475569' }}>Ad Title</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             name="advertisementTitle"
             value={formData.advertisementTitle}
             onChange={onChange}
@@ -707,8 +704,8 @@ const AdForm = ({ formData, placements, onChange, onSubmit, onCancel, setFormDat
 
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#475569' }}>Image URL</label>
-          <input 
-            type="url" 
+          <input
+            type="url"
             name="advertisementImageUrl"
             value={formData.advertisementImageUrl}
             onChange={onChange}
@@ -721,12 +718,12 @@ const AdForm = ({ formData, placements, onChange, onSubmit, onCancel, setFormDat
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#475569' }}>Select Placement</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
             {placements.map(p => (
-              <div 
+              <div
                 key={p.advertisementPlacementId}
                 onClick={() => setFormData({...formData, advertisementPlacementId: p.advertisementPlacementId})}
-                style={{ 
-                  padding: '15px', 
-                  borderRadius: '8px', 
+                style={{
+                  padding: '15px',
+                  borderRadius: '8px',
                   border: formData.advertisementPlacementId === p.advertisementPlacementId ? '2px solid var(--navy)' : '1px solid #cbd5e1',
                   cursor: 'pointer',
                   background: formData.advertisementPlacementId === p.advertisementPlacementId ? '#f0f9ff' : 'white',
@@ -743,8 +740,8 @@ const AdForm = ({ formData, placements, onChange, onSubmit, onCancel, setFormDat
         <div style={{ display: 'flex', gap: '25px', marginBottom: '30px', justifyContent: 'center' }}>
           <div style={{ flex: 1, maxWidth: '280px' }}>
             <label style={{ display: 'block', marginBottom: '10px', fontWeight: '700', color: '#1e293b', textAlign: 'center' }}>Start Date</label>
-            <input 
-              type="date" 
+            <input
+              type="date"
               name="advertisementStartDate"
               value={formData.advertisementStartDate}
               onChange={onChange}
@@ -754,8 +751,8 @@ const AdForm = ({ formData, placements, onChange, onSubmit, onCancel, setFormDat
           </div>
           <div style={{ flex: 1, maxWidth: '280px' }}>
             <label style={{ display: 'block', marginBottom: '10px', fontWeight: '700', color: '#1e293b', textAlign: 'center' }}>End Date</label>
-            <input 
-              type="date" 
+            <input
+              type="date"
               name="advertisementEndDate"
               value={formData.advertisementEndDate}
               onChange={onChange}
@@ -766,33 +763,33 @@ const AdForm = ({ formData, placements, onChange, onSubmit, onCancel, setFormDat
         </div>
 
         <div style={{ display: 'flex', gap: '15px' }}>
-          <button 
+          <button
             type="button"
             onClick={onCancel}
-            style={{ 
-              flex: 1, 
-              padding: '15px', 
-              background: '#f1f5f9', 
-              color: '#64748b', 
-              border: 'none', 
-              borderRadius: '8px', 
-              fontWeight: '700', 
+            style={{
+              flex: 1,
+              padding: '15px',
+              background: '#f1f5f9',
+              color: '#64748b',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: '700',
               cursor: 'pointer'
             }}
           >
             Cancel
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={submitting}
-            style={{ 
-              flex: 2, 
-              padding: '15px', 
-              background: 'var(--navy)', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '8px', 
-              fontWeight: '700', 
+            style={{
+              flex: 2,
+              padding: '15px',
+              background: 'var(--navy)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: '700',
               fontSize: '1rem',
               cursor: submitting ? 'wait' : 'pointer'
             }}
@@ -805,7 +802,6 @@ const AdForm = ({ formData, placements, onChange, onSubmit, onCancel, setFormDat
   </div>
 );
 
-// ===== Campaign Form Component =====
 const CampaignForm = ({ formData, onChange, onSubmit, onCancel, submitting }) => (
   <div style={{ maxWidth: '700px', margin: '0 auto' }}>
     <div style={{ background: 'white', padding: '40px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
@@ -813,8 +809,8 @@ const CampaignForm = ({ formData, onChange, onSubmit, onCancel, submitting }) =>
       <form onSubmit={onSubmit}>
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#475569' }}>Campaign Name</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             name="advertisementCampaignName"
             value={formData.advertisementCampaignName}
             onChange={onChange}
@@ -826,7 +822,7 @@ const CampaignForm = ({ formData, onChange, onSubmit, onCancel, submitting }) =>
 
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#475569' }}>Description</label>
-          <textarea 
+          <textarea
             name="advertisementCampaignDescription"
             value={formData.advertisementCampaignDescription}
             onChange={onChange}
@@ -836,13 +832,11 @@ const CampaignForm = ({ formData, onChange, onSubmit, onCancel, submitting }) =>
           />
         </div>
 
-
-
         <div style={{ display: 'flex', gap: '25px', marginBottom: '30px', justifyContent: 'center' }}>
           <div style={{ flex: 1, maxWidth: '280px' }}>
             <label style={{ display: 'block', marginBottom: '10px', fontWeight: '700', color: '#1e293b', textAlign: 'center' }}>Start Date</label>
-            <input 
-              type="date" 
+            <input
+              type="date"
               name="advertisementCampaignStartDate"
               value={formData.advertisementCampaignStartDate}
               onChange={onChange}
@@ -852,8 +846,8 @@ const CampaignForm = ({ formData, onChange, onSubmit, onCancel, submitting }) =>
           </div>
           <div style={{ flex: 1, maxWidth: '280px' }}>
             <label style={{ display: 'block', marginBottom: '10px', fontWeight: '700', color: '#1e293b', textAlign: 'center' }}>End Date</label>
-            <input 
-              type="date" 
+            <input
+              type="date"
               name="advertisementCampaignEndDate"
               value={formData.advertisementCampaignEndDate}
               onChange={onChange}
@@ -864,33 +858,33 @@ const CampaignForm = ({ formData, onChange, onSubmit, onCancel, submitting }) =>
         </div>
 
         <div style={{ display: 'flex', gap: '15px' }}>
-          <button 
+          <button
             type="button"
             onClick={onCancel}
-            style={{ 
-              flex: 1, 
-              padding: '15px', 
-              background: '#f1f5f9', 
-              color: '#64748b', 
-              border: 'none', 
-              borderRadius: '8px', 
-              fontWeight: '700', 
+            style={{
+              flex: 1,
+              padding: '15px',
+              background: '#f1f5f9',
+              color: '#64748b',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: '700',
               cursor: 'pointer'
             }}
           >
             Cancel
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={submitting}
-            style={{ 
-              flex: 2, 
-              padding: '15px', 
-              background: 'var(--navy)', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '8px', 
-              fontWeight: '700', 
+            style={{
+              flex: 2,
+              padding: '15px',
+              background: 'var(--navy)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: '700',
               fontSize: '1rem',
               cursor: submitting ? 'wait' : 'pointer'
             }}
@@ -903,11 +897,10 @@ const CampaignForm = ({ formData, onChange, onSubmit, onCancel, submitting }) =>
   </div>
 );
 
-// ===== Campaign Details Component (Drill-down view) =====
 const CampaignDetails = ({ campaign, onBack }) => (
   <div style={{ padding: '20px', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-    <button 
-      onClick={onBack} 
+    <button
+      onClick={onBack}
       style={{ marginBottom: '24px', padding: '10px 20px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', color: '#64748b', display: 'flex', alignItems: 'center', gap: '8px' }}
     >
       ← Back to Campaigns
@@ -917,14 +910,14 @@ const CampaignDetails = ({ campaign, onBack }) => (
       <h2 style={{ color: 'var(--navy)', marginBottom: '8px', fontSize: '1.5rem', fontWeight: '800' }}>{campaign.campaign.advertisementCampaignName}</h2>
       <p style={{ color: '#64748b', fontSize: '1rem' }}>{campaign.campaign.advertisementCampaignDescription}</p>
     </div>
-    
+
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '40px' }}>
       <DetailField label="Total Ads" value={campaign.ads.length} />
       <DetailField label="Status" value={
-        <span style={{ 
-          padding: '4px 10px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: '800', 
+        <span style={{
+          padding: '4px 10px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: '800',
           color: campaign.campaign.advertisementCampaignStatus === 'active' ? '#10b981' : '#f59e0b',
-          textTransform: 'uppercase' 
+          textTransform: 'uppercase'
         }}>{campaign.campaign.advertisementCampaignStatus}</span>
       } />
       <DetailField label="Start Date" value={new Date(campaign.campaign.advertisementCampaignStartDate).toLocaleDateString()} />
@@ -944,7 +937,7 @@ const CampaignDetails = ({ campaign, onBack }) => (
               <div style={{ fontWeight: '700', color: '#1e293b', fontSize: '1rem' }}>{ad.advertisementTitle}</div>
               <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>Placement: {ad.advertisementPlacementName || 'Campaign Slot'}</div>
             </div>
-            <span style={{ 
+            <span style={{
               padding: '6px 12px', borderRadius: '100px', fontSize: '0.65rem', fontWeight: '800',
               background: ad.advertisementStatus === 'active' ? '#ecfdf5' : '#fff7ed',
               color: ad.advertisementStatus === 'active' ? '#10b981' : '#f59e0b'
@@ -958,12 +951,11 @@ const CampaignDetails = ({ campaign, onBack }) => (
   </div>
 );
 
-// ===== Detail Components =====
 const DetailField = ({ label, value, colSpan = 1 }) => (
-  <div style={{ 
+  <div style={{
     gridColumn: `span ${colSpan}`,
-    padding: '16px', 
-    background: '#f8fafc', 
+    padding: '16px',
+    background: '#f8fafc',
     borderRadius: '12px',
     border: '1px solid #f1f5f9'
   }}>

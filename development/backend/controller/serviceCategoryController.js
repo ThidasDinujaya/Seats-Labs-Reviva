@@ -1,6 +1,5 @@
 const pool = require('../config/database');
 
-// GET ALL CATEGORIES
 const viewAllCategory = async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM "serviceCategory" ORDER BY "serviceCategoryName" ASC');
@@ -11,7 +10,6 @@ const viewAllCategory = async (req, res) => {
     }
 };
 
-// CREATE CATEGORY
 const createCategory = async (req, res) => {
     const { serviceCategoryName, serviceCategoryDescription } = req.body;
     if (!serviceCategoryName) return res.status(400).json({ success: false, error: 'Category name is required.' });
@@ -28,14 +26,13 @@ const createCategory = async (req, res) => {
     }
 };
 
-// UPDATE CATEGORY
 const updateCategory = async (req, res) => {
     const { id } = req.params;
     const { serviceCategoryName, serviceCategoryDescription, serviceCategoryIsActive } = req.body;
 
     try {
         const result = await pool.query(
-            `UPDATE "serviceCategory" SET 
+            `UPDATE "serviceCategory" SET
                 "serviceCategoryName" = COALESCE($1, "serviceCategoryName"),
                 "serviceCategoryDescription" = COALESCE($2, "serviceCategoryDescription"),
                 "serviceCategoryIsActive" = COALESCE($3, "serviceCategoryIsActive")
@@ -50,7 +47,6 @@ const updateCategory = async (req, res) => {
     }
 };
 
-// DELETE CATEGORY
 const deleteCategory = async (req, res) => {
     const { id } = req.params;
     try {

@@ -1,11 +1,10 @@
 const pool = require('../config/database');
 
-// GET ALL PACKAGES
 const viewAllPackage = async (req, res) => {
     try {
-        // We want to return packages along with the services they contains
+
         const query = `
-            SELECT sp.*, 
+            SELECT sp.*,
                    json_agg(json_build_object('serviceId', s."serviceId", 'serviceName', s."serviceName", 'servicePrice', s."servicePrice")) as services
             FROM "servicePackage" sp
             LEFT JOIN "servicePackageItem" spi ON sp."servicePackageId" = spi."servicePackageId"
@@ -22,7 +21,6 @@ const viewAllPackage = async (req, res) => {
     }
 };
 
-// CREATE PACKAGE
 const createPackage = async (req, res) => {
     const { servicePackageName, servicePackageDescription, servicePackagePrice, serviceIds } = req.body;
     if (!servicePackageName || !servicePackagePrice) return res.status(400).json({ success: false, error: 'Name and price are required.' });
@@ -30,7 +28,7 @@ const createPackage = async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        
+
         const pkgRes = await client.query(
             'INSERT INTO "servicePackage" ("servicePackageName", "servicePackageDescription", "servicePackagePrice") VALUES ($1, $2, $3) RETURNING *',
             [servicePackageName, servicePackageDescription, servicePackagePrice]
@@ -57,7 +55,6 @@ const createPackage = async (req, res) => {
     }
 };
 
-// UPDATE PACKAGE
 const updatePackage = async (req, res) => {
     const { id } = req.params;
     const { servicePackageName, servicePackageDescription, servicePackagePrice, serviceIds, servicePackageIsActive } = req.body;
@@ -65,9 +62,9 @@ const updatePackage = async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        
+
         await client.query(
-            `UPDATE "servicePackage" SET 
+            `UPDATE "servicePackage" SET
                 "servicePackageName" = COALESCE($1, "servicePackageName"),
                 "servicePackageDescription" = COALESCE($2, "servicePackageDescription"),
                 "servicePackagePrice" = COALESCE($3, "servicePackagePrice"),
@@ -78,7 +75,7 @@ const updatePackage = async (req, res) => {
         );
 
         if (serviceIds && Array.isArray(serviceIds)) {
-            // Refresh services
+
             await client.query('DELETE FROM "servicePackageItem" WHERE "servicePackageId" = $1', [id]);
             for (const serviceId of serviceIds) {
                 await client.query(
@@ -99,7 +96,6 @@ const updatePackage = async (req, res) => {
     }
 };
 
-// DELETE PACKAGE (Soft delete)
 const deletePackage = async (req, res) => {
     const { id } = req.params;
     try {

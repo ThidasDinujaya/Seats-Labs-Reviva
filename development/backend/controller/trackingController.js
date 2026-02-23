@@ -1,18 +1,9 @@
 const pool = require('../config/database');
 
-// ============================================================
-// trackingController.js
-// PURPOSE: Handles tracking of service progress.
-// ============================================================
-
-/**
- * @desc Get all active tracking records for manager view
- * @route GET /api/tracking
- */
 const getServiceTracking = async (req, res) => {
   try {
     const query = `
-      SELECT 
+      SELECT
         st."serviceTrackingId",
         st."serviceTrackingStatus",
         st."serviceTrackingCreatedAt",
@@ -50,10 +41,6 @@ const getServiceTracking = async (req, res) => {
   }
 };
 
-/**
- * @desc Get tracking history for a specific booking
- * @route GET /api/tracking/history/:bookingId
- */
 const getHistory = async (req, res) => {
   const { bookingId } = req.params;
 
@@ -75,10 +62,6 @@ const getHistory = async (req, res) => {
   }
 };
 
-/**
- * @desc Update tracking status for a booking
- * @route POST /api/tracking/update
- */
 const updateStatus = async (req, res) => {
   const { bookingId, status } = req.body;
 
@@ -91,13 +74,11 @@ const updateStatus = async (req, res) => {
     try {
       await client.query('BEGIN');
 
-      // Insert new tracking record
       await client.query(
         `INSERT INTO "serviceTracking" ("serviceTrackingStatus", "bookingId") VALUES ($1, $2)`,
         [status, bookingId]
       );
 
-      // If status is 'completed', update the booking status to 'completed' as well
       if (status === 'completed') {
         await client.query(
           `UPDATE "booking" SET "bookingStatus" = 'completed' WHERE "bookingId" = $1`,

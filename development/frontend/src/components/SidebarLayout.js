@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { 
-  Users, Wrench, Calendar, CreditCard, MessageSquare, 
-  AlertTriangle, Image as ImageIcon, CheckSquare, 
-  BarChart, Settings, LogOut, Menu, X, RotateCcw, Globe 
+import {
+  Users, Wrench, Calendar, CreditCard, MessageSquare,
+  AlertTriangle, Image as ImageIcon, CheckSquare,
+  BarChart, Settings, LogOut, Menu, X, RotateCcw, Globe
 } from 'lucide-react';
 
 const SidebarLayout = ({ children, role }) => {
@@ -14,7 +14,6 @@ const SidebarLayout = ({ children, role }) => {
   const navigate = useNavigate();
   const sidebarRef = React.useRef(null);
 
-  // Restore scroll position whenever the path changes
   React.useLayoutEffect(() => {
     const savedScroll = sessionStorage.getItem(`sidebar-scroll-${role}`);
     if (sidebarRef.current && savedScroll) {
@@ -75,13 +74,13 @@ const SidebarLayout = ({ children, role }) => {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc' }}>
-      {/* Sidebar */}
-      <aside 
+      {}
+      <aside
         ref={sidebarRef}
         id="sidebar-scroll-container"
-        style={{ 
-        width: collapsed ? '80px' : '280px', 
-        background: 'var(--navy)', 
+        style={{
+        width: collapsed ? '80px' : '280px',
+        background: 'var(--navy)',
         color: 'white',
         transition: 'width 0.3s ease',
         display: 'flex',
@@ -91,7 +90,7 @@ const SidebarLayout = ({ children, role }) => {
         overflowY: 'auto',
         zIndex: 1000
       }}>
-        {/* Sidebar Header */}
+        {}
         <div style={{ padding: '30px 20px', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'space-between' }}>
           {!collapsed && <div className="logo" style={{ color: 'white', fontSize: '1.4rem' }}>SEATS<span>LABS</span></div>}
           <button onClick={() => setCollapsed(!collapsed)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
@@ -99,7 +98,7 @@ const SidebarLayout = ({ children, role }) => {
           </button>
         </div>
 
-        {/* Profile Info */}
+        {}
         {!collapsed && (
           <div style={{ padding: '0 20px 30px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
             <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '1px' }}>{role} Portal</div>
@@ -107,7 +106,7 @@ const SidebarLayout = ({ children, role }) => {
           </div>
         )}
 
-        {/* Nav Links */}
+        {}
         <nav style={{ flex: 1, padding: '20px 10px' }}>
           {navItems.map(item => {
             const isActive = item.path === '/manager' || item.path === '/technician' || item.path === '/advertiser'
@@ -115,13 +114,13 @@ const SidebarLayout = ({ children, role }) => {
               : location.pathname.startsWith(item.path);
 
             return (
-              <div key={item.id} 
+              <div key={item.id}
                 onClick={() => handleNavigation(item.path)}
-                style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '15px', 
-                padding: '15px', 
+                style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '15px',
+                padding: '15px',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 marginBottom: '5px',
@@ -130,7 +129,7 @@ const SidebarLayout = ({ children, role }) => {
                 color: isActive ? 'white' : 'rgba(255,255,255,0.7)'
               }} onMouseOver={(e) => {
                   if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-              }} 
+              }}
                  onMouseOut={(e) => {
                   if (!isActive) e.currentTarget.style.background = 'transparent';
               }}>
@@ -143,17 +142,17 @@ const SidebarLayout = ({ children, role }) => {
           })}
         </nav>
 
-        {/* Footer */}
+        {}
         <div style={{ padding: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          
+
           {role === 'customer' && (
-            <button onClick={() => navigate('/')} style={{ 
-              width: '100%', 
-              display: 'flex', 
-              alignItems: 'center', 
+            <button onClick={() => navigate('/')} style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
               justifyContent: collapsed ? 'center' : 'flex-start',
-              gap: '15px', 
-              padding: '12px', 
+              gap: '15px',
+              padding: '12px',
               borderRadius: '8px',
               background: '#ca8a04',
               color: 'white',
@@ -166,13 +165,13 @@ const SidebarLayout = ({ children, role }) => {
             </button>
           )}
 
-          <button onClick={handleLogout} style={{ 
-            width: '100%', 
-            display: 'flex', 
-            alignItems: 'center', 
+          <button onClick={handleLogout} style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
             justifyContent: collapsed ? 'center' : 'flex-start',
-            gap: '15px', 
-            padding: '12px', 
+            gap: '15px',
+            padding: '12px',
             borderRadius: '8px',
             background: 'var(--crimson)',
             color: 'white',
@@ -186,10 +185,10 @@ const SidebarLayout = ({ children, role }) => {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main style={{ 
-        flex: 1, 
-        marginLeft: collapsed ? '80px' : '280px', 
+      {}
+      <main style={{
+        flex: 1,
+        marginLeft: collapsed ? '80px' : '280px',
         transition: 'margin-left 0.3s ease',
         display: 'flex',
         flexDirection: 'column'

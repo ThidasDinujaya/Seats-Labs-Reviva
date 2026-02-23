@@ -8,7 +8,6 @@ const {
   deleteUser
 } = require('../controller/userController');
 
-// Define routes
 router.get('/', authMiddleware, authorizeRole('manager', 'admin'), getAllUser);
 router.post('/', authMiddleware, authorizeRole('manager', 'admin'), createUser);
 router.put('/:id', authMiddleware, authorizeRole('manager', 'admin'), updateUser);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Search, Plus, Eye, Edit2, 
+import {
+    Search, Plus, Eye, Edit2,
     Trash2, X, BarChart2, CheckCircle, Clock, AlertTriangle,
     Layout, Megaphone, CreditCard, Layers, Save
 } from 'lucide-react';
@@ -43,31 +43,29 @@ const ManagerAdsPage = () => {
 
                 if (adsRes.success) setAds(adsRes.data);
                 if (campaignsRes.success) setCampaigns(campaignsRes.data);
-                
-                // Keep dummy pricing and placements for now as they might not have full APIs yet
-                // Real placements from SQL schema
+
                 setPlacements([
-                    { 
-                        advertisementPlacementId: 1, 
+                    {
+                        advertisementPlacementId: 1,
                         advertisementPlacementSlug: 'homepage-top-banner',
-                        advertisementPlacementName: 'Homepage Hero Banner', 
+                        advertisementPlacementName: 'Homepage Hero Banner',
                         advertisementPlacementPage: 'Home',
                         advertisementPlacementPosition: 'Top',
                         advertisementPlacementDescription: 'Massive visibility at the top of the home page.',
-                        advertisementPlacementWidth: 1200, 
+                        advertisementPlacementWidth: 1200,
                         advertisementPlacementHeight: 300,
                         advertisementPlacementPrice: 15000.00,
                         advertisementPlacementIsFixed: true,
                         advertisementPlacementCreatedAt: '2026-01-15T10:00:00Z'
                     },
-                    { 
-                        advertisementPlacementId: 2, 
+                    {
+                        advertisementPlacementId: 2,
                         advertisementPlacementSlug: 'sidebar-square',
-                        advertisementPlacementName: 'Sidebar Widget', 
+                        advertisementPlacementName: 'Sidebar Widget',
                         advertisementPlacementPage: 'Dashboard',
                         advertisementPlacementPosition: 'Right Sidebar',
                         advertisementPlacementDescription: 'Consistent presence while users browse data.',
-                        advertisementPlacementWidth: 300, 
+                        advertisementPlacementWidth: 300,
                         advertisementPlacementHeight: 250,
                         advertisementPlacementPrice: 5000.00,
                         advertisementPlacementIsFixed: false,
@@ -112,21 +110,21 @@ const ManagerAdsPage = () => {
 
     const handleOpenModal = (mode, item = null) => {
         setModalMode(mode);
-        // This would normally handle different entity types based on activeTab
+
         if (item) setFormData(item);
-        else setFormData({}); // Reset for add
+        else setFormData({});
         setShowModal(true);
     };
 
     const getFilteredData = () => {
         switch(activeTab) {
             case 'ad':
-                return ads.filter(ad => 
-                    ((ad.advertisementTitle?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+                return ads.filter(ad =>
+                    ((ad.advertisementTitle?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
                      (ad.advertiserBusinessName?.toLowerCase() || '').includes(searchTerm.toLowerCase()))
                 );
             case 'campaign':
-                return campaigns.filter(c => 
+                return campaigns.filter(c =>
                     (c.advertisementCampaignName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
                     (c.advertiserBusinessName?.toLowerCase() || '').includes(searchTerm.toLowerCase())
                 );
@@ -170,14 +168,14 @@ const ManagerAdsPage = () => {
                     </div>
                 </div>
 
-                <div style={{ 
-                    background: '#fff', 
-                    borderRadius: '16px', 
-                    border: '1px solid #f1f5f9', 
-                    flex: 1, 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    overflow: 'hidden' 
+                <div style={{
+                    background: '#fff',
+                    borderRadius: '16px',
+                    border: '1px solid #f1f5f9',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden'
                 }}>
                     <div style={{ padding: '20px', borderBottom: '1px solid #f1f5f9' }}>
                         <div style={tabStyles.container}>
@@ -198,18 +196,18 @@ const ManagerAdsPage = () => {
                         <div style={{ display: 'flex', gap: '15px' }}>
                             <div style={{ position: 'relative', flex: 1 }}>
                                 <Search style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} size={20} />
-                                <input 
-                                    type="text" 
-                                    placeholder={`Search ${getTabLabel()}...`} 
+                                <input
+                                    type="text"
+                                    placeholder={`Search ${getTabLabel()}...`}
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '0.9rem' }} 
+                                    style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '0.9rem' }}
                                 />
                             </div>
                         </div>
                     </div>
 
-                    <div style={{ 
+                    <div style={{
                         background: '#fff',
                         borderRadius: '16px',
                         border: '1px solid #f1f5f9',
@@ -343,13 +341,13 @@ const ManagerAdsPage = () => {
                             </table>
                         </div>
 
-                        {/* Persistent Floating Logic Container */}
-                        <div style={{ 
-                            position: 'fixed', 
-                            bottom: '30px', 
-                            right: '30px', 
-                            display: 'flex', 
-                            gap: '12px', 
+                        {}
+                        <div style={{
+                            position: 'fixed',
+                            bottom: '30px',
+                            right: '30px',
+                            display: 'flex',
+                            gap: '12px',
                             zIndex: 1000,
                             background: 'rgba(255,255,255,0.9)',
                             padding: '15px',
@@ -360,8 +358,8 @@ const ManagerAdsPage = () => {
                         }}>
                              <button
                                 onClick={() => handleOpenModal('add')}
-                                style={{ 
-                                    padding: '12px 24px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: '8px', 
+                                style={{
+                                    padding: '12px 24px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: '8px',
                                     cursor: 'pointer', fontWeight: '700', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px',
                                     transition: 'all 0.2s', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
                                 }}
@@ -375,13 +373,13 @@ const ManagerAdsPage = () => {
                                     const item = filteredData.find(i => i[idAttribute] === selectedId);
                                     if (item) handleOpenModal('view', item);
                                 }}
-                                style={{ 
-                                    padding: '12px 24px', 
-                                    background: selectedId ? 'var(--yellow)' : '#f1f5f9', 
-                                    color: selectedId ? 'black' : '#94a3b8', 
-                                    border: 'none', 
-                                    borderRadius: '8px', 
-                                    cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', fontSize: '0.9rem', 
+                                style={{
+                                    padding: '12px 24px',
+                                    background: selectedId ? 'var(--yellow)' : '#f1f5f9',
+                                    color: selectedId ? 'black' : '#94a3b8',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    cursor: selectedId ? 'pointer' : 'default', fontWeight: '700', fontSize: '0.9rem',
                                     display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s'
                                 }}
                             >
@@ -400,7 +398,7 @@ const ManagerAdsPage = () => {
                                 <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><X size={24} /></button>
                             </div>
                             <div style={{ padding: '25px' }}>
-                                {/* Modal content - For now focusing on layout and navigation as requested */}
+                                {}
                                 {activeTab === 'ad' ? (
                                     <>
                                         <div style={{ marginBottom: '20px' }}>
@@ -468,13 +466,13 @@ const ManagerAdsPage = () => {
                             </div>
                             {modalMode === 'view' ? (
                                 <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px', position: 'sticky', bottom: 0, background: 'white', zIndex: 10 }}>
-                                    <button 
+                                    <button
                                         onClick={() => setModalMode('edit')}
                                         style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#3b82f6', color: 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                                     >
                                         <Edit2 size={18} /> Update {getTabLabel()}
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={() => {
                                             if (selectedId && window.confirm(`Permanently remove this ${getTabLabel()}?`)) {
                                                 alert('Asset decommissioning logic triggered.');

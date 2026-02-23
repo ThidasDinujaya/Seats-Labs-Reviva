@@ -35,8 +35,7 @@ const ProfilePage = ({ role }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
-        // Validation for password change if attempted
+
         if (formData.newPassword || formData.confirmPassword) {
             if (formData.newPassword !== formData.confirmPassword) {
                 setMessage({ type: 'error', text: 'New passwords do not match!' });
@@ -48,7 +47,6 @@ const ProfilePage = ({ role }) => {
             }
         }
 
-        // In a real app, API call here
         console.log('Update full profile:', formData);
         setMessage({ type: 'success', text: 'Profile updated successfully!' });
         setTimeout(() => setMessage({ type: '', text: '' }), 3000);
@@ -84,22 +82,22 @@ const ProfilePage = ({ role }) => {
 
                 <div style={{ background: 'white', padding: '40px', borderRadius: '16px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
                     <form onSubmit={handleSubmit}>
-                        {/* Section 1: Personal Information */}
+                        {}
                         <div style={{ marginBottom: '30px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px solid #f1f5f9' }}>
                                 <User size={20} color="var(--navy)" />
                                 <h2 style={{ fontSize: '1.1rem', color: 'var(--navy)', margin: 0, fontWeight: '700' }}>Personal Details</h2>
                             </div>
-                            
+
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#64748b', fontSize: '0.85rem' }}>
                                         {user?.userRole === 'advertiser' ? 'Contact Person' : 'First Name'}
                                     </label>
-                                    <input 
-                                        type="text" 
-                                        name={user?.userRole === 'advertiser' ? 'advertiserContactPerson' : 
-                                              user?.userRole === 'customer' ? 'customerFirstName' : 
+                                    <input
+                                        type="text"
+                                        name={user?.userRole === 'advertiser' ? 'advertiserContactPerson' :
+                                              user?.userRole === 'customer' ? 'customerFirstName' :
                                               user?.userRole === 'technician' ? 'technicianFirstName' : 'managerFirstName'}
                                         value={formData.customerFirstName || formData.technicianFirstName || formData.managerFirstName || formData.advertiserContactPerson || ''}
                                         onChange={handleChange}
@@ -110,10 +108,10 @@ const ProfilePage = ({ role }) => {
                                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#64748b', fontSize: '0.85rem' }}>
                                         {user?.userRole === 'advertiser' ? 'Business Name' : 'Last Name'}
                                     </label>
-                                    <input 
-                                        type="text" 
-                                        name={user?.userRole === 'advertiser' ? 'advertiserBusinessName' : 
-                                              user?.userRole === 'customer' ? 'customerLastName' : 
+                                    <input
+                                        type="text"
+                                        name={user?.userRole === 'advertiser' ? 'advertiserBusinessName' :
+                                              user?.userRole === 'customer' ? 'customerLastName' :
                                               user?.userRole === 'technician' ? 'technicianLastName' : 'managerLastName'}
                                         value={formData.customerLastName || formData.technicianLastName || formData.managerLastName || formData.advertiserBusinessName || ''}
                                         onChange={handleChange}
@@ -125,8 +123,8 @@ const ProfilePage = ({ role }) => {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#64748b', fontSize: '0.85rem' }}>Email Address</label>
-                                    <input 
-                                        type="email" 
+                                    <input
+                                        type="email"
                                         value={user?.userEmail || ''}
                                         disabled
                                         style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#f8fafc', color: '#94a3b8', cursor: 'not-allowed' }}
@@ -136,10 +134,10 @@ const ProfilePage = ({ role }) => {
                                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#64748b', fontSize: '0.85rem' }}>Phone Number</label>
                                     <div style={{ position: 'relative' }}>
                                         <Phone size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-                                        <input 
-                                            type="tel" 
-                                            name={user?.userRole === 'customer' ? 'customerPhone' : 
-                                                  user?.userRole === 'technician' ? 'technicianPhone' : 
+                                        <input
+                                            type="tel"
+                                            name={user?.userRole === 'customer' ? 'customerPhone' :
+                                                  user?.userRole === 'technician' ? 'technicianPhone' :
                                                   user?.userRole === 'advertiser' ? 'advertiserPhone' : 'managerPhone'}
                                             value={formData.customerPhone || formData.technicianPhone || formData.managerPhone || formData.advertiserPhone || ''}
                                             onChange={handleChange}
@@ -150,17 +148,17 @@ const ProfilePage = ({ role }) => {
                             </div>
                         </div>
 
-                        {/* Section 2: Security */}
+                        {}
                         <div style={{ marginBottom: '40px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px solid #f1f5f9' }}>
                                 <Lock size={20} color="var(--navy)" />
                                 <h2 style={{ fontSize: '1.1rem', color: 'var(--navy)', margin: 0, fontWeight: '700' }}>Security</h2>
                             </div>
-                            
+
                             <div style={{ marginBottom: '20px' }}>
                                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#64748b', fontSize: '0.85rem' }}>Current Password</label>
-                                <input 
-                                    type="password" 
+                                <input
+                                    type="password"
                                     name="currentPassword"
                                     value={formData.currentPassword}
                                     onChange={handleChange}
@@ -172,8 +170,8 @@ const ProfilePage = ({ role }) => {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#64748b', fontSize: '0.85rem' }}>New Password</label>
-                                    <input 
-                                        type="password" 
+                                    <input
+                                        type="password"
                                         name="newPassword"
                                         value={formData.newPassword}
                                         onChange={handleChange}
@@ -182,8 +180,8 @@ const ProfilePage = ({ role }) => {
                                 </div>
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#64748b', fontSize: '0.85rem' }}>Confirm New Password</label>
-                                    <input 
-                                        type="password" 
+                                    <input
+                                        type="password"
                                         name="confirmPassword"
                                         value={formData.confirmPassword}
                                         onChange={handleChange}
@@ -193,16 +191,16 @@ const ProfilePage = ({ role }) => {
                             </div>
                         </div>
 
-                        {/* Action Buttons */}
+                        {}
                         <div style={{ display: 'flex', gap: '20px', paddingTop: '20px', borderTop: '1px solid #f1f5f9' }}>
-                            <button type="submit" style={{ 
+                            <button type="submit" style={{
                                 flex: 2,
-                                background: 'var(--navy)', 
-                                color: 'white', 
-                                border: 'none', 
-                                padding: '14px', 
-                                borderRadius: '10px', 
-                                fontWeight: '700', 
+                                background: 'var(--navy)',
+                                color: 'white',
+                                border: 'none',
+                                padding: '14px',
+                                borderRadius: '10px',
+                                fontWeight: '700',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -213,17 +211,17 @@ const ProfilePage = ({ role }) => {
                                 <Save size={18} />
                                 Update Profile
                             </button>
-                            <button 
+                            <button
                                 type="button"
                                 onClick={handleDeleteProfile}
-                                style={{ 
+                                style={{
                                     flex: 1,
-                                    background: 'white', 
-                                    color: '#ef4444', 
-                                    border: '2px solid #ef4444', 
-                                    padding: '14px', 
-                                    borderRadius: '10px', 
-                                    fontWeight: '700', 
+                                    background: 'white',
+                                    color: '#ef4444',
+                                    border: '2px solid #ef4444',
+                                    padding: '14px',
+                                    borderRadius: '10px',
+                                    fontWeight: '700',
                                     cursor: 'pointer'
                                 }}
                             >

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Save, MapPin, Phone, Mail, Clock, 
-    Settings, ShieldCheck, Pencil, Trash2, X 
+import {
+    Save, MapPin, Phone, Mail, Clock,
+    Settings, ShieldCheck, Pencil, Trash2, X
 } from 'lucide-react';
 import SidebarLayout from '../components/SidebarLayout';
 import { settingsApi } from '../api/api';
@@ -81,7 +81,7 @@ const ManagerSettingsPage = () => {
                         <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: 'var(--black)', margin: 0 }}>System Setting</h1>
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
-                        <button 
+                        <button
                             onClick={handleOpenModal}
                             style={{ padding: '12px 24px', borderRadius: '8px', background: 'var(--navy)', color: 'white', border: 'none', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
                         >
@@ -91,9 +91,9 @@ const ManagerSettingsPage = () => {
                 </div>
 
                 {message.text && (
-                    <div style={{ 
-                        padding: '15px 20px', 
-                        borderRadius: '8px', 
+                    <div style={{
+                        padding: '15px 20px',
+                        borderRadius: '8px',
                         marginBottom: '25px',
                         background: message.type === 'success' ? '#ecfdf5' : '#fef2f2',
                         color: message.type === 'success' ? '#10b981' : '#ef4444',
@@ -137,7 +137,7 @@ const ManagerSettingsPage = () => {
                     </div>
                 </div>
 
-                {/* MODAL */}
+                {}
                 {showModal && (
                     <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(15, 23, 42, 0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000 }}>
                         <div style={{ background: 'white', width: '90%', maxWidth: '800px', maxHeight: '90vh', borderRadius: '20px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
@@ -160,15 +160,15 @@ const ManagerSettingsPage = () => {
                                                 {setting.settingKey.replace(/_/g, ' ')}
                                             </label>
                                             {setting.settingKey === 'contact_address' ? (
-                                                <textarea 
+                                                <textarea
                                                     value={setting.settingValue}
                                                     onChange={(e) => setTempSettings(tempSettings.map(s => s.settingKey === setting.settingKey ? { ...s, settingValue: e.target.value } : s))}
                                                     style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #cbd5e1', minHeight: '100px', fontSize: '1rem', outlineColor: 'var(--navy)' }}
                                                 />
                                             ) : (
-                                                <input 
-                                                    type="text" 
-                                                    value={setting.settingValue} 
+                                                <input
+                                                    type="text"
+                                                    value={setting.settingValue}
                                                     onChange={(e) => setTempSettings(tempSettings.map(s => s.settingKey === setting.settingKey ? { ...s, settingValue: e.target.value } : s))}
                                                     style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '1rem', outlineColor: 'var(--navy)' }}
                                                 />
@@ -179,13 +179,13 @@ const ManagerSettingsPage = () => {
                             </div>
 
                             <div style={{ padding: '20px 30px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '15px' }}>
-                                <button 
+                                <button
                                     onClick={handleClearAll}
                                     style={{ padding: '12px 24px', borderRadius: '10px', background: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                                 >
                                     <Trash2 size={18} /> Clear All
                                 </button>
-                                <button 
+                                <button
                                     onClick={handleSaveAll}
                                     disabled={saving}
                                     style={{ padding: '12px 30px', borderRadius: '10px', background: 'var(--navy)', color: 'white', border: 'none', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', opacity: saving ? 0.7 : 1 }}

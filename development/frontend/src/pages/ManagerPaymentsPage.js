@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
     Search, Eye, X, CheckCircle, Clock,
     Download
 } from 'lucide-react';
@@ -7,7 +7,6 @@ import SidebarLayout from '../components/SidebarLayout';
 import { paymentApi } from '../api/api';
 import { jsPDF } from "jspdf";
 import html2canvas from 'html2canvas';
-
 
 const ManagerPaymentsPage = () => {
     const [payments, setPayments] = useState([]);
@@ -49,7 +48,7 @@ const ManagerPaymentsPage = () => {
 
             if (res.success) {
                 setInvoiceData(res.data);
-                // Wait for the hidden component to render
+
                 setTimeout(async () => {
                     if (invoiceRef.current) {
                         const canvas = await html2canvas(invoiceRef.current, { scale: 2 });
@@ -95,25 +94,24 @@ const ManagerPaymentsPage = () => {
                     <p style={{ color: '#64748b', fontSize: '1rem' }}>Track transactions and monitor revenue</p>
                 </div>
 
-
-                <div style={{ 
-                    background: '#fff', 
-                    borderRadius: '16px', 
-                    border: '1px solid #f1f5f9', 
-                    flex: 1, 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    overflow: 'hidden' 
+                <div style={{
+                    background: '#fff',
+                    borderRadius: '16px',
+                    border: '1px solid #f1f5f9',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden'
                 }}>
                     <div style={{ display: 'flex', gap: '15px', padding: '20px', borderBottom: '1px solid #f1f5f9' }}>
                         <div style={{ position: 'relative', flex: 1 }}>
                             <Search style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} size={20} />
-                            <input 
-                                type="text" 
-                                placeholder="Search by invoice or client..." 
+                            <input
+                                type="text"
+                                placeholder="Search by invoice or client..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '0.9rem' }} 
+                                style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '0.9rem' }}
                             />
                         </div>
                     </div>
@@ -177,11 +175,11 @@ const ManagerPaymentsPage = () => {
                         </table>
                     </div>
 
-                    {/* Persistent Floating Action Container */}
-                    <div style={{ 
-                        position: 'fixed', 
-                        bottom: '30px', 
-                        right: '30px', 
+                    {}
+                    <div style={{
+                        position: 'fixed',
+                        bottom: '30px',
+                        right: '30px',
                         zIndex: 1000,
                         background: 'rgba(255,255,255,0.9)',
                         padding: '15px',
@@ -190,21 +188,21 @@ const ManagerPaymentsPage = () => {
                         backdropFilter: 'blur(10px)',
                         border: '1px solid #e2e8f0'
                     }}>
-                        <button 
+                        <button
                             onClick={() => {
                                 if (selectedPayment) setShowModal(true);
-                            }} 
+                            }}
                             disabled={!selectedPayment}
-                            style={{ 
-                                padding: '12px 24px', 
-                                borderRadius: '8px', 
-                                border: 'none', 
-                                background: selectedPayment ? 'var(--yellow)' : '#f1f5f9', 
-                                color: selectedPayment ? 'black' : '#94a3b8', 
-                                cursor: selectedPayment ? 'pointer' : 'default', 
-                                fontWeight: '700', 
-                                display: 'flex', 
-                                alignItems: 'center', 
+                            style={{
+                                padding: '12px 24px',
+                                borderRadius: '8px',
+                                border: 'none',
+                                background: selectedPayment ? 'var(--yellow)' : '#f1f5f9',
+                                color: selectedPayment ? 'black' : '#94a3b8',
+                                cursor: selectedPayment ? 'pointer' : 'default',
+                                fontWeight: '700',
+                                display: 'flex',
+                                alignItems: 'center',
                                 gap: '8px',
                                 fontSize: '0.9rem',
                                 boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
@@ -277,15 +275,15 @@ const ManagerPaymentsPage = () => {
                     </div>
                 )}
 
-                {/* Hidden Invoice Template for PDF Generation */}
+                {}
                 {invoiceData && (
                     <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-                        <div ref={invoiceRef} style={{ 
-                            width: '210mm', 
-                            minHeight: '297mm', 
-                            padding: '25.4mm', 
-                            background: 'white', 
-                            color: '#000', 
+                        <div ref={invoiceRef} style={{
+                            width: '210mm',
+                            minHeight: '297mm',
+                            padding: '25.4mm',
+                            background: 'white',
+                            color: '#000',
                             fontFamily: "'Inter', sans-serif",
                             boxSizing: 'border-box',
                             display: 'flex',
@@ -319,7 +317,7 @@ const ManagerPaymentsPage = () => {
                                         <div style={{ display: 'grid', gridTemplateColumns: '100px 1fr', gap: '5px', fontSize: '0.9rem' }}>
                                             <span style={{ color: '#64748b', fontWeight: '600' }}>Date Issued:</span>
                                             <span style={{ fontWeight: '700' }}>{new Date().toLocaleDateString()}</span>
-                                            
+
                                             {invoiceData.bookingId ? (
                                                 <>
                                                     <span style={{ color: '#64748b', fontWeight: '600' }}>Vehicle:</span>

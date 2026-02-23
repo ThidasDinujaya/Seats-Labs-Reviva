@@ -1,35 +1,16 @@
-// ============================================================
-// controllers/feedbackController.js
-// PURPOSE: CRUD #6 - Customer feedback and rating operations.
-// CRUD OPERATIONS:
-//   1. addFeedback      - POST   /api/feedbacks
-//   2. viewFeedback     - GET    /api/feedbacks/:feedbackId
-//   3. viewAllFeedback  - GET    /api/feedback
-//   4. updateFeedback   - PUT    /api/feedbacks/:feedbackId
-//   5. deleteFeedback   - DELETE /api/feedbacks/:feedbackId
-// ============================================================
-
 const pool = require('../config/database');
 
-// ============================================================
-// 1. ADD FEEDBACK - Customer rates a completed service
-// POST /api/feedback
-// WHO CAN USE: Customer
-// ============================================================
-// THINKING: Feedback can only be added for a COMPLETED booking.
-// One booking can have only one feedback (enforced by UNIQUE constraint).
-// ============================================================
 const addFeedback = async (req, res) => {
   const {
-    feedbackRating,       // 1-5 stars
-    feedbackComment,      // Optional text review
-    customerId,   // The customer giving feedback
-    bookingId,    // The booking being rated
-    technicianId  // The technician being rated (optional)
+    feedbackRating,
+    feedbackComment,
+    customerId,
+    bookingId,
+    technicianId
   } = req.body;
 
   try {
-    // Validate required fields
+
     if (!feedbackRating || !customerId || !bookingId) {
       return res.status(400).json({
         success: false,
@@ -37,7 +18,6 @@ const addFeedback = async (req, res) => {
       });
     }
 
-    // Validate rating range (1-5)
     if (feedbackRating < 1 || feedbackRating > 5) {
       return res.status(400).json({
         success: false,
@@ -45,7 +25,6 @@ const addFeedback = async (req, res) => {
       });
     }
 
-    // Check if booking exists and is completed
     const bookingResult = await pool.query(
       'SELECT "bookingStatus" FROM "booking" WHERE "bookingId" = $1',
       [bookingId]
@@ -62,7 +41,6 @@ const addFeedback = async (req, res) => {
       });
     }
 
-    // Check if feedback already exists for this booking
     const existingFeedback = await pool.query(
       'SELECT "feedbackId" FROM "feedback" WHERE "bookingId" = $1',
       [bookingId]
@@ -75,7 +53,6 @@ const addFeedback = async (req, res) => {
       });
     }
 
-    // Insert feedback
     const result = await pool.query(
       `INSERT INTO "feedback"
        ("feedbackRating", "feedbackComment", "customerId",
@@ -93,10 +70,6 @@ const addFeedback = async (req, res) => {
   }
 };
 
-// ============================================================
-// 2. VIEW FEEDBACK
-// GET /api/feedback/:feedbackId
-// ============================================================
 const viewFeedback = async (req, res) => {
   const { feedbackId } = req.params;
 
@@ -128,10 +101,6 @@ const viewFeedback = async (req, res) => {
   }
 };
 
-// ============================================================
-// 3. VIEW ALL FEEDBACKS
-// GET /api/feedback?customerId=1&technicianId=2
-// ============================================================
 const viewAllFeedback = async (req, res) => {
   const { customerId, technicianId } = req.query;
 
@@ -179,10 +148,6 @@ const viewAllFeedback = async (req, res) => {
   }
 };
 
-// ============================================================
-// 4. UPDATE FEEDBACK
-// PUT /api/feedback/:feedbackId
-// ============================================================
 const updateFeedback = async (req, res) => {
   const { feedbackId } = req.params;
   const { feedbackRating, feedbackComment } = req.body;
@@ -220,10 +185,6 @@ const updateFeedback = async (req, res) => {
   }
 };
 
-// ============================================================
-// 5. DELETE FEEDBACK
-// DELETE /api/feedback/:feedbackId
-// ============================================================
 const deleteFeedback = async (req, res) => {
   const { feedbackId } = req.params;
 

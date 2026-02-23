@@ -1,23 +1,10 @@
-// ============================================================
-// controllers/userController.js
-// PURPOSE: Handles user management operations for admin/manager.
-// LOGIC: 
-//   - getAllUser(): Fetches all users with their role-specific details
-//   - createUser(): Creates a new user (similar to register)
-//   - updateUser(): Updates user details (except email)
-//   - deleteUser(): Deletes a user
-// ============================================================
-
 const pool = require('../config/database');
 const bcrypt = require('bcrypt');
 
-// ============================================================
-// GET ALL USER
-// ============================================================
 const getAllUser = async (req, res) => {
     try {
         const query = `
-            SELECT 
+            SELECT
                 u."userId",
                 u."userEmail",
                 u."userRole",
@@ -60,9 +47,6 @@ const getAllUser = async (req, res) => {
     }
 };
 
-// ============================================================
-// CREATE USER
-// ============================================================
 const createUser = async (req, res) => {
     const {
         userEmail, userPassword, userRole,
@@ -130,9 +114,6 @@ const createUser = async (req, res) => {
     }
 };
 
-// ============================================================
-// UPDATE USER
-// ============================================================
 const updateUser = async (req, res) => {
     const { id } = req.params;
     const {
@@ -140,7 +121,7 @@ const updateUser = async (req, res) => {
         technicianFirstName, technicianLastName, technicianPhone, technicianSpecialization,
         managerFirstName, managerLastName, managerPhone,
         advertiserBusinessName, advertiserContactPerson, advertiserPhone, advertiserAddress,
-        userRole, userIsActive 
+        userRole, userIsActive
     } = req.body;
 
     const client = await pool.connect();
@@ -160,7 +141,7 @@ const updateUser = async (req, res) => {
 
         if (currentRole === 'customer') {
             await client.query(
-                `UPDATE "customer" SET 
+                `UPDATE "customer" SET
                     "customerFirstName" = COALESCE($1, "customerFirstName"),
                     "customerLastName" = COALESCE($2, "customerLastName"),
                     "customerPhone" = COALESCE($3, "customerPhone"),
@@ -170,7 +151,7 @@ const updateUser = async (req, res) => {
             );
         } else if (currentRole === 'technician') {
             await client.query(
-                `UPDATE "technician" SET 
+                `UPDATE "technician" SET
                     "technicianFirstName" = COALESCE($1, "technicianFirstName"),
                     "technicianLastName" = COALESCE($2, "technicianLastName"),
                     "technicianPhone" = COALESCE($3, "technicianPhone"),
@@ -180,7 +161,7 @@ const updateUser = async (req, res) => {
             );
         } else if (currentRole === 'manager') {
             await client.query(
-                `UPDATE "manager" SET 
+                `UPDATE "manager" SET
                     "managerFirstName" = COALESCE($1, "managerFirstName"),
                     "managerLastName" = COALESCE($2, "managerLastName"),
                     "managerPhone" = COALESCE($3, "managerPhone")
@@ -189,7 +170,7 @@ const updateUser = async (req, res) => {
             );
         } else if (currentRole === 'advertiser') {
             await client.query(
-                `UPDATE "advertiser" SET 
+                `UPDATE "advertiser" SET
                     "advertiserBusinessName" = COALESCE($1, "advertiserBusinessName"),
                     "advertiserContactPerson" = COALESCE($2, "advertiserContactPerson"),
                     "advertiserPhone" = COALESCE($3, "advertiserPhone"),
@@ -210,22 +191,19 @@ const updateUser = async (req, res) => {
     }
 };
 
-// ============================================================
-// DELETE USER
-// ============================================================
 const deleteUser = async (req, res) => {
     const { id } = req.params;
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        
+
         await client.query('DELETE FROM "customer" WHERE "userId" = $1', [id]);
         await client.query('DELETE FROM "technician" WHERE "userId" = $1', [id]);
         await client.query('DELETE FROM "manager" WHERE "userId" = $1', [id]);
         await client.query('DELETE FROM "advertiser" WHERE "userId" = $1', [id]);
-        
+
         const result = await client.query('DELETE FROM "user" WHERE "userId" = $1 RETURNING "userId"', [id]);
-        
+
         if (result.rows.length === 0) {
             await client.query('ROLLBACK');
             return res.status(404).json({ success: false, error: 'User not found' });
@@ -242,10 +220,6 @@ const deleteUser = async (req, res) => {
     }
 };
 
-
-// ============================================================
-// DEBUG: Check Users and Roles
-// ============================================================
 const debugCheckUsers = async () => {
     try {
         console.log('--- Checking User ---');
@@ -261,19 +235,19 @@ const debugCheckUsers = async () => {
         console.table(customers.rows);
 
         const orphaned = await pool.query(`
-            SELECT u."userId", u."userEmail", u."userRole" 
+            SELECT u."userId", u."userEmail", u."userRole"
             FROM "user" u
             LEFT JOIN "customer" c ON u."userId" = c."userId"
             LEFT JOIN "technician" t ON u."userId" = t."userId"
             LEFT JOIN "manager" m ON u."userId" = m."userId"
             LEFT JOIN "advertiser" a ON u."userId" = a."userId"
-            WHERE c."customerId" IS NULL 
-            AND t."technicianId" IS NULL 
-            AND m."managerId" IS NULL 
+            WHERE c."customerId" IS NULL
+            AND t."technicianId" IS NULL
+            AND m."managerId" IS NULL
             AND a."advertiserId" IS NULL
             AND u."userRole" != 'admin'
         `);
-        
+
         if (orphaned.rows.length > 0) {
             console.warn('Orphaned Users found (no profile):', orphaned.rows);
         } else {

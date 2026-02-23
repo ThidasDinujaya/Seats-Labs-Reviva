@@ -9,15 +9,14 @@ const createDatabase = async () => {
         password: process.env.DB_PASSWORD,
         host: process.env.DB_HOST,
         port: process.env.DB_PORT,
-        database: 'postgres' // Connect to default database
+        database: 'postgres'
     };
 
     const client = new Client(config);
 
     try {
         await client.connect();
-        
-        // Check if database exists
+
         const res = await client.query(`SELECT 1 FROM pg_database WHERE datname = '${process.env.DB_NAME}'`);
         if (res.rowCount === 0) {
             console.log(`Database ${process.env.DB_NAME} not found. Creating...`);
@@ -41,7 +40,7 @@ const runSchema = async () => {
         password: process.env.DB_PASSWORD,
         host: process.env.DB_HOST,
         port: process.env.DB_PORT,
-        database: process.env.DB_NAME // Connect to the target database
+        database: process.env.DB_NAME
     };
 
     const client = new Client(config);
@@ -53,9 +52,8 @@ const runSchema = async () => {
         const schemaPath = path.join(__dirname, 'db', 'complete_schema.sql');
         const schema = fs.readFileSync(schemaPath, 'utf8');
 
-        // Split schema into statements if necessary, but pg driver can usually handle multiple statements
         await client.query(schema);
-        
+
         console.log('Schema executed successfully.');
     } catch (err) {
         console.error('Error executing schema:', err);

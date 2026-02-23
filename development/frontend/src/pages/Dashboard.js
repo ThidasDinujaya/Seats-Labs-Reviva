@@ -17,7 +17,6 @@ const Dashboard = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedId, setSelectedId] = useState(null);
 
-    // Modal states
     const [showViewModal, setShowViewModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [selectedBookingForModal, setSelectedBookingForModal] = useState(null);
@@ -29,7 +28,6 @@ const Dashboard = () => {
     const [complaintData, setComplaintData] = useState({ title: '', description: '', priority: 'medium' });
     const invoiceRef = React.useRef(null);
 
-    // Form state for update
     const [formData, setFormData] = useState({
         bookingDate: '',
         timeSlotId: '',
@@ -53,11 +51,9 @@ const Dashboard = () => {
                 const res = await bookingApi.getAll({ customerId: user?.customerId });
                 setBookings(res.data || []);
 
-                // Fetch time slots
                 const tsRes = await timeSlotApi.getAll();
                 if (tsRes.success) setTimeSlots(tsRes.data.filter(ts => ts.timeSlotIsActive));
 
-                // Fetch vehicles
                 if (user?.customerId) {
                     const cRes = await api.get(`/customers/${user.customerId}`);
                     if (cRes.success) setVehicles(cRes.data.vehicles || []);
@@ -93,7 +89,6 @@ const Dashboard = () => {
     const handleUpdateBooking = async (e) => {
         e.preventDefault();
 
-        // Basic Validation
         if (!formData.bookingDate || !formData.timeSlotId || !formData.vehicleId) {
             alert("Please fill in all required fields.");
             return;
@@ -137,7 +132,7 @@ const Dashboard = () => {
         const booking = bookings.find(b => b.bookingId === selectedId);
         if (!booking) return;
         setSelectedBookingForModal(booking);
-        setInvoiceData(null); // Reset invoice data
+        setInvoiceData(null);
         setShowViewModal(true);
     };
 
@@ -147,7 +142,7 @@ const Dashboard = () => {
             const res = await paymentApi.getInvoice(bookingId);
             if (res.success) {
                 setInvoiceData(res.data);
-                // Wait for the hidden component to render
+
                 setTimeout(async () => {
                     if (invoiceRef.current) {
                         const canvas = await html2canvas(invoiceRef.current, { scale: 2 });
@@ -234,7 +229,7 @@ const Dashboard = () => {
         <SidebarLayout role="customer">
             <div style={{ maxWidth: '1200px', margin: '0 auto', paddingBottom: '20px', height: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column' }}>
 
-                {/* Header Section */}
+                {}
                 <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 10px', flexShrink: 0 }}>
                     <div>
                         <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'var(--navy)', margin: 0, letterSpacing: '-1px' }}>My Bookings</h1>
@@ -245,7 +240,7 @@ const Dashboard = () => {
                     </button>
                 </div>
 
-                {/* Search Bar */}
+                {}
                 <div style={{ marginBottom: '15px', position: 'relative', maxWidth: '400px', flexShrink: 0 }}>
                     <Search size={20} style={{ position: 'absolute', left: '15px', top: '12px', color: '#94a3b8' }} />
                     <input
@@ -257,7 +252,7 @@ const Dashboard = () => {
                     />
                 </div>
 
-                {/* Table Container - Only this scrolls */}
+                {}
                 <div style={{
                     background: 'white',
                     borderRadius: '20px 20px 0 0',
@@ -349,7 +344,7 @@ const Dashboard = () => {
                     </table>
                 </div>
 
-                {/* Action Column Replacement - Bottom Buttons */}
+                {}
                 <div style={{
                     background: 'white',
                     padding: '20px 30px',
@@ -408,7 +403,7 @@ const Dashboard = () => {
                     </button>
                 </div>
 
-                {/* View Modal */}
+                {}
                 {showViewModal && selectedBookingForModal && (
                     <div style={modalOverlayStyle}>
                         <div style={modalContentStyle}>
@@ -432,8 +427,8 @@ const Dashboard = () => {
                             </div>
                             <div style={modalFooterStyle}>
                                 <div style={{ display: 'flex', gap: '10px' }}>
-                                    <button 
-                                        onClick={() => handleDownloadInvoice(selectedBookingForModal.bookingId)} 
+                                    <button
+                                        onClick={() => handleDownloadInvoice(selectedBookingForModal.bookingId)}
                                         disabled={isDownloading}
                                         style={{ flex: 1, padding: '12px 24px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
                                     >
@@ -446,7 +441,7 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                {/* Update Modal */}
+                {}
                 {showUpdateModal && selectedBookingForModal && (
                     <div style={modalOverlayStyle}>
                         <div style={modalContentStyle}>
@@ -501,7 +496,7 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                {/* Hidden Invoice Template for PDF Generation */}
+                {}
                 {invoiceData && (
                     <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
                         <div ref={invoiceRef} style={{ width: '800px', padding: '60px', background: 'white', color: '#000', fontFamily: 'Arial, sans-serif' }}>
@@ -562,7 +557,7 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                {/* Feedback Modal */}
+                {}
                 {showFeedbackModal && (
                     <div style={modalOverlayStyle}>
                         <div style={modalContentStyle}>
@@ -576,11 +571,11 @@ const Dashboard = () => {
                                         <div style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '15px', fontWeight: '600' }}>How was your experience?</div>
                                         <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
                                             {[1, 2, 3, 4, 5].map(star => (
-                                                <Star 
-                                                    key={star} 
-                                                    size={32} 
-                                                    fill={star <= feedbackData.rating ? '#f59e0b' : 'none'} 
-                                                    color={star <= feedbackData.rating ? '#f59e0b' : '#cbd5e1'} 
+                                                <Star
+                                                    key={star}
+                                                    size={32}
+                                                    fill={star <= feedbackData.rating ? '#f59e0b' : 'none'}
+                                                    color={star <= feedbackData.rating ? '#f59e0b' : '#cbd5e1'}
                                                     style={{ cursor: 'pointer' }}
                                                     onClick={() => setFeedbackData({ ...feedbackData, rating: star })}
                                                 />
@@ -589,11 +584,11 @@ const Dashboard = () => {
                                     </div>
                                     <div>
                                         <label style={labelStyle}>Comment (Optional)</label>
-                                        <textarea 
-                                            style={{ ...inputStyle, height: '120px', resize: 'none' }} 
-                                            value={feedbackData.comment} 
-                                            onChange={e => setFeedbackData({ ...feedbackData, comment: e.target.value })} 
-                                            placeholder="Tell us what you liked or how we can improve..." 
+                                        <textarea
+                                            style={{ ...inputStyle, height: '120px', resize: 'none' }}
+                                            value={feedbackData.comment}
+                                            onChange={e => setFeedbackData({ ...feedbackData, comment: e.target.value })}
+                                            placeholder="Tell us what you liked or how we can improve..."
                                         />
                                     </div>
                                 </div>
@@ -607,7 +602,7 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                {/* Complaint Modal */}
+                {}
                 {showComplaintModal && (
                     <div style={modalOverlayStyle}>
                         <div style={modalContentStyle}>
@@ -619,20 +614,20 @@ const Dashboard = () => {
                                 <div style={{ padding: '30px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                     <div>
                                         <label style={labelStyle}>Complaint Title</label>
-                                        <input 
-                                            type="text" 
-                                            style={inputStyle} 
-                                            value={complaintData.title} 
-                                            onChange={e => setComplaintData({ ...complaintData, title: e.target.value })} 
+                                        <input
+                                            type="text"
+                                            style={inputStyle}
+                                            value={complaintData.title}
+                                            onChange={e => setComplaintData({ ...complaintData, title: e.target.value })}
                                             placeholder="e.g., Still hearing noise, Overcharged, etc."
-                                            required 
+                                            required
                                         />
                                     </div>
                                     <div>
                                         <label style={labelStyle}>Priority</label>
-                                        <select 
-                                            style={inputStyle} 
-                                            value={complaintData.priority} 
+                                        <select
+                                            style={inputStyle}
+                                            value={complaintData.priority}
                                             onChange={e => setComplaintData({ ...complaintData, priority: e.target.value })}
                                         >
                                             <option value="low">Low - Minor issue</option>
@@ -642,11 +637,11 @@ const Dashboard = () => {
                                     </div>
                                     <div>
                                         <label style={labelStyle}>Description</label>
-                                        <textarea 
-                                            style={{ ...inputStyle, height: '120px', resize: 'none' }} 
-                                            value={complaintData.description} 
-                                            onChange={e => setComplaintData({ ...complaintData, description: e.target.value })} 
-                                            placeholder="Provide as much detail as possible..." 
+                                        <textarea
+                                            style={{ ...inputStyle, height: '120px', resize: 'none' }}
+                                            value={complaintData.description}
+                                            onChange={e => setComplaintData({ ...complaintData, description: e.target.value })}
+                                            placeholder="Provide as much detail as possible..."
                                             required
                                         />
                                     </div>

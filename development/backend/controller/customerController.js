@@ -1,29 +1,10 @@
-// ============================================================
-// controllers/customerController.js
-// PURPOSE: CRUD #4 - Customer profile and vehicle management.
-// CRUD OPERATIONS:
-//   1. addCustomer      - POST   /api/customers (via register)
-//   2. viewCustomer     - GET    /api/customers/:customerId
-//   3. viewAllCustomers - GET    /api/customers
-//   4. updateCustomer   - PUT    /api/customers/:customerId
-//   5. deleteCustomer   - DELETE /api/customers/:customerId
-// EXTRA: Vehicle sub-operations for customer
-// ============================================================
-
 const pool = require('../config/database');
 
-// 1. ADD CUSTOMER - Handled by authController.register()
-// Customers register through /api/auth/register
-
-// ============================================================
-// 2. VIEW CUSTOMER - Get customer profile with vehicles
-// GET /api/customers/:customerId
-// ============================================================
 const viewCustomer = async (req, res) => {
   const { customerId } = req.params;
 
   try {
-    // Get customer with their user email
+
     const customerResult = await pool.query(
       `SELECT c.*, u."userEmail"
        FROM "customer" c
@@ -36,7 +17,6 @@ const viewCustomer = async (req, res) => {
       return res.status(404).json({ success: false, error: 'Customer not found.' });
     }
 
-    // Also get their vehicles
     const vehicleResult = await pool.query(
       'SELECT * FROM "vehicle" WHERE "customerId" = $1',
       [customerId]
@@ -55,11 +35,6 @@ const viewCustomer = async (req, res) => {
   }
 };
 
-// ============================================================
-// 3. VIEW ALL CUSTOMERS
-// GET /api/customers
-// WHO CAN USE: Admin only
-// ============================================================
 const viewAllCustomer = async (req, res) => {
   try {
     const result = await pool.query(
@@ -82,10 +57,6 @@ const viewAllCustomer = async (req, res) => {
   }
 };
 
-// ============================================================
-// 4. UPDATE CUSTOMER - Update profile information
-// PUT /api/customers/:customerId
-// ============================================================
 const updateCustomer = async (req, res) => {
   const { customerId } = req.params;
   const { customerFirstName, customerLastName, customerPhone, customerAddress } = req.body;
@@ -118,10 +89,6 @@ const updateCustomer = async (req, res) => {
   }
 };
 
-// ============================================================
-// 5. DELETE CUSTOMER - Soft delete via user deactivation
-// DELETE /api/customers/:customerId
-// ============================================================
 const deleteCustomer = async (req, res) => {
   const { customerId } = req.params;
 

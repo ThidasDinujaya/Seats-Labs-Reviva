@@ -1,9 +1,5 @@
 const pool = require('../config/database');
 
-/**
- * @desc Get all advertisement placements
- * @route GET /api/placements
- */
 const getAllPlacements = async (req, res) => {
     try {
         const result = await pool.query('SELECT "advertisementPlacementId", "advertisementPlacementSlug", "advertisementPlacementName", "advertisementPlacementPage", "advertisementPlacementPosition", "advertisementPlacementDescription", "advertisementPlacementWidth", "advertisementPlacementHeight", "advertisementPlacementPrice", "advertisementPlacementIsFixed", "advertisementPlacementCreatedAt" FROM "advertisementPlacement" ORDER BY "advertisementPlacementCreatedAt" DESC');
@@ -14,27 +10,23 @@ const getAllPlacements = async (req, res) => {
     }
 };
 
-/**
- * @desc Create a new advertisement placement
- * @route POST /api/placements
- */
 const createPlacement = async (req, res) => {
-    const { 
-        advertisementPlacementSlug, 
-        advertisementPlacementName, 
-        advertisementPlacementPage, 
-        advertisementPlacementPosition, 
-        advertisementPlacementDescription, 
-        advertisementPlacementWidth, 
-        advertisementPlacementHeight, 
-        advertisementPlacementPrice 
+    const {
+        advertisementPlacementSlug,
+        advertisementPlacementName,
+        advertisementPlacementPage,
+        advertisementPlacementPosition,
+        advertisementPlacementDescription,
+        advertisementPlacementWidth,
+        advertisementPlacementHeight,
+        advertisementPlacementPrice
     } = req.body;
 
     try {
         const result = await pool.query(
-            `INSERT INTO "advertisementPlacement" 
-            ("advertisementPlacementSlug", "advertisementPlacementName", "advertisementPlacementPage", "advertisementPlacementPosition", "advertisementPlacementDescription", "advertisementPlacementWidth", "advertisementPlacementHeight", "advertisementPlacementPrice") 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+            `INSERT INTO "advertisementPlacement"
+            ("advertisementPlacementSlug", "advertisementPlacementName", "advertisementPlacementPage", "advertisementPlacementPosition", "advertisementPlacementDescription", "advertisementPlacementWidth", "advertisementPlacementHeight", "advertisementPlacementPrice")
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *`,
             [advertisementPlacementSlug, advertisementPlacementName, advertisementPlacementPage, advertisementPlacementPosition, advertisementPlacementDescription, advertisementPlacementWidth, advertisementPlacementHeight, advertisementPlacementPrice]
         );
@@ -45,34 +37,30 @@ const createPlacement = async (req, res) => {
     }
 };
 
-/**
- * @desc Update advertisement placement
- * @route PUT /api/placements/:id
- */
 const updatePlacement = async (req, res) => {
     const { id } = req.params;
-    const { 
-        advertisementPlacementSlug, 
-        advertisementPlacementName, 
-        advertisementPlacementPage, 
-        advertisementPlacementPosition, 
-        advertisementPlacementDescription, 
-        advertisementPlacementWidth, 
-        advertisementPlacementHeight, 
-        advertisementPlacementPrice 
+    const {
+        advertisementPlacementSlug,
+        advertisementPlacementName,
+        advertisementPlacementPage,
+        advertisementPlacementPosition,
+        advertisementPlacementDescription,
+        advertisementPlacementWidth,
+        advertisementPlacementHeight,
+        advertisementPlacementPrice
     } = req.body;
 
     try {
         const result = await pool.query(
-            `UPDATE "advertisementPlacement" SET 
-            "advertisementPlacementSlug" = COALESCE($1, "advertisementPlacementSlug"), 
-            "advertisementPlacementName" = COALESCE($2, "advertisementPlacementName"), 
-            "advertisementPlacementPage" = COALESCE($3, "advertisementPlacementPage"), 
-            "advertisementPlacementPosition" = COALESCE($4, "advertisementPlacementPosition"), 
-            "advertisementPlacementDescription" = COALESCE($5, "advertisementPlacementDescription"), 
-            "advertisementPlacementWidth" = COALESCE($6, "advertisementPlacementWidth"), 
-            "advertisementPlacementHeight" = COALESCE($7, "advertisementPlacementHeight"), 
-            "advertisementPlacementPrice" = COALESCE($8, "advertisementPlacementPrice") 
+            `UPDATE "advertisementPlacement" SET
+            "advertisementPlacementSlug" = COALESCE($1, "advertisementPlacementSlug"),
+            "advertisementPlacementName" = COALESCE($2, "advertisementPlacementName"),
+            "advertisementPlacementPage" = COALESCE($3, "advertisementPlacementPage"),
+            "advertisementPlacementPosition" = COALESCE($4, "advertisementPlacementPosition"),
+            "advertisementPlacementDescription" = COALESCE($5, "advertisementPlacementDescription"),
+            "advertisementPlacementWidth" = COALESCE($6, "advertisementPlacementWidth"),
+            "advertisementPlacementHeight" = COALESCE($7, "advertisementPlacementHeight"),
+            "advertisementPlacementPrice" = COALESCE($8, "advertisementPlacementPrice")
             WHERE "advertisementPlacementId" = $9 RETURNING *`,
             [advertisementPlacementSlug, advertisementPlacementName, advertisementPlacementPage, advertisementPlacementPosition, advertisementPlacementDescription, advertisementPlacementWidth, advertisementPlacementHeight, advertisementPlacementPrice, id]
         );
@@ -86,10 +74,6 @@ const updatePlacement = async (req, res) => {
     }
 };
 
-/**
- * @desc Delete advertisement placement
- * @route DELETE /api/placements/:id
- */
 const deletePlacement = async (req, res) => {
     const { id } = req.params;
     try {

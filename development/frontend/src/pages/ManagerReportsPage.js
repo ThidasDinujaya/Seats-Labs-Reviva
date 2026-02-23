@@ -6,24 +6,23 @@ import { jsPDF } from "jspdf";
 import html2canvas from 'html2canvas';
 import { Eye, Download } from 'lucide-react';
 
-// Helper Components - Ledger Style with Sticky Header and Scrolling Support
 const Table = ({ headers, rows, alignments, widths }) => (
-    <div style={{ 
-        width: '100%', 
-        marginBottom: '40px', 
-        marginTop: '20px', 
-        border: '1px solid #e2e8f0', 
+    <div style={{
+        width: '100%',
+        marginBottom: '40px',
+        marginTop: '20px',
+        border: '1px solid #e2e8f0',
         borderRadius: '8px'
     }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', tableLayout: widths ? 'fixed' : 'auto', background: '#fff' }}>
             <thead>
                 <tr style={{ background: 'var(--navy)', color: '#fff' }}>
                     {headers.map((h, i) => (
-                        <th key={i} style={{ 
-                            padding: '12px 15px', 
-                            textAlign: alignments?.[i] || 'left', 
-                            fontWeight: '800', 
-                            textTransform: 'uppercase', 
+                        <th key={i} style={{
+                            padding: '12px 15px',
+                            textAlign: alignments?.[i] || 'left',
+                            fontWeight: '800',
+                            textTransform: 'uppercase',
                             letterSpacing: '0.5px',
                             borderRight: i === headers.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.1)',
                             whiteSpace: 'nowrap',
@@ -37,9 +36,9 @@ const Table = ({ headers, rows, alignments, widths }) => (
                     rows.map((row, i) => (
                         <tr key={i} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.2s' }}>
                            {row.map((cell, j) => (
-                               <td key={j} style={{ 
-                                   padding: '10px 15px', 
-                                   color: '#334155', 
+                               <td key={j} style={{
+                                   padding: '10px 15px',
+                                   color: '#334155',
                                    fontWeight: '600',
                                    textAlign: alignments?.[j] || 'left',
                                    fontVariantNumeric: 'tabular-nums',
@@ -63,25 +62,23 @@ const Table = ({ headers, rows, alignments, widths }) => (
 );
 
 const ManagerReportsPage = () => {
-    // Default to current month
+
     const today = new Date();
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    
+
     const { user } = useAuth();
     const [startDate, setStartDate] = useState(firstDay.toISOString().split('T')[0]);
     const [endDate, setEndDate] = useState(today.toISOString().split('T')[0]);
-    const [activeTab, setActiveTab] = useState('revenue'); // revenue, booking, technician, ad
+    const [activeTab, setActiveTab] = useState('revenue');
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [settings, setSettings] = useState({});
     const reportRef = useRef(null);
 
-    // Unified Fetch Handler
     const fetchReport = useCallback(async () => {
         if (!startDate || !endDate) return;
 
-        // Date validation
         if (new Date(startDate) > new Date(endDate)) {
             setError('Start date cannot be after end date.');
             return;
@@ -89,8 +86,7 @@ const ManagerReportsPage = () => {
 
         setLoading(true);
         setError(null);
-        // We no longer call setData(null) here to prevent the UI from vanishing during updates
-        
+
         try {
             let res;
             if (activeTab === 'revenue') {
@@ -102,7 +98,7 @@ const ManagerReportsPage = () => {
             } else if (activeTab === 'ad') {
                 res = await reportApi.getAdPerformance(startDate, endDate);
             }
-            
+
             if (res && res.success) {
                 setData(res.data);
             } else {
@@ -116,12 +112,10 @@ const ManagerReportsPage = () => {
         }
     }, [activeTab, startDate, endDate]);
 
-    // Automotive Trigger: Execute report whenever parameters pivot
     useEffect(() => {
         fetchReport();
     }, [activeTab, startDate, endDate, fetchReport]);
 
-    // Fetch System Settings for letterhead
     useEffect(() => {
         const fetchSettings = async () => {
             try {
@@ -145,7 +139,7 @@ const ManagerReportsPage = () => {
         const btn = document.getElementById('pdf-btn');
         const originalBtnText = btn.innerText;
         btn.innerText = 'Processing...';
-        
+
         try {
             const canvas = await html2canvas(reportRef.current, {
                 scale: 2,
@@ -153,15 +147,15 @@ const ManagerReportsPage = () => {
                 logging: false,
                 backgroundColor: '#ffffff'
             });
-            
+
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
-            
-            const imgFinalWidth = pdfWidth; 
+
+            const imgFinalWidth = pdfWidth;
             const imgFinalHeight = (canvas.height * pdfWidth) / canvas.width;
-            
+
             let heightLeft = imgFinalHeight;
             let position = 0;
 
@@ -199,7 +193,7 @@ const ManagerReportsPage = () => {
                     <p style={{ color: '#666' }}>Generate formal business reports for specific operational periods.</p>
                 </div>
 
-                {/* Controls */}
+                {}
                 <div style={{ background: 'white', padding: '25px', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', marginBottom: '30px', flexShrink: 0 }}>
                     <div style={{ marginBottom: '25px' }}>
                         <label style={{ display: 'block', marginBottom: '10px', fontWeight: '700', fontSize: '0.9rem', color: '#64748b' }}>Report Category</label>
@@ -239,17 +233,17 @@ const ManagerReportsPage = () => {
                     </div>
                 </div>
 
-                {/* SCROLLABLE CONTENT AREA */}
+                {}
                 <div style={{ flex: 1, overflowY: 'auto', paddingRight: '10px', paddingBottom: '100px', position: 'relative' }}>
-                    {/* Loading Overlay */}
+                    {}
                     {loading && (
-                        <div style={{ 
-                            position: 'absolute', 
-                            top: 0, left: 0, right: 0, bottom: 0, 
-                            background: data ? 'rgba(255,255,255,0.6)' : 'transparent', 
-                            display: 'flex', 
-                            justifyContent: 'center', 
-                            alignItems: 'center', 
+                        <div style={{
+                            position: 'absolute',
+                            top: 0, left: 0, right: 0, bottom: 0,
+                            background: data ? 'rgba(255,255,255,0.6)' : 'transparent',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
                             zIndex: 100,
                             backdropFilter: data ? 'blur(2px)' : 'none'
                         }}>
@@ -264,22 +258,22 @@ const ManagerReportsPage = () => {
                     {!error && data && (
                         <>
                             <div style={{ padding: '20px 0', background: '#f1f5f9', display: 'flex', justifyContent: 'center' }}>
-                                <div ref={reportRef} style={{ 
-                                    background: 'white', 
-                                    width: '210mm', 
-                                    minHeight: '297mm', 
-                                    padding: '25.4mm', 
+                                <div ref={reportRef} style={{
+                                    background: 'white',
+                                    width: '210mm',
+                                    minHeight: '297mm',
+                                    padding: '25.4mm',
                                     boxSizing: 'border-box',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     justifyContent: 'space-between',
                                     boxShadow: '0 0 20px rgba(0,0,0,0.1)',
-                                    fontFamily: "'Inter', sans-serif", 
+                                    fontFamily: "'Inter', sans-serif",
                                     color: '#000',
                                     position: 'relative'
                                 }}>
                                     <div>
-                                        {/* Letterhead */}
+                                        {}
                                         <div style={{ borderBottom: '2px solid var(--navy)', paddingBottom: '20px', marginBottom: '30px' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                                 <div>
@@ -297,7 +291,7 @@ const ManagerReportsPage = () => {
                                             </div>
                                         </div>
 
-                                        {/* Metadata */}
+                                        {}
                                         <div style={{ marginBottom: '30px' }}>
                                             <div style={{ fontSize: '1.2rem', fontWeight: '900', marginBottom: '15px', color: '#000', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
                                                 {tabs.find(t => t.id === activeTab)?.label}
@@ -322,7 +316,7 @@ const ManagerReportsPage = () => {
                                             </div>
                                         </div>
 
-                                        {/* Content */}
+                                        {}
                                         <div style={{ fontFamily: "'Inter', sans-serif" }}>
                                             {activeTab === 'revenue' && (
                                                 <>
@@ -375,23 +369,23 @@ const ManagerReportsPage = () => {
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '10px', marginTop: '25px', borderBottom: '1px solid #000', paddingBottom: '10px' }}>
                                                         <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#000', textTransform: 'uppercase', margin: 0 }}>Marketing Asset Performance</h3>
                                                     </div>
-                                                    <Table 
-                                                        headers={['ID', 'Placement', 'Impressions', 'Clicks']} 
-                                                        alignments={['left', 'left', 'right', 'right']} 
+                                                    <Table
+                                                        headers={['ID', 'Placement', 'Impressions', 'Clicks']}
+                                                        alignments={['left', 'left', 'right', 'right']}
                                                         widths={['10%', '60%', '15%', '15%']}
-                                                        rows={data?.byPlacement?.map(p => [ 
-                                                            p.advertisementPlacementId, 
-                                                            p.advertisementPlacementName, 
-                                                            p.advertisementImpressions || 0, 
+                                                        rows={data?.byPlacement?.map(p => [
+                                                            p.advertisementPlacementId,
+                                                            p.advertisementPlacementName,
+                                                            p.advertisementImpressions || 0,
                                                             p.advertisementClicks || 0
-                                                        ])} 
+                                                        ])}
                                                     />
                                                 </>
                                             )}
                                         </div>
                                     </div>
 
-                                    {/* Footer */}
+                                    {}
                                     <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '15px', marginTop: '40px', textAlign: 'center' }}>
                                         <div style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--navy)', textTransform: 'uppercase', letterSpacing: '1px' }}>Confidential - Internal Distribution Only</div>
                                         <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '6px', lineHeight: '1.4' }}>This document contains proprietary information of Seats Labs Inc. Unauthorized distribution is strictly prohibited.<br />© {new Date().getFullYear()} Seats Labs Inc. All rights reserved.</div>
@@ -399,7 +393,7 @@ const ManagerReportsPage = () => {
                                 </div>
                             </div>
 
-                            {/* Persistent Floating Controls */}
+                            {}
                             <div style={{ position: 'fixed', bottom: '30px', right: '30px', display: 'flex', gap: '15px', zIndex: 1000, background: 'rgba(255,255,255,0.9)', padding: '15px', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', backdropFilter: 'blur(10px)', border: '1px solid #e2e8f0' }}>
                                 <button onClick={fetchReport} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '8px', border: 'none', background: 'var(--navy)', color: 'white', fontWeight: '700', cursor: 'pointer', fontSize: '0.95rem', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}> <Eye size={18} /> Refresh Data </button>
                                 <button id="pdf-btn" onClick={exportToPDF} disabled={!data || loading} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '8px', border: 'none', background: data && !loading ? 'var(--crimson)' : '#e2e8f0', color: 'white', fontWeight: '700', cursor: data && !loading ? 'pointer' : 'not-allowed', fontSize: '0.95rem', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}> <Download size={18} /> Export PDF </button>

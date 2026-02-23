@@ -1,11 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { authApi } from '../api/api';
 
-// ============================================================
-// src/context/AuthContext.js
-// PURPOSE: Global authentication state management
-// ============================================================
-
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -17,9 +12,9 @@ export const AuthProvider = ({ children }) => {
       try {
         const storedUser = localStorage.getItem('user');
         const token = localStorage.getItem('token');
-        
+
         if (token) {
-          // Verify token and get latest profile (especially name)
+
           try {
             const res = await authApi.getMe();
             if (res.success) {
@@ -50,9 +45,9 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await authApi.login(credentials);
-      // The backend returns { success: true, data: { userId, userEmail, userRole, token } }
+
       const { token, ...userData } = response.data;
-      
+
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);

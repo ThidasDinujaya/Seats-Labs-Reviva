@@ -33,25 +33,20 @@ import ComingSoon from './pages/ComingSoon';
 import AdvertiserPaymentsPage from './pages/AdvertiserPaymentsPage';
 import './App.css';
 
-// ============================================================
-// src/App.js
-// PURPOSE: Main application routing and context providers
-// ============================================================
-
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public Routes */}
+          {}
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/book" element={<BookingPage />} />
-          
-          {/* Manager Routes */}
+
+          {}
           <Route path="/manager" element={<ManagerBookingsPage />} />
           <Route path="/manager/reports" element={<ManagerReportsPage />} />
           <Route path="/manager/users" element={<ManagerUsersPage />} />
@@ -65,80 +60,80 @@ function App() {
           <Route path="/manager/settings" element={<ProfilePage role="manager" />} />
           <Route path="/manager/website-settings" element={<ManagerSettingsPage />} />
           <Route path="/manager/login" element={<ManagerLoginPage />} />
-          
-          {/* Technician Routes */}
+
+          {}
           <Route path="/technician" element={<TechnicianDashboard />} />
           <Route path="/technician/settings" element={<ProfilePage role="technician" />} />
           <Route path="/technician/login" element={<TechnicianLoginPage />} />
-          
-          {/* Advertiser Routes */}
+
+          {}
           <Route path="/advertiser" element={<AdvertiserDashboard />} />
           <Route path="/advertiser/payments" element={<AdvertiserPaymentsPage />} />
           <Route path="/advertiser/settings" element={<ProfilePage role="advertiser" />} />
           <Route path="/advertiser/login" element={<AdvertiserLoginPage />} />
-          
+
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          
-          {/* Customer Routes */}
-          <Route 
-            path="/dashboard" 
+
+          {}
+          <Route
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/customer/settings" 
+          <Route
+            path="/customer/settings"
             element={
               <ProtectedRoute>
                 <ProfilePage role="customer" />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/customer/refunds" 
+          <Route
+            path="/customer/refunds"
             element={
               <ProtectedRoute>
                 <ComingSoon role="customer" title="Request Refunds" />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/customer/complaints" 
+          <Route
+            path="/customer/complaints"
             element={
               <ProtectedRoute>
                 <ComingSoon role="customer" title="Complaints" />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/customer/feedbacks" 
+          <Route
+            path="/customer/feedbacks"
             element={
               <ProtectedRoute>
                 <ComingSoon role="customer" title="Feedbacks" />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/payment/:bookingId" 
+          <Route
+            path="/payment/:bookingId"
             element={
               <ProtectedRoute>
                 <PaymentPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/payment/ad/:adId" 
+          <Route
+            path="/payment/ad/:adId"
             element={
               <ProtectedRoute>
                 <PaymentPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          
-          {/* Catch-all - Redirect to Home */}
+
+          {}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>
